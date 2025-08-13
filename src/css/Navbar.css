@@ -1,0 +1,262 @@
+/* Optional Arabic-friendly fonts */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Poppins:wght@500;600&display=swap");
+
+/* Theming scoped to navbar */
+.navbar {
+  --text: #3f2a3a;
+  --muted: #7a5a6c;
+  --primary-400: #deaa9b;
+  --primary-500: #bf9290;
+  --accent-500: #d4a59a;
+  --accent-600: #b9877b;
+  --ring: rgba(222, 170, 155, 0.35);
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass-strong: rgba(255, 255, 255, 0.82);
+  --shadow: 0 10px 24px rgba(185, 135, 123, 0.14),
+    0 2px 8px rgba(191, 146, 144, 0.1);
+  --gradient: linear-gradient(135deg, var(--primary-400), var(--accent-500));
+  font-family: "Tajawal", "Poppins", system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, sans-serif;
+}
+
+/* Header wrapper */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: saturate(1.1) blur(10px);
+  -webkit-backdrop-filter: saturate(1.1) blur(10px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.75),
+    rgba(255, 255, 255, 0.5)
+  );
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 24px rgba(191, 146, 144, 0.08);
+}
+
+/* Container */
+.navbar .nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Brand */
+.navbar .nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.navbar .nav-logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+.navbar .nav-logo-text {
+  font-weight: 800;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  letter-spacing: 0.3px;
+  background: var(--gradient);
+  color: var(--primary-400);
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+/* Menu */
+.navbar .nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Links */
+.navbar .nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 12px;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+.navbar .nav-link:hover {
+  background: var(--primary-400);
+}
+.navbar .nav-link-active {
+  background: var(--primary-500);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Cart */
+.navbar .cart-link {
+  padding-inline-end: 14px;
+}
+.navbar .cart-icon {
+  font-size: 1.05rem;
+}
+.navbar .cart-badge {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(185, 135, 123, 0.24);
+}
+
+/* Toggle (hamburger) */
+.navbar .nav-toggle {
+  display: none;
+  width: 42px;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.navbar .nav-toggle-line {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--primary-500), var(--accent-600));
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.navbar .nav-toggle-line + .nav-toggle-line {
+  margin-top: 5px;
+}
+
+/* Transform lines into an "X" when open */
+.navbar .nav-toggle-line-1 {
+  transform: translateY(7px) rotate(45deg);
+}
+.navbar .nav-toggle-line-2 {
+  opacity: 0;
+}
+.navbar .nav-toggle-line-3 {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Admin dashboard link */
+.admin-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white !important;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(116, 185, 255, 0.3);
+}
+
+.admin-link:hover {
+  background: linear-gradient(135deg, #0984e3, #74b9ff);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
+}
+
+.admin-link.nav-link-active {
+  background: linear-gradient(135deg, #2d3436, #636e72);
+}
+
+.admin-icon {
+  font-size: 1.1em;
+}
+
+/* Responsive adjustments for admin link */
+@media (max-width: 768px) {
+  .admin-link {
+    margin: 8px 0;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* Responsive drawer */
+@media (max-width: 860px) {
+  .navbar .nav-toggle {
+    display: block;
+    background-color: transparent;
+    box-shadow: none;
+  }
+  .navbar .nav-menu {
+    position: absolute;
+    top: 100%;
+    inset-inline-end: 12px;
+    width: min(92vw, 420px);
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 16px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(255, 255, 255, 0.9)
+    );
+    box-shadow: 0 14px 36px rgba(191, 146, 144, 0.16),
+      0 6px 18px rgba(185, 135, 123, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    transform-origin: top right;
+    transform: scale(0.98);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .navbar .nav-menu.nav-menu-active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+  .navbar .nav-link {
+    padding: 12px 14px;
+  }
+}
+
+/* Focus styles */
+.navbar .nav-link:focus-visible,
+.navbar .nav-toggle:focus-visible,
+.navbar .nav-logo:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar .nav-link,
+  .navbar .nav-toggle,
+  .navbar .nav-menu {
+    transition: none !important;
+  }
+}

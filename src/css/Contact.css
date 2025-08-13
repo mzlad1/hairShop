@@ -1,0 +1,478 @@
+/* Modern Beauty Shop Contact Page Styles */
+
+:root {
+  --primary-color: #deaa9b;
+  --secondary-color: #bf9290;
+  --accent-color: #b9877b;
+  --success-color: #00b894;
+  --error-color: #e17055;
+  --warning-color: #fdcb6e;
+  --dark-color: #2d3436;
+  --light-color: #ffffff;
+  --gray-color: #636e72;
+  --light-gray: #f8f9fa;
+  --border-color: #ddd;
+  --whatsapp-color: #25d366;
+  --instagram-color: #e4405f;
+  --facebook-color: #1877f2;
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 30px rgba(0, 0, 0, 0.2);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius: 12px;
+  --contact-max-width: 1200px;
+}
+
+/* Arabic Font Support */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&display=swap");
+
+/* Contact Page */
+.bp-contact-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #faf8f7 0%, #f8f9fa 100%);
+  padding: 2rem 0;
+  font-family: "Tajawal", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl;
+}
+
+.bp-contact-container {
+  max-width: var(--contact-max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Contact Header */
+.bp-contact-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.bp-contact-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  -webkit-background-clip: text;
+
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.bp-contact-subtitle {
+  color: var(--gray-color);
+  font-size: 1.1rem;
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Contact Content Layout */
+.bp-contact-content {
+  max-width: 800px;
+  margin: 0 auto;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+/* Contact Info Section */
+.bp-contact-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bp-contact-info-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.bp-contact-info-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 0.5rem;
+}
+
+.bp-contact-info-header p {
+  color: var(--gray-color);
+  font-size: 0.95rem;
+}
+
+/* Contact Cards */
+.bp-contact-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.bp-contact-card {
+  background: var(--light-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bp-contact-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--primary-color);
+}
+
+.bp-contact-card.whatsapp:hover {
+  border-color: var(--whatsapp-color);
+}
+
+.bp-contact-card.instagram:hover {
+  border-color: var(--instagram-color);
+}
+
+.bp-contact-card.facebook:hover {
+  border-color: var(--facebook-color);
+}
+
+.bp-contact-card-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(222, 170, 155, 0.1);
+  border-radius: 50%;
+}
+
+.bp-contact-card-content {
+  flex: 1;
+}
+
+.bp-contact-card-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin: 0 0 0.25rem 0;
+}
+
+.bp-contact-card-content p {
+  font-size: 0.85rem;
+  color: var(--gray-color);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.bp-contact-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.bp-contact-link:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+/* Business Hours */
+.bp-contact-business-hours {
+  background: var(--light-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-light);
+  margin-bottom: 2rem;
+}
+
+.bp-contact-business-hours h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.bp-contact-hours-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bp-contact-hour-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--light-gray);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.bp-contact-hour-item:hover {
+  border-color: var(--primary-color);
+  background: rgba(222, 170, 155, 0.05);
+}
+
+.bp-contact-day {
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.bp-contact-hours {
+  color: var(--gray-color);
+  font-weight: 500;
+}
+
+/* Quick Actions */
+.bp-contact-quick-actions {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 2rem;
+}
+
+.bp-contact-quick-actions h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--light-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.bp-contact-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bp-contact-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.bp-contact-whatsapp-btn {
+  background: var(--whatsapp-color);
+  color: var(--light-color);
+}
+
+.bp-contact-call-btn {
+  background: var(--accent-color);
+  color: var(--dark-color);
+}
+
+.bp-contact-products-btn {
+  background: var(--light-color);
+  color: var(--primary-color);
+}
+
+.bp-contact-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.bp-contact-whatsapp-btn:hover {
+  background: #128c7e;
+}
+
+.bp-contact-call-btn:hover {
+  background: #fdcb6e;
+}
+
+.bp-contact-products-btn:hover {
+  background: #f8f9fa;
+  color: var(--secondary-color);
+}
+
+/* Service Notice */
+.bp-contact-service-notice {
+  background: var(--light-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-light);
+  border: 2px solid rgba(222, 170, 155, 0.2);
+}
+
+.bp-contact-service-notice h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bp-contact-service-notice ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bp-contact-service-notice li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: var(--gray-color);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.bp-contact-service-notice li::before {
+  content: "💡";
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .bp-contact-page {
+    padding: 1rem 0;
+  }
+
+  .bp-contact-container {
+    padding: 0 0.5rem;
+  }
+
+  .bp-contact-title {
+    font-size: 2rem;
+  }
+
+  .bp-contact-subtitle {
+    font-size: 1rem;
+  }
+
+  .bp-contact-business-hours,
+  .bp-contact-quick-actions,
+  .bp-contact-service-notice {
+    padding: 1.5rem;
+  }
+
+  .bp-contact-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .bp-contact-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem;
+  }
+
+  .bp-contact-card-icon {
+    margin-bottom: 0.5rem;
+  }
+
+  .bp-contact-hour-item {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+  }
+
+  .bp-contact-action-buttons {
+    gap: 0.5rem;
+  }
+
+  .bp-contact-action-btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .bp-contact-title {
+    font-size: 1.75rem;
+  }
+
+  .bp-contact-business-hours,
+  .bp-contact-quick-actions,
+  .bp-contact-service-notice {
+    padding: 1rem;
+  }
+
+  .bp-contact-card {
+    padding: 1rem;
+  }
+
+  .bp-contact-card-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+  }
+
+  .bp-contact-service-notice li {
+    font-size: 0.85rem;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .bp-contact-card {
+    border: 2px solid var(--dark-color);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

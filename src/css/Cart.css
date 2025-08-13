@@ -1,0 +1,546 @@
+/* Optional Arabic-friendly fonts */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&family=Poppins:wght@400;600&display=swap");
+
+/* Theme variables */
+.cart-page {
+  --bg: #faf8f7;
+  --surface: rgba(255, 255, 255, 0.85);
+  --card: rgba(255, 255, 255, 0.65);
+  --text: #3f2a3a;
+  --muted: #7a5a6c;
+
+  --primary-400: #deaa9b;
+  --primary-500: #bf9290;
+  --primary-600: #b9877b;
+  --accent-500: #d4a59a;
+  --accent-600: #b9877b;
+  --warn: #ff6b6b;
+
+  --ring: rgba(222, 170, 155, 0.35);
+  --shadow: 0 10px 30px rgba(185, 135, 123, 0.12),
+    0 2px 8px rgba(191, 146, 144, 0.08);
+  --radius: 16px;
+
+  --gradient: linear-gradient(
+    135deg,
+    var(--primary-400) 0%,
+    var(--accent-500) 100%
+  );
+  --gradient-soft: linear-gradient(
+    180deg,
+    rgba(222, 170, 155, 0.12),
+    rgba(191, 146, 144, 0.12)
+  );
+}
+
+/* Page background and typography */
+.cart-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 32px 18px 56px;
+  direction: rtl;
+  color: var(--text);
+  background: radial-gradient(
+      1200px 600px at -10% -10%,
+      #f5ede9 0%,
+      transparent 60%
+    ),
+    radial-gradient(800px 500px at 110% 0%, #f0e8e4 0%, transparent 55%),
+    radial-gradient(700px 500px at 90% 100%, #f2ebe7 0%, transparent 55%),
+    var(--bg);
+  overflow: hidden;
+  font-family: "Tajawal", "Poppins", system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, sans-serif;
+}
+.cart-page::before,
+.cart-page::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  filter: blur(40px);
+  opacity: 0.55;
+  pointer-events: none;
+  transform: translateZ(0);
+  animation: ctFloatUp 16s ease-in-out infinite;
+}
+.cart-page::before {
+  top: -120px;
+  left: -120px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+      circle at 30% 30%,
+      rgba(222, 170, 155, 0.45),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(191, 146, 144, 0.45),
+      transparent 60%
+    );
+}
+.cart-page::after {
+  bottom: -120px;
+  right: -120px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(
+      circle at 50% 50%,
+      rgba(234, 213, 205, 0.55),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 20% 80%,
+      rgba(215, 191, 185, 0.45),
+      transparent 60%
+    );
+  animation-delay: -6s;
+}
+.cart-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Heading */
+.cart-page h1 {
+  margin: 8px auto 22px;
+  text-align: center;
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Empty state */
+.ct-empty {
+  text-align: center;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Cart table */
+.ct-table {
+  width: 1100px;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  border-collapse: collapse;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow);
+}
+.ct-table thead th {
+  text-align: right;
+  padding: 14px;
+  font-weight: 700;
+  color: #6b4060;
+  background: linear-gradient(135deg, #f2e7e0, #ecd9d2);
+  border-bottom: 1px solid rgba(227, 62, 139, 0.18);
+}
+.ct-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(227, 62, 139, 0.12);
+}
+.ct-table tbody tr:nth-child(odd) {
+  background: rgba(255, 250, 253, 0.6);
+}
+
+/* Quantity input */
+.ct-qty-input {
+  width: 80px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(227, 62, 139, 0.2);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: box-shadow 160ms ease, background 160ms ease,
+    border-color 160ms ease;
+}
+.ct-qty-input:focus {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px var(--ring), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Remove button */
+.ct-remove-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff8a8a, #ff6b6b);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(255, 107, 107, 0.22);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+.ct-remove-btn:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+}
+.ct-remove-btn:active {
+  transform: translateY(0);
+}
+
+/* Summary card */
+.ct-summary {
+  width: 1100px;
+  max-width: 100%;
+  margin: 0 auto 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(222, 170, 155, 0.45),
+        rgba(191, 146, 144, 0.45)
+      )
+      border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow);
+  text-align: center;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+/* Checkout form */
+.ct-checkout {
+  width: 1100px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(222, 170, 155, 0.55),
+        rgba(191, 146, 144, 0.55)
+      )
+      border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.ct-checkout h2 {
+  margin: 0 0 12px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.ct-form-group {
+  margin-bottom: 12px;
+}
+.ct-form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.ct-form-group input,
+.ct-form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(227, 62, 139, 0.18);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease,
+    background 160ms ease;
+}
+.ct-form-group textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.ct-form-group input:focus,
+.ct-form-group textarea:focus {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px var(--ring), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Checkout button */
+.ct-checkout-btn {
+  margin-top: 6px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--gradient);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(185, 135, 123, 0.24);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+.ct-checkout-btn:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.05);
+}
+.ct-checkout-btn:active {
+  transform: translateY(0);
+}
+
+/* Order id message */
+.ct-order-id {
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent-600);
+}
+
+/* Open checkout button */
+.ct-open-checkout-btn {
+  margin-top: 8px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(185, 135, 123, 0.24);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+.ct-open-checkout-btn:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.05);
+}
+.ct-open-checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal overlay and dialog */
+.ct-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: radial-gradient(
+    80% 80% at 50% 50%,
+    rgba(0, 0, 0, 0.28),
+    rgba(0, 0, 0, 0.45)
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  animation: ctFadeIn 160ms ease;
+}
+.ct-modal {
+  width: min(680px, 92vw);
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(
+        135deg,
+        rgba(222, 170, 155, 0.55),
+        rgba(191, 146, 144, 0.55)
+      )
+      border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18),
+    0 8px 22px rgba(191, 146, 144, 0.16);
+  animation: ctSlideUp 200ms ease;
+}
+.ct-modal h2 {
+  margin: 0 0 12px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Modal close button */
+.ct-modal-close {
+  position: sticky;
+  top: 0;
+  inset-inline-start: 90%;
+  transform: translate(-100%, -6px);
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff8a8a, #ff6b6b);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(255, 107, 107, 0.22);
+  transition: transform 160ms ease, filter 160ms ease;
+}
+.ct-modal-close:hover {
+  transform: translate(-100%, -6px) translateY(-1px);
+  filter: saturate(1.05);
+}
+
+/* Success card */
+.ct-success {
+  width: 1100px;
+  max-width: 100%;
+  margin: 10px auto 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, rgba(143, 217, 182, 0.6), rgba(191, 146, 144, 0.35))
+      border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 10px 26px rgba(46, 204, 113, 0.16);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  text-align: center;
+}
+.ct-success p {
+  margin: 0;
+  font-weight: 700;
+  color: #2e7d5a;
+}
+.ct-order-code {
+  margin-inline-start: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e9fff5, #f0ebe7);
+  color: #167a4e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.ct-copy-btn {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d7b5a8, #b9877b);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(185, 135, 123, 0.22);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+.ct-copy-btn:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+}
+.ct-copy-btn:active {
+  transform: translateY(0);
+}
+
+/* Error banner for cart */
+.ct-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin: 12px auto 16px;
+  padding: 12px 16px;
+  max-width: 1100px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff0f0, #ffe9e9);
+  color: #8a2b2b;
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.16);
+  font-weight: 600;
+  text-align: center;
+}
+
+.ct-error span:first-child {
+  font-size: 1.2rem;
+}
+
+/* Animations */
+@keyframes ctFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ctSlideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive table to cards */
+@media (max-width: 720px) {
+  .ct-table thead {
+    display: none;
+  }
+  .ct-table,
+  .ct-table tbody,
+  .ct-table tr,
+  .ct-table td {
+    display: block;
+    width: 100%;
+  }
+  .ct-table tr {
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .ct-table td {
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid rgba(227, 62, 139, 0.12);
+    position: relative;
+    padding-top: 28px;
+  }
+  .ct-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+}
+
+/* Small screens */
+@media (max-width: 560px) {
+  .cart-page {
+    padding: 22px 12px 40px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cart-page::before,
+  .cart-page::after {
+    animation: none !important;
+  }
+  .ct-remove-btn,
+  .ct-checkout-btn,
+  .ct-qty-input {
+    transition: none !important;
+  }
+  .ct-modal-overlay,
+  .ct-modal,
+  .ct-open-checkout-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Keyframes */
+@keyframes ctFloatUp {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(12px) translateX(6px);
+  }
+}
