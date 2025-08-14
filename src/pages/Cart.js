@@ -31,11 +31,92 @@ function Cart() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
+  const [stockIssues, setStockIssues] = useState([]);
+  const [showStockModal, setShowStockModal] = useState(false);
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  // Check stock availability before checkout
+  const checkStockAvailability = async () => {
+    const issues = [];
+
+    try {
+      for (const item of cartItems) {
+        const productRef = doc(db, "products", item.id);
+        const productSnap = await getDoc(productRef);
+
+        if (!productSnap.exists()) {
+          issues.push({
+            ...item,
+            issue: "المنتج غير متوفر",
+            availableStock: 0,
+          });
+        } else {
+          const currentStock = productSnap.data().stock || 0;
+          if (currentStock < item.quantity) {
+            issues.push({
+              ...item,
+              issue: "الكمية المطلوبة أكبر من المتوفر",
+              availableStock: currentStock,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking stock:", error);
+    }
+
+    return issues;
+  };
+
+  // Handle checkout button click - check stock first
+  const handleCheckoutClick = async () => {
+    const issues = await checkStockAvailability();
+
+    if (issues.length > 0) {
+      setStockIssues(issues);
+      setShowStockModal(true);
+    } else {
+      setShowCheckout(true);
+    }
+  };
+
+  // Adjust quantities to available stock
+  const adjustQuantities = () => {
+    stockIssues.forEach((issue) => {
+      if (issue.availableStock > 0) {
+        updateQuantity(issue.id, issue.availableStock);
+      } else {
+        removeFromCart(issue.id);
+      }
+    });
+    setShowStockModal(false);
+    setStockIssues([]);
+  };
+
+  // Contact support (you can modify this to open WhatsApp, email, etc.)
+  const contactSupport = () => {
+    // Example: Open WhatsApp or email
+    const message = `مرحبا، أحتاج مساعدة بخصوص المنتجات التالية:\n\n${stockIssues
+      .map(
+        (issue) =>
+          `- ${issue.name}: طلبت ${issue.quantity} والمتوفر ${issue.availableStock}`
+      )
+      .join("\n")}\n\nهل يمكنكم اقتراح بدائل مشابهة؟`;
+
+    // Replace 972XXXXXXXXX with your actual WhatsApp number (with country code, no + sign)
+    // Example: 972501234567 for Israel, 966501234567 for Saudi Arabia
+    const whatsappUrl = `https://wa.me/972XXXXXXXXX?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+
+    setShowStockModal(false);
+    setStockIssues([]);
+  };
 
   // التعامل مع إرسال الطلب وتحديث المخزون
   const handleSubmit = async (e) => {
@@ -223,7 +304,7 @@ function Cart() {
           </p>
           <button
             className="ct-open-checkout-btn"
-            onClick={() => setShowCheckout(true)}
+            onClick={handleCheckoutClick}
             disabled={cartItems.length === 0}
           >
             إتمام الشراء
@@ -245,6 +326,70 @@ function Cart() {
             >
               {copied ? "تم النسخ" : "نسخ"}
             </button>
+          </div>
+        )}
+
+        {/* Stock Issues Modal */}
+        {showStockModal && (
+          <div
+            className="ct-modal-overlay"
+            onClick={(e) => {
+              if (e.target.classList.contains("ct-modal-overlay")) {
+                setShowStockModal(false);
+              }
+            }}
+          >
+            <div className="ct-modal" role="dialog" aria-modal="true">
+              <button
+                className="ct-modal-close"
+                onClick={() => setShowStockModal(false)}
+                aria-label="إغلاق"
+              >
+                ×
+              </button>
+              <h2>مشكلة في المخزون</h2>
+
+              <div className="ct-stock-issues">
+                <p className="ct-stock-warning">
+                  ⚠️ بعض المنتجات في سلتك غير متوفرة بالكمية المطلوبة:
+                </p>
+
+                {stockIssues.map((issue) => (
+                  <div key={issue.id} className="ct-stock-issue-item">
+                    <div className="ct-issue-info">
+                      <h4>{issue.name}</h4>
+                      <p>
+                        الكمية المطلوبة:{" "}
+                        <span className="ct-requested">{issue.quantity}</span>
+                      </p>
+                      <p>
+                        المتوفر في المخزون:{" "}
+                        <span className="ct-available">
+                          {issue.availableStock}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="ct-stock-options">
+                  <p>يمكنك اختيار إحدى الخيارات التالية:</p>
+
+                  <div className="ct-stock-buttons">
+                    <button
+                      className="ct-adjust-btn"
+                      onClick={adjustQuantities}
+                    >
+                      تعديل الكميات حسب المتوفر
+                    </button>
+
+                    <button className="ct-contact-btn" onClick={contactSupport}>
+                      تواصل معنا لاقتراح بدائل
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

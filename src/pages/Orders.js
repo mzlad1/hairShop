@@ -462,6 +462,7 @@ function Orders() {
                               {item.id ? (
                                 <Link
                                   to={`/products/${item.id}`}
+                                  target="_blank"
                                   className="ord-product-link"
                                   onClick={(e) => e.stopPropagation()}
                                   title={`عرض تفاصيل ${item.name}`}

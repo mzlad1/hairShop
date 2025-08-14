@@ -12,6 +12,8 @@ import ManageProducts from "./pages/ManageProducts";
 import ManageCategories from "./pages/ManageCategories";
 import ManageBrands from "./pages/ManageBrands"; // Add brands import
 import Orders from "./pages/Orders";
+import FeedbackManager from "./pages/FeedbackManager";
+import DiscountManager from "./pages/DiscountManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./css/App.css";
 
@@ -68,6 +70,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/feedbacks"
+            element={
+              <ProtectedRoute>
+                <FeedbackManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/discounts"
+            element={
+              <ProtectedRoute>
+                <DiscountManager />
               </ProtectedRoute>
             }
           />

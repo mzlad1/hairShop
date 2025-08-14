@@ -361,10 +361,7 @@ function Home() {
         <section className="popular-products-section">
           <div className="section-container">
             <div className="section-header">
-              <h2 className="section-title">
-                <span className="title-icon">🔥</span>
-                المنتجات الأكثر طلباً
-              </h2>
+              <h2 className="section-title">المنتجات الأكثر طلباً</h2>
               <p className="section-subtitle">
                 المنتجات التي يطلبها عملاؤنا أكثر من غيرها
               </p>
@@ -391,9 +388,6 @@ function Home() {
                   {mostOrderedProducts.map((product, index) => (
                     <div key={product.id} className="popular-product-item">
                       <ProductCard product={product} />
-                      <div className="most-ordered-badge">
-                        <span className="rank-number">#{index + 1}</span>
-                      </div>
                     </div>
                   ))}
                 </div>

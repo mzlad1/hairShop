@@ -36,6 +36,8 @@ function ManageProducts() {
     categories: [],
     brand: "",
     stock: "",
+    isNew: false,
+    onDemand: false,
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -125,6 +127,32 @@ function ManageProducts() {
             categories: ["الشعر"],
             brand: "لوريال",
             stock: 15,
+            isNew: true,
+            onDemand: false,
+          },
+          {
+            id: "2",
+            name: "ماسك مغذي للشعر",
+            price: 75,
+            description: "ماسك للشعر بالزيوت الطبيعية للتغذية العميقة.",
+            images: ["/images/sample2.jpg"],
+            categories: ["العناية بالشعر"],
+            brand: "بانتين",
+            stock: 0,
+            isNew: false,
+            onDemand: false,
+          },
+          {
+            id: "3",
+            name: "كريم تصفيف الشعر",
+            price: 60,
+            description: "كريم طبيعي لتصفيف وتثبيت الشعر بدون كيماويات ضارة.",
+            images: ["/images/sample3.jpg"],
+            categories: ["تصفيف"],
+            brand: "لوريال",
+            stock: 25,
+            isNew: false,
+            onDemand: true,
           },
         ]);
         setCategories([
@@ -294,6 +322,8 @@ function ManageProducts() {
         categories: formData.categories,
         brand: formData.brand,
         stock: parseInt(formData.stock) || 0,
+        isNew: formData.isNew || false,
+        onDemand: formData.onDemand || false,
       };
 
       let updatedProducts;
@@ -325,6 +355,8 @@ function ManageProducts() {
         categories: [],
         brand: "",
         stock: "",
+        isNew: false,
+        onDemand: false,
       });
       setSelectedFiles([]);
       setShowForm(false);
@@ -347,6 +379,8 @@ function ManageProducts() {
       categories: product.categories || [],
       brand: product.brand || "",
       stock: product.stock || 0,
+      isNew: product.isNew || false,
+      onDemand: product.onDemand || false,
     });
     setSelectedFiles([]);
     setShowForm(true);
@@ -385,6 +419,8 @@ function ManageProducts() {
       categories: [],
       brand: "",
       stock: "",
+      isNew: false,
+      onDemand: false,
     });
     setSelectedFiles([]);
     setShowForm(false);
@@ -556,6 +592,61 @@ function ManageProducts() {
                 onChange={handleChange}
                 placeholder="عدد القطع المتوفرة"
               />
+            </div>
+
+            {/* Badge Controls */}
+            <div className="mp-form-group">
+              <label>العلامات والشارات:</label>
+              <div className="mp-badge-controls">
+                <div className="mp-checkbox-group">
+                  <label className="mp-checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="isNew"
+                      checked={formData.isNew}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isNew: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="mp-checkbox-text">
+                      <span className="mp-badge-preview mp-badge-preview--new">
+                        جديد
+                      </span>
+                      منتج جديد
+                    </span>
+                  </label>
+                </div>
+                <div className="mp-checkbox-group">
+                  <label className="mp-checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="onDemand"
+                      checked={formData.onDemand}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          onDemand: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="mp-checkbox-text">
+                      <span className="mp-badge-preview mp-badge-preview--on-demand">
+                        ع الطلب
+                      </span>
+                      متوفر عند الطلب
+                    </span>
+                  </label>
+                </div>
+                <div className="mp-info-note">
+                  <small>
+                    💡 ملاحظة: شارة "بيعت كلها" تظهر تلقائياً عند انتهاء الكمية
+                    المتوفرة
+                  </small>
+                </div>
+              </div>
             </div>
 
             <div className="mp-form-group">

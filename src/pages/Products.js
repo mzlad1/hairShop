@@ -16,6 +16,7 @@ function Products() {
   const [sortOrder, setSortOrder] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [showOnlyOnSale, setShowOnlyOnSale] = useState(false);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -221,6 +222,11 @@ function Products() {
       updated = updated.filter((item) => item.brand === selectedBrand);
     }
 
+    // تصفية حسب العروض (المنتجات التي بها خصم)
+    if (showOnlyOnSale) {
+      updated = updated.filter((item) => item.hasDiscount === true);
+    }
+
     // الترتيب
     if (sortOrder === "name") {
       updated.sort((a, b) => a.name.localeCompare(b.name));
@@ -234,7 +240,14 @@ function Products() {
 
     setFilteredProducts(updated);
     setCurrentPage(1); // Reset to first page when filtering
-  }, [products, searchTerm, sortOrder, selectedCategory, selectedBrand]);
+  }, [
+    products,
+    searchTerm,
+    sortOrder,
+    selectedCategory,
+    selectedBrand,
+    showOnlyOnSale,
+  ]);
 
   // Handle URL parameters for brand filtering
   useEffect(() => {
@@ -263,6 +276,7 @@ function Products() {
     setSortOrder("");
     setSelectedCategory("");
     setSelectedBrand("");
+    setShowOnlyOnSale(false);
     // Clear URL parameters
     setSearchParams({});
   };
@@ -399,12 +413,35 @@ function Products() {
                     ))}
                   </select>
                 </div>
+
+                <div className="pr-filter">
+                  <label htmlFor="sale-checkbox" className="pr-filter-label">
+                    العروض
+                  </label>
+                  <div className="pr-checkbox-container">
+                    <input
+                      type="checkbox"
+                      id="sale-checkbox"
+                      checked={showOnlyOnSale}
+                      onChange={(e) => setShowOnlyOnSale(e.target.checked)}
+                      className="pr-filter-checkbox"
+                      aria-label="إظهار المنتجات في العروض فقط"
+                    />
+                    <label
+                      htmlFor="sale-checkbox"
+                      className="pr-checkbox-label"
+                    >
+                      إظهار المنتجات في العروض فقط
+                    </label>
+                  </div>
+                </div>
               </div>
 
               {(searchTerm ||
                 sortOrder ||
                 selectedCategory ||
-                selectedBrand) && (
+                selectedBrand ||
+                showOnlyOnSale) && (
                 <div className="pr-active">
                   <span className="pr-active-label">الفلاتر المطبقة:</span>
                   <div className="pr-active-list">
@@ -426,6 +463,14 @@ function Products() {
                       <span className="pr-filter-tag">
                         العلامة التجارية: {selectedBrand}
                         <button onClick={() => setSelectedBrand("")}>×</button>
+                      </span>
+                    )}
+                    {showOnlyOnSale && (
+                      <span className="pr-filter-tag">
+                        العروض: منتجات في العروض فقط
+                        <button onClick={() => setShowOnlyOnSale(false)}>
+                          ×
+                        </button>
                       </span>
                     )}
                   </div>

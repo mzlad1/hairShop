@@ -6,6 +6,7 @@ import { useCart } from "../contexts/CartContext";
 import { onAuthStateChanged } from "firebase/auth";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import ProductFeedback from "../components/ProductFeedback";
 import "../css/ProductDetail.css";
 
 // صفحة تفاصيل المنتج
@@ -537,6 +538,9 @@ function ProductDetail() {
               )}
             </div>
           </div>
+
+          {/* Product Feedback Section */}
+          <ProductFeedback productId={product.id} />
         </div>
 
         {/* Image Modal */}
