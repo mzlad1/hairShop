@@ -7,9 +7,103 @@
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="متجر إلكتروني لمنتجات التجميل" />
     <title>متجر التجميل</title>
+
+    <!-- Load polyfills first for browser compatibility -->
+    <script src="%PUBLIC_URL%/polyfills.js"></script>
+
+    <!-- Debug script to detect loading issues -->
+    <script>
+      console.log("HTML loaded, checking JavaScript...");
+      window.jsEnabled = true;
+
+      // Detect if we're in a problematic environment
+      try {
+        localStorage.setItem("js_test", "working");
+        console.log("JavaScript and localStorage working");
+      } catch (e) {
+        console.error("JavaScript or localStorage issue:", e);
+      }
+    </script>
+
+    <!-- Additional debugging script -->
+    <script src="%PUBLIC_URL%/debug.js"></script>
   </head>
   <body>
-    <noscript>يجب تفعيل جافاسكربت لعرض هذا الموقع.</noscript>
+    <noscript>
+      <div
+        style="
+          padding: 20px;
+          text-align: center;
+          font-family: 'Tajawal', Arial, sans-serif;
+          background: #f8f9fa;
+          color: #333;
+          border: 2px solid #dc3545;
+          margin: 20px;
+          border-radius: 8px;
+        "
+      >
+        <h2>يجب تفعيل جافاسكربت لعرض هذا الموقع</h2>
+        <p>JavaScript must be enabled to view this site</p>
+        <p>يرجى تفعيل الجافاسكربت في إعدادات المتصفح</p>
+        <p>Please enable JavaScript in your browser settings</p>
+      </div>
+    </noscript>
+
+    <!-- Loading indicator -->
+    <div
+      id="loading-indicator"
+      style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-family: 'Tajawal', Arial, sans-serif;
+        z-index: 9999;
+      "
+    >
+      <div
+        style="
+          width: 50px;
+          height: 50px;
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #bf9290;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        "
+      ></div>
+      <p>جاري التحميل... Loading...</p>
+    </div>
+
+    <style>
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
     <div id="root"></div>
+
+    <!-- Script to hide loading indicator once React loads -->
+    <script>
+      // Hide loading indicator after a timeout
+      setTimeout(function () {
+        var loader = document.getElementById("loading-indicator");
+        if (loader && !window.reactLoaded) {
+          loader.innerHTML =
+            '<div style="color: #dc3545; text-align: center; padding: 20px;">' +
+            "<h3>خطأ في التحميل - Loading Error</h3>" +
+            "<p>يرجى تحديث الصفحة أو التحقق من اتصال الإنترنت</p>" +
+            "<p>Please refresh the page or check your internet connection</p>" +
+            '<button onclick="location.reload()" style="padding: 10px 20px; background: #bf9290; color: white; border: none; border-radius: 5px; cursor: pointer;">تحديث الصفحة - Refresh</button>' +
+            "</div>";
+        }
+      }, 10000); // 10 seconds timeout
+    </script>
   </body>
 </html>

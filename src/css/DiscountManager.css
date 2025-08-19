@@ -1,0 +1,588 @@
+/* Discount Manager Styles */
+@import url("https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&display=swap");
+
+.dm-container {
+  margin: 0 auto;
+  padding: 20px;
+  direction: rtl;
+  font-family: "Tajawal", Arial, sans-serif;
+  background: linear-gradient(135deg, #faf8f7 0%, #f5ede9 100%);
+  min-height: 100vh;
+}
+
+.dm-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.dm-title {
+  font-size: 2rem;
+  color: #3f2a3a;
+  margin: 0;
+  font-weight: 700;
+}
+
+.dm-loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+  color: #7a5a6c;
+}
+
+/* Form Section */
+.dm-form-section {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 16px;
+  margin: 0 auto 30px;
+  max-width: 1000px;
+  box-shadow: 0 8px 25px rgba(185, 135, 123, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.dm-form-section h2 {
+  color: #3f2a3a;
+  margin-bottom: 25px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.dm-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.dm-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.dm-form-group label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #3f2a3a;
+}
+
+.dm-form-group select,
+.dm-form-group input {
+  padding: 12px;
+  border: 2px solid rgba(222, 170, 155, 0.3);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+}
+
+.dm-form-group select:focus,
+.dm-form-group input:focus {
+  outline: none;
+  border-color: #deaa9b;
+  box-shadow: 0 0 0 3px rgba(222, 170, 155, 0.2);
+}
+
+/* Expiry note styling */
+.dm-expiry-note {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Expiry time display */
+.dm-expiry-time {
+  color: #e74c3c;
+  font-weight: 600;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Selection Section */
+.dm-selection-section {
+  margin: 25px 0;
+}
+
+.dm-selection-section label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #3f2a3a;
+  font-size: 1.1rem;
+}
+
+/* Search Controls */
+.dm-search-controls {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  border: 2px solid rgba(222, 170, 155, 0.2);
+}
+
+.dm-search-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.dm-search-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid rgba(222, 170, 155, 0.3);
+  border-radius: 25px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+}
+
+.dm-search-input:focus {
+  outline: none;
+  border-color: #deaa9b;
+  box-shadow: 0 0 0 3px rgba(222, 170, 155, 0.2);
+}
+
+.dm-results-count {
+  background: rgba(212, 165, 154, 0.2);
+  color: #7a5a6c;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Pagination */
+.dm-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.dm-page-btn {
+  background: linear-gradient(135deg, #deaa9b, #d4a59a);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+}
+
+.dm-page-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 165, 154, 0.3);
+}
+
+.dm-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dm-page-info {
+  color: #7a5a6c;
+  font-weight: 600;
+  padding: 0 10px;
+}
+
+/* Selection Controls */
+.dm-selection-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.dm-select-btn {
+  background: transparent;
+  border: 2px solid #deaa9b;
+  color: #deaa9b;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+  font-size: 0.9rem;
+}
+
+.dm-select-btn:hover {
+  background: #deaa9b;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.dm-select-all {
+  border-color: #00b894;
+  color: #00b894;
+}
+
+.dm-select-all:hover {
+  background: #00b894;
+  color: white;
+}
+
+.dm-clear-selection {
+  border-color: #e17055;
+  color: #e17055;
+}
+
+.dm-clear-selection:hover {
+  background: #e17055;
+  color: white;
+}
+
+.dm-selected-count {
+  background: rgba(0, 184, 148, 0.1);
+  color: #00b894;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.dm-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 2px solid rgba(222, 170, 155, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dm-item-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(185, 135, 123, 0.1);
+}
+
+.dm-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(185, 135, 123, 0.15);
+  border-color: rgba(222, 170, 155, 0.4);
+}
+
+.dm-item-card.selected {
+  border-color: #deaa9b;
+  background: rgba(222, 170, 155, 0.1);
+}
+
+.dm-item-info h4 {
+  margin: 0 0 8px 0;
+  color: #3f2a3a;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dm-item-info p {
+  margin: 4px 0;
+  color: #7a5a6c;
+  font-size: 0.9rem;
+}
+
+.dm-current-discount {
+  display: inline-block;
+  background: rgba(255, 193, 7, 0.2);
+  color: #f39c12;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.dm-selected-check {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #deaa9b;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Buttons */
+.dm-apply-btn {
+  background: linear-gradient(135deg, #deaa9b, #d4a59a);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+  margin-top: 20px;
+}
+
+.dm-apply-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 165, 154, 0.3);
+}
+
+.dm-apply-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Current Discounts Section */
+.dm-current-section {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 16px;
+  margin: 0 auto;
+  max-width: 1000px;
+  box-shadow: 0 8px 25px rgba(185, 135, 123, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.dm-current-section h2 {
+  color: #3f2a3a;
+  margin-bottom: 25px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.dm-discounts-list {
+  display: grid;
+  gap: 15px;
+}
+
+.dm-discount-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid rgba(222, 170, 155, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dm-discount-item:hover {
+  box-shadow: 0 4px 12px rgba(185, 135, 123, 0.1);
+}
+
+.dm-discount-info h4 {
+  margin: 0 0 10px 0;
+  color: #3f2a3a;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.dm-discount-info p {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: #7a5a6c;
+}
+
+.dm-original-price {
+  text-decoration: line-through;
+  color: #e17055;
+  font-weight: 600;
+}
+
+.dm-discounted-price {
+  color: #00b894;
+  font-weight: 600;
+}
+
+.dm-remove-btn {
+  background: linear-gradient(135deg, #e17055, #d63031);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+}
+
+.dm-remove-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(225, 112, 85, 0.3);
+}
+
+.dm-remove-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dm-no-discounts {
+  text-align: center;
+  padding: 40px;
+  color: #7a5a6c;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  border: 2px dashed rgba(222, 170, 155, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dm-container {
+    padding: 15px;
+  }
+
+  .dm-form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .dm-items-grid {
+    grid-template-columns: 1fr;
+    max-height: 300px;
+  }
+
+  .dm-discount-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .dm-remove-btn {
+    align-self: stretch;
+  }
+
+  .dm-title {
+    font-size: 1.6rem;
+  }
+
+  .dm-search-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .dm-pagination {
+    gap: 10px;
+  }
+
+  .dm-page-btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+
+  .dm-selection-controls {
+    justify-content: center;
+  }
+
+  .dm-select-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+/* Global Select All Button */
+.dm-select-all-global {
+  background: linear-gradient(45deg, #deaa9b, #d4a59a);
+  color: white;
+}
+
+.dm-select-all-global:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(222, 170, 155, 0.3);
+}
+
+/* Clear All Selections Button */
+.dm-clear-all {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+  border-color: #e74c3c;
+}
+
+.dm-clear-all:hover {
+  background: linear-gradient(45deg, #c0392b, #a93226);
+  transform: translateY(-2px);
+}
+
+/* Section Header for Current Discounts */
+.dm-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.dm-section-header h2 {
+  margin: 0;
+  color: #2c1810;
+  font-size: 1.5rem;
+}
+
+/* Remove All Discounts Button */
+.dm-remove-all-btn {
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dm-remove-all-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, #c0392b, #a93226);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.dm-remove-all-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Scrollbar Styling */
+.dm-items-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dm-items-grid::-webkit-scrollbar-track {
+  background: rgba(222, 170, 155, 0.1);
+  border-radius: 3px;
+}
+
+.dm-items-grid::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 154, 0.5);
+  border-radius: 3px;
+}
+
+.dm-items-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 154, 0.7);
+}

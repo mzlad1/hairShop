@@ -39,6 +39,40 @@
   -webkit-backdrop-filter: blur(8px);
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
+
+/* Image container for positioning badge */
+.pc-image-container {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+/* Badge styles */
+.pc-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  font-family: "Tajawal", Arial, sans-serif;
+}
+
+.pc-badge--new {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.pc-badge--sold-out {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.pc-badge--on-demand {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
 .pc-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 40px rgba(185, 135, 123, 0.16),
@@ -69,12 +103,151 @@
   font-size: 1.05rem;
   font-weight: 700;
 }
+
+/* Price Container */
+.pc-price-container {
+  margin-bottom: 12px;
+}
+
 .pc-price {
-  margin: 0 0 12px;
+  margin: 0 0 4px;
   font-weight: 800;
   background: linear-gradient(135deg, #e6bfb3, #d4a59a);
   -webkit-background-clip: text;
   background-clip: text;
+}
+
+/* Discount Pricing */
+.pc-price--discounted {
+  font-size: 1.1rem;
+  color: #00b894 !important;
+  background: linear-gradient(135deg, #00b894, #00a085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+  font-weight: 800;
+}
+
+.pc-price--original {
+  font-size: 0.9rem;
+  color: #e17055 !important;
+  text-decoration: line-through;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.pc-discount-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin-right: 5px;
+}
+
+.pc-savings-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.pc-savings-amount {
+  font-size: 0.75rem;
+  color: #00b894;
+  font-weight: 600;
+  background: rgba(0, 184, 148, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.pc-price--variants {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Countdown Timer */
+.pc-countdown-timer {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.pc-timer-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #f39c12;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.pc-timer-display {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pc-timer-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 32px;
+}
+
+.pc-timer-value {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  color: white;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
+}
+
+.pc-timer-label-small {
+  font-size: 0.6rem;
+  color: #f39c12;
+  font-weight: 600;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* Responsive timer */
+@media (max-width: 480px) {
+  .pc-timer-display {
+    gap: 4px;
+  }
+
+  .pc-timer-unit {
+    min-width: 28px;
+  }
+
+  .pc-timer-value {
+    padding: 3px 5px;
+    font-size: 0.75rem;
+    min-width: 24px;
+  }
+
+  .pc-timer-label-small {
+    font-size: 0.55rem;
+  }
 }
 
 /* Button */

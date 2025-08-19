@@ -203,7 +203,7 @@
 
 .pr-selects {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 .pr-filter-label {
@@ -431,6 +431,47 @@
   }
   .products-page {
     padding: 22px 12px 40px;
+  }
+}
+
+/* Checkbox Styles */
+.pr-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.pr-filter-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-500);
+  cursor: pointer;
+}
+
+.pr-checkbox-label {
+  margin: 0;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pr-checkbox-label:hover {
+  color: var(--primary-500);
+}
+
+/* Update grid for 4 filters */
+@media (min-width: 1024px) {
+  .pr-selects {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pr-selects {
+    grid-template-columns: 1fr;
   }
 }
 

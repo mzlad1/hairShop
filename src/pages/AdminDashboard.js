@@ -374,6 +374,16 @@ function AdminDashboard() {
                 <span className="tile-title">الفئات</span>
                 <span className="tile-sub">إدارة الفئات</span>
               </Link>
+              <Link to="/admin/feedbacks" className="ad-tile">
+                <span className="tile-title">تقييمات العملاء</span>
+                <span className="tile-sub">مراجعة والموافقة على التقييمات</span>
+              </Link>
+              <Link to="/admin/discounts" className="ad-tile">
+                <span className="tile-title">إدارة الخصومات</span>
+                <span className="tile-sub">
+                  تطبيق خصومات على المنتجات والفئات
+                </span>
+              </Link>
             </div>
           </div>
         </section>

@@ -36,6 +36,12 @@ function ManageProducts() {
     categories: [],
     brand: "",
     stock: "",
+    isNew: false,
+    onDemand: false,
+    hasVariants: false,
+    variants: [],
+    sizes: [],
+    colors: [],
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -125,6 +131,32 @@ function ManageProducts() {
             categories: ["الشعر"],
             brand: "لوريال",
             stock: 15,
+            isNew: true,
+            onDemand: false,
+          },
+          {
+            id: "2",
+            name: "ماسك مغذي للشعر",
+            price: 75,
+            description: "ماسك للشعر بالزيوت الطبيعية للتغذية العميقة.",
+            images: ["/images/sample2.jpg"],
+            categories: ["العناية بالشعر"],
+            brand: "بانتين",
+            stock: 0,
+            isNew: false,
+            onDemand: false,
+          },
+          {
+            id: "3",
+            name: "كريم تصفيف الشعر",
+            price: 60,
+            description: "كريم طبيعي لتصفيف وتثبيت الشعر بدون كيماويات ضارة.",
+            images: ["/images/sample3.jpg"],
+            categories: ["تصفيف"],
+            brand: "لوريال",
+            stock: 25,
+            isNew: false,
+            onDemand: true,
           },
         ]);
         setCategories([
@@ -147,6 +179,91 @@ function ManageProducts() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle variant management
+  const handleVariantToggle = () => {
+    setFormData((prev) => ({
+      ...prev,
+      hasVariants: !prev.hasVariants,
+      variants: !prev.hasVariants ? [] : prev.variants,
+      price: !prev.hasVariants ? prev.price : "",
+      stock: !prev.hasVariants ? prev.stock : "",
+    }));
+  };
+
+  const addSize = () => {
+    const newSize = prompt("أدخل اسم الحجم الجديد:");
+    if (newSize && newSize.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        sizes: [...prev.sizes, newSize.trim()],
+      }));
+    }
+  };
+
+  const removeSize = (sizeToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      sizes: prev.sizes.filter((size) => size !== sizeToRemove),
+      variants: prev.variants.filter(
+        (variant) => variant.size !== sizeToRemove
+      ),
+    }));
+  };
+
+  const addColor = () => {
+    const newColor = prompt("أدخل اسم اللون الجديد:");
+    if (newColor && newColor.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        colors: [...prev.colors, newColor.trim()],
+      }));
+    }
+  };
+
+  const removeColor = (colorToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      colors: prev.colors.filter((color) => color !== colorToRemove),
+      variants: prev.variants.filter(
+        (variant) => variant.color !== colorToRemove
+      ),
+    }));
+  };
+
+  const updateVariant = (size, color, field, value) => {
+    setFormData((prev) => {
+      const newVariants = [...prev.variants];
+      const existingIndex = newVariants.findIndex(
+        (v) => v.size === size && v.color === color
+      );
+
+      if (existingIndex >= 0) {
+        newVariants[existingIndex] = {
+          ...newVariants[existingIndex],
+          [field]: field === "stock" ? parseInt(value) || 0 : value,
+        };
+      } else {
+        newVariants.push({
+          size,
+          color,
+          price: "",
+          stock: 0,
+        });
+      }
+
+      return { ...prev, variants: newVariants };
+    });
+  };
+
+  const removeVariant = (size, color) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.filter(
+        (v) => !(v.size === size && v.color === color)
+      ),
+    }));
   };
 
   // التعامل مع تحديد الفئات (متعدد)
@@ -288,13 +405,34 @@ function ManageProducts() {
 
       const data = {
         name: formData.name,
-        price: parseFloat(formData.price),
         description: formData.description,
         images: imageUrls,
         categories: formData.categories,
         brand: formData.brand,
-        stock: parseInt(formData.stock) || 0,
+        isNew: formData.isNew || false,
+        onDemand: formData.onDemand || false,
       };
+
+      if (formData.hasVariants) {
+        data.hasVariants = true;
+        data.sizes = formData.sizes;
+        data.colors = formData.colors;
+        // Ensure variants have proper data types
+        data.variants = formData.variants.map((variant) => ({
+          ...variant,
+          price: parseFloat(variant.price) || 0,
+          stock: parseInt(variant.stock) || 0,
+        }));
+        data.price = null;
+        data.stock = null;
+      } else {
+        data.hasVariants = false;
+        data.price = parseFloat(formData.price);
+        data.stock = parseInt(formData.stock) || 0;
+        data.variants = [];
+        data.sizes = [];
+        data.colors = [];
+      }
 
       let updatedProducts;
       if (formData.id) {
@@ -325,6 +463,12 @@ function ManageProducts() {
         categories: [],
         brand: "",
         stock: "",
+        isNew: false,
+        onDemand: false,
+        hasVariants: false,
+        variants: [],
+        sizes: [],
+        colors: [],
       });
       setSelectedFiles([]);
       setShowForm(false);
@@ -341,12 +485,22 @@ function ManageProducts() {
     setFormData({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: product.hasVariants
+        ? ""
+        : product.hasDiscount && product.originalPrice
+        ? product.originalPrice
+        : product.price,
       description: product.description,
       images: product.images || [],
       categories: product.categories || [],
       brand: product.brand || "",
-      stock: product.stock || 0,
+      stock: product.hasVariants ? "" : product.stock || 0,
+      isNew: product.isNew || false,
+      onDemand: product.onDemand || false,
+      hasVariants: product.hasVariants || false,
+      variants: product.variants || [],
+      sizes: product.sizes || [],
+      colors: product.colors || [],
     });
     setSelectedFiles([]);
     setShowForm(true);
@@ -385,6 +539,8 @@ function ManageProducts() {
       categories: [],
       brand: "",
       stock: "",
+      isNew: false,
+      onDemand: false,
     });
     setSelectedFiles([]);
     setShowForm(false);
@@ -533,29 +689,236 @@ function ManageProducts() {
             </div>
 
             <div className="mp-form-group">
-              <label>السعر (شيكل):</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                required
-                min="0"
-                step="0.01"
-                onChange={handleChange}
-              />
+              <label>نوع المنتج:</label>
+              <div className="mp-variant-toggle">
+                <label className="mp-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.hasVariants}
+                    onChange={handleVariantToggle}
+                  />
+                  <span>منتج بأحجام وألوان متعددة</span>
+                </label>
+              </div>
             </div>
 
+            {!formData.hasVariants ? (
+              <div className="mp-form-group">
+                <label>السعر (شيكل):</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  required
+                  min="0"
+                  step="0.01"
+                  onChange={handleChange}
+                />
+              </div>
+            ) : (
+              <div className="mp-variants-section">
+                <h4>إدارة الأحجام والألوان</h4>
+
+                {/* Sizes Management */}
+                <div className="mp-sizes-section">
+                  <div className="mp-section-header">
+                    <h5>الأحجام المتاحة</h5>
+                    <button
+                      type="button"
+                      onClick={addSize}
+                      className="mp-add-btn-small"
+                    >
+                      + إضافة حجم
+                    </button>
+                  </div>
+                  <div className="mp-sizes-list">
+                    {formData.sizes.map((size, index) => (
+                      <div key={index} className="mp-size-item">
+                        <span>{size}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSize(size)}
+                          className="mp-remove-btn-small"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Colors Management */}
+                <div className="mp-colors-section">
+                  <div className="mp-section-header">
+                    <h5>الألوان المتاحة</h5>
+                    <button
+                      type="button"
+                      onClick={addColor}
+                      className="mp-add-btn-small"
+                    >
+                      + إضافة لون
+                    </button>
+                  </div>
+                  <div className="mp-colors-list">
+                    {formData.colors.map((color, index) => (
+                      <div key={index} className="mp-color-item">
+                        <span>{color}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeColor(color)}
+                          className="mp-remove-btn-small"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Variants Table */}
+                {formData.sizes.length > 0 && formData.colors.length > 0 && (
+                  <div className="mp-variants-table">
+                    <h5>جدول الأسعار والمخزون</h5>
+                    <table className="mp-variants-grid">
+                      <thead>
+                        <tr>
+                          <th>الحجم / اللون</th>
+                          {formData.colors.map((color) => (
+                            <th key={color}>{color}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {formData.sizes.map((size) => (
+                          <tr key={size}>
+                            <td className="mp-size-label">{size}</td>
+                            {formData.colors.map((color) => {
+                              const variant = formData.variants.find(
+                                (v) => v.size === size && v.color === color
+                              );
+                              return (
+                                <td key={color} className="mp-variant-cell">
+                                  <div className="mp-variant-inputs">
+                                    <input
+                                      type="number"
+                                      placeholder="السعر"
+                                      value={variant?.price || ""}
+                                      onChange={(e) =>
+                                        updateVariant(
+                                          size,
+                                          color,
+                                          "price",
+                                          e.target.value
+                                        )
+                                      }
+                                      min="0"
+                                      step="0.01"
+                                      className="mp-variant-price"
+                                    />
+                                    <input
+                                      type="number"
+                                      placeholder="المخزون"
+                                      value={variant?.stock || ""}
+                                      onChange={(e) =>
+                                        updateVariant(
+                                          size,
+                                          color,
+                                          "stock",
+                                          e.target.value
+                                        )
+                                      }
+                                      min="0"
+                                      className="mp-variant-stock"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeVariant(size, color)}
+                                      className="mp-remove-variant-btn"
+                                      title="إزالة هذا المتغير"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!formData.hasVariants && (
+              <div className="mp-form-group">
+                <label>الكمية المتوفرة:</label>
+                <input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  required
+                  min="0"
+                  onChange={handleChange}
+                  placeholder="عدد القطع المتوفرة"
+                />
+              </div>
+            )}
+
+            {/* Badge Controls */}
             <div className="mp-form-group">
-              <label>الكمية المتوفرة:</label>
-              <input
-                type="number"
-                name="stock"
-                value={formData.stock}
-                required
-                min="0"
-                onChange={handleChange}
-                placeholder="عدد القطع المتوفرة"
-              />
+              <label>العلامات والشارات:</label>
+              <div className="mp-badge-controls">
+                <div className="mp-checkbox-group">
+                  <label className="mp-checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="isNew"
+                      checked={formData.isNew}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isNew: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="mp-checkbox-text">
+                      <span className="mp-badge-preview mp-badge-preview--new">
+                        جديد
+                      </span>
+                      منتج جديد
+                    </span>
+                  </label>
+                </div>
+                <div className="mp-checkbox-group">
+                  <label className="mp-checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="onDemand"
+                      checked={formData.onDemand}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          onDemand: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="mp-checkbox-text">
+                      <span className="mp-badge-preview mp-badge-preview--on-demand">
+                        ع الطلب
+                      </span>
+                      متوفر عند الطلب
+                    </span>
+                  </label>
+                </div>
+                <div className="mp-info-note">
+                  <small>
+                    💡 ملاحظة: شارة "بيعت كلها" تظهر تلقائياً عند انتهاء الكمية
+                    المتوفرة
+                  </small>
+                </div>
+              </div>
             </div>
 
             <div className="mp-form-group">
@@ -705,22 +1068,69 @@ function ManageProducts() {
                     {product.brand || "بدون علامة تجارية"}
                   </span>
                 </td>
-                <td data-label="السعر">{product.price} شيكل</td>
-                <td data-label="المخزون">
-                  {(() => {
-                    const stock = product.stock || 0;
-                    const badgeClass =
-                      stock <= 0
-                        ? "mp-out-of-stock"
-                        : stock <= 5
-                        ? "mp-low-stock"
-                        : "mp-in-stock";
-                    return (
-                      <span className={`mp-stock-badge ${badgeClass}`}>
-                        {stock} قطعة
+                <td data-label="السعر">
+                  {product.hasVariants ? (
+                    <div className="mp-variants-summary">
+                      <span className="mp-variants-indicator">
+                        متغيرات متعددة
                       </span>
-                    );
-                  })()}
+                      <div className="mp-variants-details">
+                        <small>
+                          الأحجام: {product.sizes?.join(", ") || "غير محدد"}
+                        </small>
+                        <small>
+                          الألوان: {product.colors?.join(", ") || "غير محدد"}
+                        </small>
+                      </div>
+                    </div>
+                  ) : product.hasDiscount && product.originalPrice ? (
+                    <div className="mp-price-display">
+                      <span className="mp-original-price">
+                        {product.originalPrice} شيكل
+                      </span>
+                      <span className="mp-discount-info">
+                        (خصم: {product.price} شيكل)
+                      </span>
+                    </div>
+                  ) : (
+                    `${product.price} شيكل`
+                  )}
+                </td>
+                <td data-label="المخزون">
+                  {product.hasVariants ? (
+                    <div className="mp-variants-stock">
+                      <span className="mp-variants-stock-indicator">
+                        مخزون متغير
+                      </span>
+                      <div className="mp-variants-stock-summary">
+                        <small>
+                          إجمالي المتغيرات: {product.variants?.length || 0}
+                        </small>
+                        <small>
+                          إجمالي المخزون:{" "}
+                          {product.variants?.reduce(
+                            (sum, v) => sum + (parseInt(v.stock) || 0),
+                            0
+                          ) || 0}
+                        </small>
+                      </div>
+                    </div>
+                  ) : (
+                    (() => {
+                      const stock = product.stock || 0;
+                      const badgeClass =
+                        stock <= 0
+                          ? "mp-out-of-stock"
+                          : stock <= 5
+                          ? "mp-low-stock"
+                          : "mp-in-stock";
+                      return (
+                        <span className={`mp-stock-badge ${badgeClass}`}>
+                          {stock} قطعة
+                        </span>
+                      );
+                    })()
+                  )}
                 </td>
                 <td data-label="الفئات">
                   {product.categories && product.categories.length > 0

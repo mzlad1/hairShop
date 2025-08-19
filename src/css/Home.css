@@ -13,7 +13,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 2rem;
+  padding: 1rem 2rem;
+  margin-top: -50px;
   text-align: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -195,8 +196,8 @@
 }
 
 .animated-logo {
-  width: 200px;
-  height: 200px;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 10px 30px rgba(222, 170, 155, 0.3);
@@ -204,8 +205,8 @@
 }
 
 .animated-logo-fallback {
-  width: 200px;
-  height: 200px;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   background: linear-gradient(135deg, #deaa9b 0%, #b9877b 100%);
   display: flex;
@@ -216,7 +217,7 @@
 }
 
 .animated-logo-icon {
-  font-size: 4rem;
+  font-size: 5.5rem;
   color: white;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -373,7 +374,7 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   margin: 2rem 0;
-  max-width: 1400px; /* Adjust for 5 products */
+  max-width: 1200px; /* Adjust for 5 products */
   margin-left: auto;
   margin-right: auto;
 }
@@ -865,12 +866,12 @@
 
   .animated-logo,
   .animated-logo-fallback {
-    width: 150px;
-    height: 150px;
+    width: 220px;
+    height: 220px;
   }
 
   .animated-logo-icon {
-    font-size: 3rem;
+    font-size: 4.5rem;
   }
 
   .ring-1 {
@@ -967,12 +968,12 @@
 
   .animated-logo,
   .animated-logo-fallback {
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
   }
 
   .animated-logo-icon {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
   }
 
   .ring-1 {
@@ -1117,14 +1118,6 @@
   max-width: 1400px; /* Adjust for 5 products */
   margin-left: auto;
   margin-right: auto;
-}
-
-/* Responsive adjustments for 5 products */
-@media screen and (min-width: 1200px) {
-  .popular-products-grid {
-    grid-template-columns: repeat(5, 1fr);
-    max-width: 1600px;
-  }
 }
 
 @media screen and (max-width: 1199px) and (min-width: 768px) {

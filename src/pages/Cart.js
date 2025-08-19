@@ -31,11 +31,113 @@ function Cart() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
+  const [stockIssues, setStockIssues] = useState([]);
+  const [showStockModal, setShowStockModal] = useState(false);
 
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  const totalPrice = cartItems.reduce((total, item) => {
+    let itemPrice = item.price;
+
+    // If item has a selected variant, use variant price
+    if (item.selectedVariant && item.selectedVariant.price) {
+      itemPrice = parseFloat(item.selectedVariant.price) || 0;
+    }
+
+    return total + itemPrice * item.quantity;
+  }, 0);
+
+  // Check stock availability before checkout
+  const checkStockAvailability = async () => {
+    const issues = [];
+
+    try {
+      for (const item of cartItems) {
+        const productRef = doc(db, "products", item.id);
+        const productSnap = await getDoc(productRef);
+
+        if (!productSnap.exists()) {
+          issues.push({
+            ...item,
+            issue: "المنتج غير متوفر",
+            availableStock: 0,
+          });
+        } else {
+          const productData = productSnap.data();
+          let currentStock = 0;
+
+          if (productData.hasVariants && item.selectedVariant) {
+            // For variant products, check the specific variant stock
+            const variant = productData.variants?.find(
+              (v) =>
+                v.size === item.selectedVariant.size &&
+                v.color === item.selectedVariant.color
+            );
+            currentStock = variant ? parseInt(variant.stock) || 0 : 0;
+          } else {
+            // For regular products, check product stock
+            currentStock = productData.stock || 0;
+          }
+
+          if (currentStock < item.quantity) {
+            issues.push({
+              ...item,
+              issue: "الكمية المطلوبة أكبر من المتوفر",
+              availableStock: currentStock,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking stock:", error);
+    }
+
+    return issues;
+  };
+
+  // Handle checkout button click - check stock first
+  const handleCheckoutClick = async () => {
+    const issues = await checkStockAvailability();
+
+    if (issues.length > 0) {
+      setStockIssues(issues);
+      setShowStockModal(true);
+    } else {
+      setShowCheckout(true);
+    }
+  };
+
+  // Adjust quantities to available stock
+  const adjustQuantities = () => {
+    stockIssues.forEach((issue) => {
+      if (issue.availableStock > 0) {
+        updateQuantity(issue.cartItemId || issue.id, issue.availableStock);
+      } else {
+        removeFromCart(issue.cartItemId || issue.id);
+      }
+    });
+    setShowStockModal(false);
+    setStockIssues([]);
+  };
+
+  // Contact support (you can modify this to open WhatsApp, email, etc.)
+  const contactSupport = () => {
+    // Example: Open WhatsApp or email
+    const message = `مرحبا، أحتاج مساعدة بخصوص المنتجات التالية:\n\n${stockIssues
+      .map(
+        (issue) =>
+          `- ${issue.name}: طلبت ${issue.quantity} والمتوفر ${issue.availableStock}`
+      )
+      .join("\n")}\n\nهل يمكنكم اقتراح بدائل مشابهة؟`;
+
+    // Replace 972XXXXXXXXX with your actual WhatsApp number (with country code, no + sign)
+    // Example: 972501234567 for Israel, 966501234567 for Saudi Arabia
+    const whatsappUrl = `https://wa.me/972XXXXXXXXX?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+
+    setShowStockModal(false);
+    setStockIssues([]);
+  };
 
   // التعامل مع إرسال الطلب وتحديث المخزون
   const handleSubmit = async (e) => {
@@ -57,18 +159,62 @@ function Cart() {
             throw new Error(`المنتج ${item.name} غير موجود`);
           }
 
-          const currentStock = productSnap.data().stock || 0;
-          if (currentStock < item.quantity) {
-            throw new Error(
-              `المخزون المتاح للمنتج ${item.name} هو ${currentStock} فقط، ولكن طلبت ${item.quantity}`
+          const productData = productSnap.data();
+          let currentStock = 0;
+          let stockUpdateData = {};
+
+          if (productData.hasVariants && item.selectedVariant) {
+            // For variant products, check and update specific variant stock
+            const variant = productData.variants?.find(
+              (v) =>
+                v.size === item.selectedVariant.size &&
+                v.color === item.selectedVariant.color
             );
+
+            if (!variant) {
+              throw new Error(
+                `المتغير ${item.selectedVariant.size} - ${item.selectedVariant.color} غير متوفر للمنتج ${item.name}`
+              );
+            }
+
+            currentStock = parseInt(variant.stock) || 0;
+            if (currentStock < item.quantity) {
+              throw new Error(
+                `المخزون المتاح للمنتج ${item.name} (${item.selectedVariant.size} - ${item.selectedVariant.color}) هو ${currentStock} فقط، ولكن طلبت ${item.quantity}`
+              );
+            }
+
+            // Update the specific variant stock
+            const updatedVariants = productData.variants.map((v) => {
+              if (
+                v.size === item.selectedVariant.size &&
+                v.color === item.selectedVariant.color
+              ) {
+                return {
+                  ...v,
+                  stock: Math.max(0, parseInt(v.stock) - item.quantity),
+                };
+              }
+              return v;
+            });
+
+            stockUpdateData = { variants: updatedVariants };
+          } else {
+            // For regular products, check and update product stock
+            currentStock = productData.stock || 0;
+            if (currentStock < item.quantity) {
+              throw new Error(
+                `المخزون المتاح للمنتج ${item.name} هو ${currentStock} فقط، ولكن طلبت ${item.quantity}`
+              );
+            }
+            stockUpdateData = {
+              stock: Math.max(0, currentStock - item.quantity),
+            };
           }
 
           stockChecks.push({
             ref: productRef,
-            currentStock,
-            orderedQuantity: item.quantity,
-            newStock: currentStock - item.quantity,
+            updateData: stockUpdateData,
           });
         }
 
@@ -88,8 +234,8 @@ function Cart() {
         transaction.set(orderRef, orderData);
 
         // Update stock for all products
-        stockChecks.forEach(({ ref, newStock }) => {
-          transaction.update(ref, { stock: newStock });
+        stockChecks.forEach(({ ref, updateData }) => {
+          transaction.update(ref, updateData);
         });
 
         return orderRef.id;
@@ -187,9 +333,21 @@ function Cart() {
             </thead>
             <tbody>
               {cartItems.map((item) => (
-                <tr key={item.id}>
+                <tr key={item.cartItemId || item.id}>
                   <td data-label="المنتج">{item.name}</td>
-                  <td data-label="السعر">{item.price} شيكل</td>
+                  <td data-label="السعر">
+                    {item.selectedVariant && item.selectedVariant.price
+                      ? `${parseFloat(item.selectedVariant.price)} شيكل`
+                      : `${item.price} شيكل`}
+                    {item.selectedVariant && (
+                      <div className="ct-variant-info">
+                        <small>
+                          {item.selectedVariant.size} -{" "}
+                          {item.selectedVariant.color}
+                        </small>
+                      </div>
+                    )}
+                  </td>
                   <td data-label="الكمية">
                     <input
                       type="number"
@@ -197,17 +355,26 @@ function Cart() {
                       value={item.quantity}
                       className="ct-qty-input"
                       onChange={(e) =>
-                        updateQuantity(item.id, parseInt(e.target.value))
+                        updateQuantity(
+                          item.cartItemId || item.id,
+                          parseInt(e.target.value)
+                        )
                       }
                     />
                   </td>
                   <td data-label="المجموع">
-                    {item.price * item.quantity} شيكل
+                    {(() => {
+                      const itemPrice =
+                        item.selectedVariant && item.selectedVariant.price
+                          ? parseFloat(item.selectedVariant.price)
+                          : item.price;
+                      return `${itemPrice * item.quantity} شيكل`;
+                    })()}
                   </td>
                   <td data-label="إزالة">
                     <button
                       className="ct-remove-btn"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.cartItemId || item.id)}
                     >
                       ×
                     </button>
@@ -223,7 +390,7 @@ function Cart() {
           </p>
           <button
             className="ct-open-checkout-btn"
-            onClick={() => setShowCheckout(true)}
+            onClick={handleCheckoutClick}
             disabled={cartItems.length === 0}
           >
             إتمام الشراء
@@ -245,6 +412,70 @@ function Cart() {
             >
               {copied ? "تم النسخ" : "نسخ"}
             </button>
+          </div>
+        )}
+
+        {/* Stock Issues Modal */}
+        {showStockModal && (
+          <div
+            className="ct-modal-overlay"
+            onClick={(e) => {
+              if (e.target.classList.contains("ct-modal-overlay")) {
+                setShowStockModal(false);
+              }
+            }}
+          >
+            <div className="ct-modal" role="dialog" aria-modal="true">
+              <button
+                className="ct-modal-close"
+                onClick={() => setShowStockModal(false)}
+                aria-label="إغلاق"
+              >
+                ×
+              </button>
+              <h2>مشكلة في المخزون</h2>
+
+              <div className="ct-stock-issues">
+                <p className="ct-stock-warning">
+                  ⚠️ بعض المنتجات في سلتك غير متوفرة بالكمية المطلوبة:
+                </p>
+
+                {stockIssues.map((issue) => (
+                  <div key={issue.id} className="ct-stock-issue-item">
+                    <div className="ct-issue-info">
+                      <h4>{issue.name}</h4>
+                      <p>
+                        الكمية المطلوبة:{" "}
+                        <span className="ct-requested">{issue.quantity}</span>
+                      </p>
+                      <p>
+                        المتوفر في المخزون:{" "}
+                        <span className="ct-available">
+                          {issue.availableStock}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="ct-stock-options">
+                  <p>يمكنك اختيار إحدى الخيارات التالية:</p>
+
+                  <div className="ct-stock-buttons">
+                    <button
+                      className="ct-adjust-btn"
+                      onClick={adjustQuantities}
+                    >
+                      تعديل الكميات حسب المتوفر
+                    </button>
+
+                    <button className="ct-contact-btn" onClick={contactSupport}>
+                      تواصل معنا لاقتراح بدائل
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

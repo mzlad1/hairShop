@@ -431,17 +431,51 @@ function Orders() {
                   <div className="ord-customer-details">
                     <h4>معلومات العميل:</h4>
                     <p>
-                      <strong>الاسم:</strong> {order.customerName}
+                      <strong>👤 الاسم:</strong> {order.customerName}
                     </p>
                     <p>
-                      <strong>البريد:</strong> {order.customerEmail}
+                      <strong>📧 البريد:</strong> {order.customerEmail}
                     </p>
                     <p>
-                      <strong>الهاتف:</strong> {order.customerPhone}
+                      <strong>📞 الهاتف:</strong> {order.customerPhone}
                     </p>
                     <p>
-                      <strong>العنوان:</strong> {order.customerAddress}
+                      <strong>📍 العنوان:</strong> {order.customerAddress}
                     </p>
+                  </div>
+
+                  {/* Order Summary with Variant Info */}
+                  <div className="ord-order-summary">
+                    <h4>ملخص الطلب:</h4>
+                    <div className="ord-summary-stats">
+                      <div className="ord-summary-stat">
+                        <span className="ord-summary-label">
+                          إجمالي المنتجات:
+                        </span>
+                        <span className="ord-summary-value">
+                          {order.items?.length || 0}
+                        </span>
+                      </div>
+                      {order.items?.some((item) => item.selectedVariant) && (
+                        <div className="ord-summary-stat">
+                          <span className="ord-summary-label">
+                            المنتجات مع متغيرات:
+                          </span>
+                          <span className="ord-summary-value">
+                            {order.items?.filter((item) => item.selectedVariant)
+                              .length || 0}
+                          </span>
+                        </div>
+                      )}
+                      <div className="ord-summary-stat">
+                        <span className="ord-summary-label">
+                          إجمالي المبلغ:
+                        </span>
+                        <span className="ord-summary-value">
+                          {order.total} شيكل
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="ord-items">
@@ -459,31 +493,66 @@ function Orders() {
                         {order.items?.map((item, index) => (
                           <tr key={index}>
                             <td>
-                              {item.id ? (
-                                <Link
-                                  to={`/products/${item.id}`}
-                                  className="ord-product-link"
-                                  onClick={(e) => e.stopPropagation()}
-                                  title={`عرض تفاصيل ${item.name}`}
-                                >
-                                  {item.name}
-                                  <span className="ord-link-icon">🔗</span>
-                                </Link>
-                              ) : (
-                                <span className="ord-product-name">
-                                  {item.name}
-                                  <span
-                                    className="ord-no-link-note"
-                                    title="معرف المنتج غير متوفر"
+                              <div className="ord-item-details">
+                                {item.id ? (
+                                  <Link
+                                    to={`/products/${item.id}`}
+                                    target="_blank"
+                                    className="ord-product-link"
+                                    onClick={(e) => e.stopPropagation()}
+                                    title={`عرض تفاصيل ${item.name}`}
                                   >
-                                    📦
+                                    {item.name}
+                                    <span className="ord-link-icon">🔗</span>
+                                  </Link>
+                                ) : (
+                                  <span className="ord-product-name">
+                                    {item.name}
+                                    <span
+                                      className="ord-no-link-note"
+                                      title="معرف المنتج غير متوفر"
+                                    >
+                                      📦
+                                    </span>
                                   </span>
-                                </span>
-                              )}
+                                )}
+
+                                {/* Show variant information if available */}
+                                {item.selectedVariant && (
+                                  <div className="ord-variant-info">
+                                    <span className="ord-variant-badge">
+                                      متغير: {item.selectedVariant.size} -{" "}
+                                      {item.selectedVariant.color}
+                                    </span>
+                                    <span className="ord-variant-price">
+                                      سعر المتغير:{" "}
+                                      {parseFloat(item.selectedVariant.price) ||
+                                        item.price}{" "}
+                                      شيكل
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </td>
-                            <td>{item.price} شيكل</td>
+                            <td>
+                              {item.selectedVariant &&
+                              item.selectedVariant.price
+                                ? `${parseFloat(
+                                    item.selectedVariant.price
+                                  )} شيكل`
+                                : `${item.price} شيكل`}
+                            </td>
                             <td>{item.quantity}</td>
-                            <td>{item.price * item.quantity} شيكل</td>
+                            <td>
+                              {(() => {
+                                const itemPrice =
+                                  item.selectedVariant &&
+                                  item.selectedVariant.price
+                                    ? parseFloat(item.selectedVariant.price)
+                                    : item.price;
+                                return `${itemPrice * item.quantity} شيكل`;
+                              })()}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

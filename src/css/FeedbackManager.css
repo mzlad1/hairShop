@@ -1,0 +1,374 @@
+/* Feedback Manager Styles */
+.fm-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Tajawal", Arial, sans-serif;
+}
+
+.fm-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.fm-title {
+  font-size: 2rem;
+  color: #3f2a3a;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+/* Stats Section */
+.fm-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.fm-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(185, 135, 123, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.fm-stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #d4a59a;
+  margin-bottom: 5px;
+}
+
+.fm-stat-label {
+  font-size: 0.9rem;
+  color: #7a5a6c;
+  font-weight: 600;
+}
+
+/* Filter Buttons */
+.fm-filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.fm-filter-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(222, 170, 155, 0.3);
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: #3f2a3a;
+}
+
+.fm-filter-btn:hover {
+  background: rgba(222, 170, 155, 0.1);
+  border-color: #d4a59a;
+}
+
+.fm-filter-btn.active {
+  background: linear-gradient(135deg, #deaa9b, #d4a59a);
+  color: white;
+  border-color: transparent;
+}
+
+/* Loading and No Data */
+.fm-loading,
+.fm-no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7a5a6c;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Feedbacks List */
+.fm-feedbacks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fm-feedback-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 25px rgba(185, 135, 123, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(222, 170, 155, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fm-feedback-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(185, 135, 123, 0.15);
+}
+
+.fm-feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  gap: 15px;
+}
+
+.fm-feedback-info {
+  flex: 1;
+}
+
+.fm-customer-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3f2a3a;
+  margin: 0 0 8px 0;
+}
+
+.fm-feedback-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.fm-product-name {
+  font-weight: 600;
+  color: #d4a59a;
+  font-size: 0.95rem;
+}
+
+.fm-feedback-date {
+  font-size: 0.85rem;
+  color: #7a5a6c;
+}
+
+.fm-contact-info {
+  font-size: 0.85rem;
+  color: #7a5a6c;
+  margin: 2px 0;
+}
+
+/* Status Badge */
+.fm-status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.fm-status-pending {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+}
+
+.fm-status-approved {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+.fm-status-rejected {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+/* Comment */
+.fm-feedback-comment {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  border-right: 4px solid #d4a59a;
+  margin-bottom: 15px;
+  line-height: 1.6;
+  color: #3f2a3a;
+}
+
+/* Images */
+.fm-feedback-images {
+  margin-bottom: 15px;
+}
+
+.fm-images-label {
+  font-weight: 600;
+  color: #3f2a3a;
+  margin-bottom: 10px;
+}
+
+.fm-images-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fm-feedback-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid rgba(222, 170, 155, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fm-feedback-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(185, 135, 123, 0.2);
+}
+
+/* Actions */
+.fm-feedback-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fm-approve-btn,
+.fm-reject-btn,
+.fm-delete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.fm-approve-btn {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+.fm-approve-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.fm-reject-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.fm-reject-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.fm-delete-btn {
+  background: linear-gradient(135deg, #7a5a6c, #6b4c57);
+  color: white;
+}
+
+.fm-delete-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(122, 90, 108, 0.3);
+}
+
+.fm-approve-btn:disabled,
+.fm-reject-btn:disabled,
+.fm-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .fm-container {
+    padding: 15px;
+  }
+
+  .fm-title {
+    font-size: 1.5rem;
+  }
+
+  .fm-stats {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .fm-stat {
+    min-width: 120px;
+  }
+
+  .fm-filters {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fm-filter-btn {
+    width: 200px;
+    justify-content: center;
+  }
+
+  .fm-feedback-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .fm-status-badge {
+    align-self: flex-end;
+  }
+
+  .fm-feedback-actions {
+    justify-content: center;
+  }
+
+  .fm-feedback-actions button {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .fm-images-grid {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .fm-feedback-card {
+    padding: 16px;
+  }
+
+  .fm-feedback-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fm-feedback-actions button {
+    width: 100%;
+  }
+}
+
+/* Animation for loading state */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fm-loading {
+  animation: pulse 2s infinite;
+}

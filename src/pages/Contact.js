@@ -18,8 +18,8 @@ function Contact() {
       icon: "📷",
       title: "إنستغرام",
       content: "تابعنا للحصول على آخر العروض",
-      link: "https://www.instagram.com/yourinstapage",
-      linkText: "@beautyshoppe_nablus",
+      link: "https://www.instagram.com/unlock.your.curls",
+      linkText: "@unlock.your.curls",
       type: "instagram",
     },
     {
@@ -37,22 +37,6 @@ function Contact() {
       link: "tel:+970590000000",
       linkText: "+970 59 000 0000",
       type: "phone",
-    },
-    {
-      icon: "✉️",
-      title: "البريد الإلكتروني",
-      content: "راسلنا عبر البريد الإلكتروني",
-      link: "mailto:info@beautyshoppe.ps",
-      linkText: "info@beautyshoppe.ps",
-      type: "email",
-    },
-    {
-      icon: "📍",
-      title: "العنوان",
-      content: "زورنا في موقعنا",
-      link: "https://maps.google.com/?q=Nablus,Palestine",
-      linkText: "نابلس، فلسطين - شارع الحرم",
-      type: "location",
     },
   ];
 
@@ -153,17 +137,6 @@ function Contact() {
                     تصفح المنتجات
                   </a>
                 </div>
-              </div>
-
-              {/* Customer Service Notice */}
-              <div className="bp-contact-service-notice">
-                <h4>💡 نصائح للحصول على أفضل خدمة</h4>
-                <ul>
-                  <li>تأكد من كتابة رقم الهاتف بشكل صحيح</li>
-                  <li>وضح نوع البشرة عند الاستفسار عن المنتجات</li>
-                  <li>اذكر أي حساسية لديك من مكونات معينة</li>
-                  <li>نحن نقدم استشارات مجانية لاختيار المنتج المناسب</li>
-                </ul>
               </div>
             </div>
           </div>

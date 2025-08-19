@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, writeBatch, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import ProductCard from "../components/ProductCard";
 import Navbar from "../components/Navbar";
@@ -29,6 +29,65 @@ function Home() {
     "بساعدك تحبي شعرك وتفهمي احتياجاته",
     "توصيل للضفة والقدس والداخل المحتل",
   ];
+
+  // Check and remove expired discounts
+  const checkExpiredDiscounts = async () => {
+    try {
+      const cachedProducts = CacheManager.get(CACHE_KEYS.PRODUCTS);
+      if (!cachedProducts) return;
+
+      const now = new Date();
+      const expiredProducts = cachedProducts.filter(
+        (p) =>
+          p.hasDiscount &&
+          p.discountExpiresAt &&
+          new Date(p.discountExpiresAt.seconds * 1000) < now
+      );
+
+      if (expiredProducts.length > 0) {
+        const batch = writeBatch(db);
+
+        expiredProducts.forEach((product) => {
+          const productRef = doc(db, "products", product.id);
+          if (product.hasVariants) {
+            // Restore original variant prices
+            const restoredVariants = product.variants.map((variant) => ({
+              ...variant,
+              price: variant.originalPrice || variant.price,
+              originalPrice: null,
+            }));
+
+            batch.update(productRef, {
+              variants: restoredVariants,
+              hasDiscount: false,
+              discountType: null,
+              discountValue: null,
+              discountName: null,
+              discountAppliedAt: null,
+              discountExpiresAt: null,
+            });
+          } else {
+            batch.update(productRef, {
+              price: product.originalPrice,
+              hasDiscount: false,
+              discountType: null,
+              discountValue: null,
+              discountName: null,
+              discountAppliedAt: null,
+              discountExpiresAt: null,
+              originalPrice: null,
+            });
+          }
+        });
+
+        await batch.commit();
+        CacheManager.remove(CACHE_KEYS.PRODUCTS);
+        console.log(`Removed ${expiredProducts.length} expired discounts`);
+      }
+    } catch (error) {
+      console.error("Error checking expired discounts:", error);
+    }
+  };
 
   // Fetch most ordered products based on order data
   useEffect(() => {
@@ -86,6 +145,9 @@ function Home() {
           .slice(0, 5); // Get top 5
 
         setMostOrderedProducts(sortedProducts);
+
+        // Check for expired discounts after loading products
+        await checkExpiredDiscounts();
       } catch (error) {
         console.error("Error fetching most ordered products:", error);
         // Fallback data with mock order counts
@@ -151,6 +213,12 @@ function Home() {
       }
     }
     fetchMostOrderedProducts();
+  }, []);
+
+  // Check for expired discounts every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(checkExpiredDiscounts, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch brands
@@ -361,10 +429,7 @@ function Home() {
         <section className="popular-products-section">
           <div className="section-container">
             <div className="section-header">
-              <h2 className="section-title">
-                <span className="title-icon">🔥</span>
-                المنتجات الأكثر طلباً
-              </h2>
+              <h2 className="section-title">المنتجات الأكثر طلباً</h2>
               <p className="section-subtitle">
                 المنتجات التي يطلبها عملاؤنا أكثر من غيرها
               </p>
@@ -391,9 +456,6 @@ function Home() {
                   {mostOrderedProducts.map((product, index) => (
                     <div key={product.id} className="popular-product-item">
                       <ProductCard product={product} />
-                      <div className="most-ordered-badge">
-                        <span className="rank-number">#{index + 1}</span>
-                      </div>
                     </div>
                   ))}
                 </div>

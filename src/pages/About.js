@@ -119,12 +119,9 @@ function About() {
                 رحلتنا في عالم الجمال والعناية بدأت بحلم بسيط: جعل كل امرأة تشعر
                 بجمالها الطبيعي
               </p>
-              <div className="bp-about-hero-image">
-                <div className="bp-about-image-placeholder">
-                  <span className="bp-about-placeholder-icon">🌸</span>
-                  <p>صورة المتجر أو الفريق</p>
-                </div>
-              </div>
+              <p className="bp-about-hero-subtitle">
+                منتجاتنا خالية من المواد الكيميائية الضارة والمواد المصنعة
+              </p>
             </div>
           </div>
 
@@ -182,46 +179,6 @@ function About() {
                   <p className="bp-about-value-description">
                     {value.description}
                   </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Achievements Section */}
-          <div className="bp-about-achievements-section">
-            <div className="bp-about-section-header">
-              <h2>🏆 إنجازاتنا بالأرقام</h2>
-              <p>أرقام تتحدث عن نجاحنا وثقة عملائنا</p>
-            </div>
-
-            <div className="bp-about-achievements-grid">
-              {achievements.map((a, i) => (
-                <div key={i} className="bp-about-achievement-card">
-                  <div className="bp-about-achievement-icon">{a.icon}</div>
-                  <div className="bp-about-achievement-number">{a.number}</div>
-                  <div className="bp-about-achievement-label">{a.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Timeline Section */}
-          <div className="bp-about-timeline-section">
-            <div className="bp-about-section-header">
-              <h2>📅 رحلتنا عبر الزمن</h2>
-              <p>المحطات المهمة في تاريخ متجرنا</p>
-            </div>
-
-            <div className="bp-about-timeline">
-              {milestones.map((m, i) => (
-                <div key={i} className="bp-about-timeline-item">
-                  <div className="bp-about-timeline-year">{m.year}</div>
-                  <div className="bp-about-timeline-content">
-                    <h3 className="bp-about-timeline-title">{m.title}</h3>
-                    <p className="bp-about-timeline-description">
-                      {m.description}
-                    </p>
-                  </div>
                 </div>
               ))}
             </div>
@@ -293,8 +250,8 @@ function About() {
           {/* Call to Action */}
           <div className="bp-about-cta-section">
             <div className="bp-about-cta-content">
-              <h2>🛍️ ابدأ رحلتك مع الجمال</h2>
-              <p>اكتشف مجموعتنا المتنوعة من منتجات التجميل والعناية</p>
+              <h2>🛍️ ابدأي رحلتك الكيرلية</h2>
+              <p>تواصلي معنا حتى نساعدك</p>
               <div className="bp-about-cta-buttons">
                 <a href="/products" className="bp-about-cta-btn primary">
                   <span>💄</span>

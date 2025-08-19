@@ -121,6 +121,21 @@
   font-weight: 600;
 }
 
+/* Variant info in cart */
+.ct-variant-info {
+  margin-top: 4px;
+  padding: 2px 6px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.ct-variant-info small {
+  color: #667eea;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
 /* Cart table */
 .ct-table {
   width: 1100px;
@@ -542,5 +557,113 @@
   }
   50% {
     transform: translateY(12px) translateX(6px);
+  }
+}
+
+/* Stock Issues Modal Styles */
+.ct-stock-issues {
+  color: var(--text);
+}
+
+.ct-stock-warning {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  color: #d63031;
+  text-align: center;
+  font-weight: 600;
+}
+
+.ct-stock-issue-item {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(222, 170, 155, 0.2);
+}
+
+.ct-issue-info h4 {
+  margin: 0 0 10px 0;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.ct-issue-info p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+}
+
+.ct-requested {
+  color: #e17055;
+  font-weight: 600;
+}
+
+.ct-available {
+  color: #00b894;
+  font-weight: 600;
+}
+
+.ct-stock-options {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.ct-stock-options p {
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ct-stock-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ct-adjust-btn,
+.ct-contact-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Tajawal", Arial, sans-serif;
+  min-width: 160px;
+}
+
+.ct-adjust-btn {
+  background: linear-gradient(135deg, #00b894, #00a085);
+  color: white;
+}
+
+.ct-adjust-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
+}
+
+.ct-contact-btn {
+  background: linear-gradient(135deg, #6c5ce7, #5f3dc4);
+  color: white;
+}
+
+.ct-contact-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+}
+
+@media (max-width: 768px) {
+  .ct-stock-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ct-adjust-btn,
+  .ct-contact-btn {
+    width: 100%;
+    max-width: 250px;
   }
 }

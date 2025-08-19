@@ -657,6 +657,30 @@
   font-style: italic;
 }
 
+/* Price display for products with discounts */
+.mp-price-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mp-original-price {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.mp-discount-info {
+  font-size: 0.8rem;
+  color: #2ecc71;
+  font-weight: 600;
+  background: rgba(46, 204, 113, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+  display: inline-block;
+  max-width: fit-content;
+}
+
 /* Brand tag and stock badges */
 .mp-brand-tag {
   display: inline-block;
@@ -1050,6 +1074,7 @@
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 }
+
 .mp-edit-btn {
   background: linear-gradient(135deg, #d7b5a8, #b9877b);
   box-shadow: 0 10px 24px rgba(185, 135, 123, 0.22);
@@ -1062,4 +1087,304 @@
 .mp-delete-btn:hover {
   transform: translateY(-2px);
   filter: saturate(1.05);
+}
+
+/* Variant Management Styles */
+.mp-variant-toggle {
+  margin-bottom: 16px;
+}
+
+.mp-variants-section {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(222, 170, 155, 0.3);
+  margin-top: 16px;
+}
+
+.mp-variants-section h4 {
+  margin: 0 0 16px 0;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.mp-sizes-section,
+.mp-colors-section {
+  margin-bottom: 20px;
+}
+
+.mp-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mp-section-header h5 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mp-add-btn-small {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-400);
+  background: var(--primary-400);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mp-add-btn-small:hover {
+  background: var(--primary-500);
+  border-color: var(--primary-500);
+}
+
+.mp-sizes-list,
+.mp-colors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mp-size-item,
+.mp-color-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(222, 170, 155, 0.3);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.mp-remove-btn-small {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ff6b6b;
+  background: #ff6b6b;
+  color: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mp-remove-btn-small:hover {
+  background: #ff5252;
+  border-color: #ff5252;
+}
+
+.mp-variants-table {
+  margin-top: 20px;
+}
+
+.mp-variants-table h5 {
+  margin: 0 0 12px 0;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mp-variants-grid {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mp-variants-grid th,
+.mp-variants-grid td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid rgba(222, 170, 155, 0.2);
+}
+
+.mp-variants-grid th {
+  background: var(--primary-400);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.mp-size-label {
+  background: rgba(222, 170, 155, 0.1);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mp-variant-cell {
+  padding: 4px !important;
+}
+
+.mp-variant-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.mp-variant-price,
+.mp-variant-stock {
+  width: 80px;
+  padding: 4px 6px;
+  border: 1px solid rgba(222, 170, 155, 0.3);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.mp-remove-variant-btn {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ff6b6b;
+  background: #ff6b6b;
+  color: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mp-remove-variant-btn:hover {
+  background: #ff5252;
+  border-color: #ff5252;
+}
+
+/* Variants Summary in Table */
+.mp-variants-summary {
+  text-align: center;
+}
+
+.mp-variants-indicator {
+  display: block;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.mp-variants-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: start;
+}
+
+.mp-variants-details small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.mp-variants-stock {
+  text-align: center;
+}
+
+.mp-variants-stock-indicator {
+  display: block;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.mp-variants-stock-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: start;
+}
+
+.mp-variants-stock-summary small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* Badge Controls Styles */
+.mp-badge-controls {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(222, 170, 155, 0.3);
+  margin-top: 8px;
+}
+
+.mp-checkbox-group {
+  margin-bottom: 12px;
+}
+
+.mp-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.mp-checkbox-label:hover {
+  background: rgba(222, 170, 155, 0.1);
+}
+
+.mp-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--primary-400);
+}
+
+.mp-checkbox-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.mp-badge-preview {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  min-width: 35px;
+  text-align: center;
+}
+
+.mp-badge-preview--new {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.mp-badge-preview--on-demand {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.mp-info-note {
+  background: rgba(52, 152, 219, 0.1);
+  border: 1px solid rgba(52, 152, 219, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+.mp-info-note small {
+  color: #2980b9;
+  font-size: 12px;
+  line-height: 1.4;
 }
