@@ -38,6 +38,8 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 /* Image container for positioning badge */
@@ -250,29 +252,21 @@
   }
 }
 
-/* Button */
-.pc-button {
-  display: inline-block;
-  margin-top: auto;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: var(--pc-gradient);
-  color: #fff;
-  font-weight: 800;
+/* Clickable card styles */
+.pc-card--clickable {
   text-decoration: none;
-  box-shadow: 0 10px 24px rgba(185, 135, 123, 0.24);
-  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  color: inherit;
 }
-.pc-button:hover {
-  transform: translateY(-2px);
-  filter: saturate(1.05);
+
+.pc-card--clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(185, 135, 123, 0.16),
+    0 6px 16px rgba(191, 146, 144, 0.12);
 }
-.pc-button:active {
-  transform: translateY(0);
-}
-.pc-button:focus-visible {
+
+.pc-card--clickable:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 4px var(--pc-ring), 0 10px 24px rgba(185, 135, 123, 0.24);
+  box-shadow: 0 0 0 4px var(--pc-ring), var(--pc-shadow);
 }
 
 /* Empty image fallback */

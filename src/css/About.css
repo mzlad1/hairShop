@@ -476,6 +476,45 @@
   font-style: italic;
 }
 
+/* Loading and No Feedbacks States */
+.bp-about-loading,
+.bp-about-no-feedbacks {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--gray-color);
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #faf8f7 0%, var(--light-color) 100%);
+  border-radius: var(--border-radius);
+  border: 2px dashed var(--primary-color);
+  margin: 2rem 0;
+}
+
+.bp-about-loading {
+  animation: pulse 2s infinite;
+}
+
+.bp-about-no-feedbacks p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.bp-about-no-feedbacks p:first-child {
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Team Section */
 .bp-about-team-section {
   padding: 4rem 0;

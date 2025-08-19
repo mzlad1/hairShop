@@ -80,7 +80,7 @@ function ProductCard({ product }) {
   const badges = getBadges();
 
   return (
-    <div className="pc-card">
+    <Link to={`/products/${product.id}`} className="pc-card pc-card--clickable">
       <div className="pc-image-container">
         <img
           src={
@@ -171,10 +171,7 @@ function ProductCard({ product }) {
           <p className="pc-price">{product.price} شيكل</p>
         )}
       </div>
-      <Link to={`/products/${product.id}`} className="pc-button">
-        عرض المنتج
-      </Link>
-    </div>
+    </Link>
   );
 }
 

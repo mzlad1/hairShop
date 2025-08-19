@@ -22,6 +22,7 @@ function ProductFeedback({ productId }) {
     email: "",
     phone: "",
     comment: "",
+    rating: 0,
     images: [],
   });
 
@@ -90,8 +91,12 @@ function ProductFeedback({ productId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.comment.trim()) {
-      alert("يرجى إدخال الاسم والتعليق");
+    if (
+      !formData.name.trim() ||
+      !formData.comment.trim() ||
+      formData.rating === 0
+    ) {
+      alert("يرجى إدخال الاسم والتعليق والتقييم");
       return;
     }
 
@@ -107,6 +112,7 @@ function ProductFeedback({ productId }) {
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
+        rating: formData.rating,
         comment: formData.comment.trim(),
         images: imageUrls,
         status: "pending", // pending, approved, rejected
@@ -119,6 +125,7 @@ function ProductFeedback({ productId }) {
         email: "",
         phone: "",
         comment: "",
+        rating: 0,
         images: [],
       });
       setShowForm(false);
@@ -232,6 +239,32 @@ function ProductFeedback({ productId }) {
           </div>
 
           <div className="pf-form-group">
+            <label htmlFor="rating">التقييم *</label>
+            <div className="pf-rating-container">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  className={`pf-star ${
+                    formData.rating >= star ? "active" : ""
+                  }`}
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, rating: star }))
+                  }
+                  aria-label={`${star} نجوم`}
+                >
+                  {formData.rating >= star ? "⭐" : "☆"}
+                </button>
+              ))}
+              <span className="pf-rating-text">
+                {formData.rating > 0
+                  ? `${formData.rating}/5 نجوم`
+                  : "اختر التقييم"}
+              </span>
+            </div>
+          </div>
+
+          <div className="pf-form-group">
             <label htmlFor="comment">التعليق *</label>
             <textarea
               id="comment"
@@ -300,9 +333,28 @@ function ProductFeedback({ productId }) {
             <div key={feedback.id} className="pf-feedback-item">
               <div className="pf-feedback-header">
                 <span className="pf-feedback-name">{feedback.name}</span>
-                <span className="pf-feedback-date">
-                  {formatDate(feedback.createdAt)}
-                </span>
+                <div className="pf-feedback-meta">
+                  {feedback.rating && (
+                    <div className="pf-feedback-rating">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          className={`pf-display-star ${
+                            feedback.rating >= star ? "active" : ""
+                          }`}
+                        >
+                          {feedback.rating >= star ? "⭐" : "☆"}
+                        </span>
+                      ))}
+                      <span className="pf-rating-value">
+                        ({feedback.rating}/5)
+                      </span>
+                    </div>
+                  )}
+                  <span className="pf-feedback-date">
+                    {formatDate(feedback.createdAt)}
+                  </span>
+                </div>
               </div>
               <div className="pf-feedback-comment">{feedback.comment}</div>
               {feedback.images && feedback.images.length > 0 && (

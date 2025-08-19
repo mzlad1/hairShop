@@ -713,11 +713,48 @@ function DiscountManager() {
                   }`}
                   onClick={() => handleItemSelection(item.id)}
                 >
+                  {/* Product Image */}
+                  <div className="dm-item-image">
+                    {item.images && item.images.length > 0 ? (
+                      <img
+                        src={item.images[0]}
+                        alt={item.name}
+                        className="dm-product-thumbnail"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="dm-no-image">
+                        <span className="dm-no-image-icon">📷</span>
+                        <span className="dm-no-image-text">لا توجد صورة</span>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="dm-item-info">
                     <h4>{item.name}</h4>
                     {discountType === "product" && (
                       <>
-                        <p>السعر: {item.price} شيكل</p>
+                        <p className="dm-price-display">
+                          {item.hasVariants ? (
+                            (() => {
+                              const prices = item.variants?.map(
+                                (v) => parseFloat(v.price) || 0
+                              ) || [0];
+                              const minPrice = Math.min(...prices);
+                              const maxPrice = Math.max(...prices);
+
+                              // If all prices are the same, show single price
+                              if (minPrice === maxPrice) {
+                                return `السعر: ${minPrice} شيكل`;
+                              }
+
+                              // If prices are different, show range
+                              return `السعر: من ${minPrice} إلى ${maxPrice} شيكل`;
+                            })()
+                          ) : (
+                            `السعر: ${item.price} شيكل`
+                          )}
+                        </p>
                         {item.hasDiscount && (
                           <span className="dm-current-discount">
                             خصم حالي: {item.discountName}
@@ -761,18 +798,71 @@ function DiscountManager() {
           <div className="dm-discounts-list">
             {getDiscountedProducts().map((product) => (
               <div key={product.id} className="dm-discount-item">
+                {/* Product Image */}
+                <div className="dm-discount-image">
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="dm-discount-thumbnail"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="dm-discount-no-image">
+                      <span className="dm-discount-no-image-icon">📷</span>
+                      <span className="dm-discount-no-image-text">لا توجد صورة</span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="dm-discount-info">
                   <h4>{product.name}</h4>
                   <p>
                     السعر الأصلي:{" "}
                     <span className="dm-original-price">
-                      {product.originalPrice} شيكل
+                      {product.hasVariants ? (
+                        (() => {
+                          const prices = product.variants?.map(
+                            (v) => parseFloat(v.originalPrice || v.price) || 0
+                          ) || [0];
+                          const minPrice = Math.min(...prices);
+                          const maxPrice = Math.max(...prices);
+
+                          // If all prices are the same, show single price
+                          if (minPrice === maxPrice) {
+                            return `${minPrice} شيكل`;
+                          }
+
+                          // If prices are different, show range
+                          return `من ${minPrice} إلى ${maxPrice} شيكل`;
+                        })()
+                      ) : (
+                        `${product.originalPrice} شيكل`
+                      )}
                     </span>
                   </p>
                   <p>
                     السعر بعد الخصم:{" "}
                     <span className="dm-discounted-price">
-                      {product.price} شيكل
+                      {product.hasVariants ? (
+                        (() => {
+                          const prices = product.variants?.map(
+                            (v) => parseFloat(v.price) || 0
+                          ) || [0];
+                          const minPrice = Math.min(...prices);
+                          const maxPrice = Math.max(...prices);
+
+                          // If all prices are the same, show single price
+                          if (minPrice === maxPrice) {
+                            return `${minPrice} شيكل`;
+                          }
+
+                          // If prices are different, show range
+                          return `من ${minPrice} إلى ${maxPrice} شيكل`;
+                        })()
+                      ) : (
+                        `${product.price} شيكل`
+                      )}
                     </span>
                   </p>
                   <p>اسم الخصم: {product.discountName}</p>

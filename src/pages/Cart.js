@@ -33,6 +33,8 @@ function Cart() {
   const [error, setError] = useState("");
   const [stockIssues, setStockIssues] = useState([]);
   const [showStockModal, setShowStockModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   const totalPrice = cartItems.reduce((total, item) => {
     let itemPrice = item.price;
@@ -321,68 +323,210 @@ function Cart() {
         {cartItems.length === 0 ? (
           <p className="ct-empty">عربة التسوق فارغة.</p>
         ) : (
-          <table className="ct-table">
-            <thead>
-              <tr>
-                <th>المنتج</th>
-                <th>السعر</th>
-                <th>الكمية</th>
-                <th>المجموع</th>
-                <th>إزالة</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Desktop Table View */}
+            <div className="ct-table-container">
+              <table className="ct-table">
+                <thead>
+                  <tr>
+                    <th>الصورة</th>
+                    <th>المنتج</th>
+                    <th>السعر</th>
+                    <th>الكمية</th>
+                    <th>المجموع</th>
+                    <th>إزالة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cartItems.map((item) => (
+                    <tr key={item.cartItemId || item.id}>
+                      <td data-label="الصورة">
+                        <div className="ct-product-image">
+                          {item.images && item.images.length > 0 ? (
+                            <img
+                              src={item.images[0]}
+                              alt={item.name}
+                              className="ct-product-thumbnail"
+                              loading="lazy"
+                              onClick={() => {
+                                setSelectedImage(item.images[0]);
+                                setShowImageModal(true);
+                              }}
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                                e.target.nextSibling.style.display = "block";
+                              }}
+                            />
+                          ) : null}
+                          {(!item.images || item.images.length === 0) && (
+                            <div className="ct-no-image">
+                              <span className="ct-no-image-icon">📷</span>
+                              <span className="ct-no-image-text">
+                                لا توجد صورة
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td data-label="المنتج">{item.name}</td>
+                      <td data-label="السعر">
+                        {item.selectedVariant && item.selectedVariant.price
+                          ? `${parseFloat(item.selectedVariant.price)} شيكل`
+                          : `${item.price} شيكل`}
+                        {item.selectedVariant && (
+                          <div className="ct-variant-info">
+                            <small>
+                              {item.selectedVariant.size} -{" "}
+                              {item.selectedVariant.color}
+                            </small>
+                          </div>
+                        )}
+                      </td>
+                      <td data-label="الكمية">
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          className="ct-qty-input"
+                          onChange={(e) =>
+                            updateQuantity(
+                              item.cartItemId || item.id,
+                              parseInt(e.target.value)
+                            )
+                          }
+                        />
+                      </td>
+                      <td data-label="المجموع">
+                        {(() => {
+                          const itemPrice =
+                            item.selectedVariant && item.selectedVariant.price
+                              ? parseFloat(item.selectedVariant.price)
+                              : item.price;
+                          return `${itemPrice * item.quantity} شيكل`;
+                        })()}
+                      </td>
+                      <td data-label="إزالة">
+                        <button
+                          className="ct-remove-btn"
+                          onClick={() =>
+                            removeFromCart(item.cartItemId || item.id)
+                          }
+                        >
+                          ×
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="ct-mobile-cards">
               {cartItems.map((item) => (
-                <tr key={item.cartItemId || item.id}>
-                  <td data-label="المنتج">{item.name}</td>
-                  <td data-label="السعر">
-                    {item.selectedVariant && item.selectedVariant.price
-                      ? `${parseFloat(item.selectedVariant.price)} شيكل`
-                      : `${item.price} شيكل`}
-                    {item.selectedVariant && (
-                      <div className="ct-variant-info">
-                        <small>
-                          {item.selectedVariant.size} -{" "}
-                          {item.selectedVariant.color}
-                        </small>
+                <div
+                  key={item.cartItemId || item.id}
+                  className="ct-mobile-card"
+                >
+                  <div className="ct-mobile-card-header">
+                    <div className="ct-mobile-product-image">
+                      {item.images && item.images.length > 0 ? (
+                        <img
+                          src={item.images[0]}
+                          alt={item.name}
+                          className="ct-mobile-thumbnail"
+                          loading="lazy"
+                          onClick={() => {
+                            setSelectedImage(item.images[0]);
+                            setShowImageModal(true);
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                            e.target.nextSibling.style.display = "block";
+                          }}
+                        />
+                      ) : null}
+                      {(!item.images || item.images.length === 0) && (
+                        <div className="ct-mobile-no-image">
+                          <span className="ct-mobile-no-image-icon">📷</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="ct-mobile-product-info">
+                      <h4 className="ct-mobile-product-name">{item.name}</h4>
+                      <div className="ct-mobile-price">
+                        {item.selectedVariant && item.selectedVariant.price
+                          ? `${parseFloat(item.selectedVariant.price)} شيكل`
+                          : `${item.price} شيكل`}
                       </div>
-                    )}
-                  </td>
-                  <td data-label="الكمية">
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      className="ct-qty-input"
-                      onChange={(e) =>
-                        updateQuantity(
-                          item.cartItemId || item.id,
-                          parseInt(e.target.value)
-                        )
-                      }
-                    />
-                  </td>
-                  <td data-label="المجموع">
-                    {(() => {
-                      const itemPrice =
-                        item.selectedVariant && item.selectedVariant.price
-                          ? parseFloat(item.selectedVariant.price)
-                          : item.price;
-                      return `${itemPrice * item.quantity} شيكل`;
-                    })()}
-                  </td>
-                  <td data-label="إزالة">
+                      {item.selectedVariant && (
+                        <div className="ct-mobile-variant">
+                          <span className="ct-mobile-variant-size">
+                            {item.selectedVariant.size}
+                          </span>
+                          <span className="ct-mobile-variant-color">
+                            {item.selectedVariant.color}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <button
-                      className="ct-remove-btn"
+                      className="ct-mobile-remove-btn"
                       onClick={() => removeFromCart(item.cartItemId || item.id)}
+                      aria-label="إزالة المنتج"
                     >
                       ×
                     </button>
-                  </td>
-                </tr>
+                  </div>
+
+                  <div className="ct-mobile-card-actions">
+                    <div className="ct-mobile-quantity">
+                      <label>الكمية:</label>
+                      <div className="ct-mobile-qty-controls">
+                        <button
+                          className="ct-mobile-qty-btn"
+                          onClick={() => {
+                            const newQty = Math.max(1, item.quantity - 1);
+                            updateQuantity(item.cartItemId || item.id, newQty);
+                          }}
+                          disabled={item.quantity <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="ct-mobile-qty-value">
+                          {item.quantity}
+                        </span>
+                        <button
+                          className="ct-mobile-qty-btn"
+                          onClick={() => {
+                            updateQuantity(
+                              item.cartItemId || item.id,
+                              item.quantity + 1
+                            );
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="ct-mobile-total">
+                      <span>المجموع:</span>
+                      <strong>
+                        {(() => {
+                          const itemPrice =
+                            item.selectedVariant && item.selectedVariant.price
+                              ? parseFloat(item.selectedVariant.price)
+                              : item.price;
+                          return `${itemPrice * item.quantity} شيكل`;
+                        })()}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
         <div className="ct-summary">
           <p>
@@ -555,6 +699,36 @@ function Cart() {
                   {loading ? "... جاري الإرسال" : "إرسال الطلب"}
                 </button>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Image Modal */}
+        {showImageModal && selectedImage && (
+          <div
+            className="ct-image-modal-overlay"
+            onClick={() => setShowImageModal(false)}
+          >
+            <div
+              className="ct-image-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="ct-image-modal-header">
+                <h3>معاينة الصورة</h3>
+                <button
+                  className="ct-image-modal-close"
+                  onClick={() => setShowImageModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <div className="ct-image-modal-content">
+                <img
+                  src={selectedImage}
+                  alt="معاينة المنتج"
+                  className="ct-image-modal-image"
+                />
+              </div>
             </div>
           </div>
         )}

@@ -277,10 +277,7 @@ function AdminDashboard() {
             <div className="stat-label">طلبات منجزة</div>
             <div className="stat-value">{kpis.completedCount}</div>
           </div>
-          <div className="ad-card stat accent">
-            <div className="stat-label">إجمالي المبيعات</div>
-            <div className="stat-value">{kpis.revenue} شيكل</div>
-          </div>
+
           <div className="ad-card stat">
             <div className="stat-label">المنتجات</div>
             <div className="stat-value">{kpis.productsCount}</div>
@@ -382,6 +379,12 @@ function AdminDashboard() {
                 <span className="tile-title">إدارة الخصومات</span>
                 <span className="tile-sub">
                   تطبيق خصومات على المنتجات والفئات
+                </span>
+              </Link>
+              <Link to="/admin/statistics" className="ad-tile">
+                <span className="tile-title">إحصائيات الموقع</span>
+                <span className="tile-sub">
+                  عرض إحصائيات شاملة عن الموقع والزوار
                 </span>
               </Link>
             </div>

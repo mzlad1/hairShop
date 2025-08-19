@@ -53,6 +53,52 @@ function ManageProducts() {
   const [itemsPerPage] = useState(10); // 10 products per page
   const [stockFilter, setStockFilter] = useState(""); // Add stock filter
 
+  // New filter states
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
+  const [selectedBadges, setSelectedBadges] = useState([]);
+  const [sortOrder, setSortOrder] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  // Available badges for filtering
+  const availableBadges = [
+    { key: "new", label: "جديد", icon: "🆕" },
+    { key: "onDemand", label: "ع الطلب", icon: "📦" },
+    { key: "hasVariants", label: "متعدد الأحجام", icon: "📏" },
+    { key: "lowStock", label: "مخزون قليل", icon: "⚠️" },
+    { key: "outOfStock", label: "نفذ المخزون", icon: "❌" },
+  ];
+
+  // Stock filter options
+  const stockFilterOptions = [
+    { value: "", label: "كل المنتجات" },
+    { value: "in-stock", label: "متوفر (أكثر من 5)" },
+    { value: "low-stock", label: "مخزون قليل (1-5)" },
+    { value: "out-of-stock", label: "نفدت الكمية (0)" },
+  ];
+
+  // Availability filter options
+  const availabilityFilterOptions = [
+    { value: "all", label: "جميع المنتجات" },
+    { value: "available", label: "متوفر فوراً" },
+    { value: "onDemand", label: "ع الطلب" },
+  ];
+
+  // Sort options
+  const sortOptions = [
+    { value: "", label: "بدون ترتيب" },
+    { value: "name", label: "الاسم (أ-ي)" },
+    { value: "brand", label: "العلامة التجارية (أ-ي)" },
+    { value: "priceAsc", label: "السعر (الأقل أولاً)" },
+    { value: "priceDesc", label: "السعر (الأعلى أولاً)" },
+    { value: "stockAsc", label: "المخزون (الأقل أولاً)" },
+    { value: "stockDesc", label: "المخزون (الأكثر أولاً)" },
+    { value: "newest", label: "الأحدث" },
+  ];
+
   // جلب المنتجات والفئات والعلامات التجارية من قاعدة البيانات
   useEffect(() => {
     async function fetchData() {
@@ -133,6 +179,8 @@ function ManageProducts() {
             stock: 15,
             isNew: true,
             onDemand: false,
+            hasVariants: false,
+            createdAt: new Date("2024-01-15"),
           },
           {
             id: "2",
@@ -145,6 +193,8 @@ function ManageProducts() {
             stock: 0,
             isNew: false,
             onDemand: false,
+            hasVariants: false,
+            createdAt: new Date("2023-12-01"),
           },
           {
             id: "3",
@@ -157,6 +207,56 @@ function ManageProducts() {
             stock: 25,
             isNew: false,
             onDemand: true,
+            hasVariants: false,
+            createdAt: new Date("2023-11-20"),
+          },
+          {
+            id: "4",
+            name: "زيت الأرغان للشعر",
+            price: 85,
+            description: "زيت طبيعي 100% لتقوية الشعر وإضافة اللمعان الطبيعي.",
+            images: ["/images/sample1.jpg"],
+            categories: ["العناية بالشعر"],
+            brand: "The Ordinary",
+            stock: 3,
+            isNew: true,
+            onDemand: false,
+            hasVariants: true,
+            variants: [
+              { size: "30ml", price: 85, stock: 3 },
+              { size: "60ml", price: 150, stock: 0 },
+            ],
+            createdAt: new Date("2024-01-10"),
+          },
+          {
+            id: "5",
+            name: "سيروم فيتامين سي",
+            price: 95,
+            description:
+              "سيروم مضاد للأكسدة لإشراق البشرة ومحاربة علامات التقدم.",
+            images: ["/images/sample2.jpg"],
+            categories: ["العناية بالبشرة"],
+            brand: "The Ordinary",
+            stock: 8,
+            isNew: false,
+            onDemand: false,
+            hasVariants: false,
+            createdAt: new Date("2023-10-15"),
+          },
+          {
+            id: "6",
+            name: "كريم مرطب للوجه",
+            price: 45,
+            description:
+              "كريم يرطب البشرة ويمنحها نعومة فائقة مع الحماية اليومية.",
+            images: ["/images/sample3.jpg"],
+            categories: ["العناية بالبشرة"],
+            brand: "Nivea",
+            stock: 2,
+            isNew: false,
+            onDemand: true,
+            hasVariants: false,
+            createdAt: new Date("2023-09-30"),
           },
         ]);
         setCategories([
@@ -546,6 +646,41 @@ function ManageProducts() {
     setShowForm(false);
   };
 
+  // Helper functions for badge management
+  const toggleBadge = (badgeKey) => {
+    setSelectedBadges((prev) =>
+      prev.includes(badgeKey)
+        ? prev.filter((b) => b !== badgeKey)
+        : [...prev, badgeKey]
+    );
+  };
+
+  const isBadgeSelected = (badgeKey) => selectedBadges.includes(badgeKey);
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (searchTerm) count++;
+    if (stockFilter) count++;
+    if (selectedCategory) count++;
+    if (selectedBrand) count++;
+    if (priceRange.min || priceRange.max) count++;
+    if (selectedBadges.length > 0) count++;
+    if (sortOrder) count++;
+    if (availabilityFilter !== "all") count++;
+    return count;
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setStockFilter("");
+    setSelectedCategory("");
+    setSelectedBrand("");
+    setPriceRange({ min: "", max: "" });
+    setSelectedBadges([]);
+    setSortOrder("");
+    setAvailabilityFilter("all");
+  };
+
   // Enhanced filtering function for products
   const getFilteredProducts = () => {
     let filtered = products;
@@ -563,6 +698,52 @@ function ManageProducts() {
       );
     }
 
+    // Filter by category
+    if (selectedCategory) {
+      filtered = filtered.filter((product) =>
+        product.categories?.includes(selectedCategory)
+      );
+    }
+
+    // Filter by brand
+    if (selectedBrand) {
+      filtered = filtered.filter((product) => product.brand === selectedBrand);
+    }
+
+    // Filter by price range
+    if (priceRange.min !== "" || priceRange.max !== "") {
+      filtered = filtered.filter((product) => {
+        const price = parseFloat(product.price) || 0;
+        const min = priceRange.min !== "" ? parseFloat(priceRange.min) : 0;
+        const max =
+          priceRange.max !== "" ? parseFloat(priceRange.max) : Infinity;
+        return price >= min && price <= max;
+      });
+    }
+
+    // Filter by badges
+    if (selectedBadges.length > 0) {
+      filtered = filtered.filter((product) => {
+        return selectedBadges.some((badge) => {
+          switch (badge) {
+            case "new":
+              return product.isNew === true;
+            case "onDemand":
+              return product.onDemand === true;
+            case "hasVariants":
+              return product.hasVariants === true;
+            case "lowStock":
+              const stock = product.stock || 0;
+              return stock > 0 && stock <= 5;
+            case "outOfStock":
+              return (product.stock || 0) === 0;
+            default:
+              return false;
+          }
+        });
+      });
+    }
+
     // Filter by stock status
     if (stockFilter) {
       filtered = filtered.filter((product) => {
@@ -576,6 +757,44 @@ function ManageProducts() {
             return stock === 0;
           default:
             return true;
+        }
+      });
+    }
+
+    // Filter by availability
+    if (availabilityFilter !== "all") {
+      filtered = filtered.filter((product) => {
+        switch (availabilityFilter) {
+          case "available":
+            return !product.onDemand;
+          case "onDemand":
+            return product.onDemand === true;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Sorting
+    if (sortOrder) {
+      filtered.sort((a, b) => {
+        switch (sortOrder) {
+          case "name":
+            return (a.name || "").localeCompare(b.name || "");
+          case "brand":
+            return (a.brand || "").localeCompare(b.brand || "");
+          case "priceAsc":
+            return (a.price || 0) - (b.price || 0);
+          case "priceDesc":
+            return (b.price || 0) - (a.price || 0);
+          case "stockAsc":
+            return (a.stock || 0) - (b.stock || 0);
+          case "stockDesc":
+            return (b.stock || 0) - (a.stock || 0);
+          case "newest":
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+          default:
+            return 0;
         }
       });
     }
@@ -602,7 +821,16 @@ function ManageProducts() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, stockFilter]);
+  }, [
+    searchTerm,
+    stockFilter,
+    selectedCategory,
+    selectedBrand,
+    priceRange,
+    selectedBadges,
+    sortOrder,
+    availabilityFilter,
+  ]);
 
   return (
     <>
@@ -622,29 +850,170 @@ function ManageProducts() {
         {/* Search and Filter Section */}
         {!showForm && (
           <div className="mp-controls">
-            <div className="mp-search">
-              <input
-                type="text"
-                placeholder="ابحث عن منتج بالاسم، العلامة التجارية، أو الفئة..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="mp-search-input"
-              />
+            <div className="mp-filters-header">
+              <span className="mp-filters-icon">🔍</span>
+              <h3 className="mp-filters-title">البحث والتصفية</h3>
+              {getActiveFiltersCount() > 0 && (
+                <span className="mp-filters-count">
+                  ({getActiveFiltersCount()})
+                </span>
+              )}
             </div>
 
-            <div className="mp-stock-filter">
-              <label>تصفية حسب المخزون:</label>
-              <select
-                value={stockFilter}
-                onChange={(e) => setStockFilter(e.target.value)}
-                className="mp-stock-select"
-              >
-                <option value="">كل المنتجات</option>
-                <option value="in-stock">متوفر (أكثر من 5)</option>
-                <option value="low-stock">مخزون قليل (1-5)</option>
-                <option value="out-of-stock">نفدت الكمية (0)</option>
-              </select>
+            {/* Basic Filters Row */}
+            <div className="mp-basic-filters">
+              <div className="mp-search">
+                <input
+                  type="text"
+                  placeholder="ابحث عن منتج بالاسم، العلامة التجارية، أو الفئة..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="mp-search-input"
+                />
+              </div>
+
+              <div className="mp-filter-group">
+                <label>الفئة:</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="mp-filter-select"
+                >
+                  <option value="">كل الفئات</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mp-filter-group">
+                <label>العلامة التجارية:</label>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="mp-filter-select"
+                >
+                  <option value="">كل العلامات التجارية</option>
+                  {brands.map((brand) => (
+                    <option key={brand.id} value={brand.name}>
+                      {brand.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mp-filter-group">
+                <label>الترتيب:</label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="mp-filter-select"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+
+            {/* Advanced Filters Row */}
+            <div className="mp-advanced-filters">
+              <div className="mp-filter-group">
+                <label>المخزون:</label>
+                <select
+                  value={stockFilter}
+                  onChange={(e) => setStockFilter(e.target.value)}
+                  className="mp-filter-select"
+                >
+                  {stockFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mp-filter-group">
+                <label>التوفر:</label>
+                <select
+                  value={availabilityFilter}
+                  onChange={(e) => setAvailabilityFilter(e.target.value)}
+                  className="mp-filter-select"
+                >
+                  {availabilityFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mp-price-range">
+                <label>نطاق السعر:</label>
+                <div className="mp-price-inputs">
+                  <input
+                    type="number"
+                    placeholder="من"
+                    value={priceRange.min}
+                    onChange={(e) =>
+                      setPriceRange((prev) => ({
+                        ...prev,
+                        min: e.target.value,
+                      }))
+                    }
+                    className="mp-price-input"
+                    min="0"
+                  />
+                  <span className="mp-price-separator">-</span>
+                  <input
+                    type="number"
+                    placeholder="إلى"
+                    value={priceRange.max}
+                    onChange={(e) =>
+                      setPriceRange((prev) => ({
+                        ...prev,
+                        max: e.target.value,
+                      }))
+                    }
+                    className="mp-price-input"
+                    min="0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Badge Filters */}
+            <div className="mp-badge-filters">
+              <label>الخصائص:</label>
+              <div className="mp-badges-grid">
+                {availableBadges.map((badge) => (
+                  <button
+                    key={badge.key}
+                    className={`mp-badge-filter ${
+                      isBadgeSelected(badge.key) ? "active" : ""
+                    }`}
+                    onClick={() => toggleBadge(badge.key)}
+                    type="button"
+                  >
+                    <span className="mp-badge-icon">{badge.icon}</span>
+                    <span className="mp-badge-text">{badge.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Active Filters Display */}
+            {getActiveFiltersCount() > 0 && (
+              <div className="mp-active-filters">
+                <button className="mp-clear-filters" onClick={clearAllFilters}>
+                  مسح جميع الفلاتر
+                </button>
+              </div>
+            )}
 
             <div className="mp-products-count">
               عرض {indexOfFirstItem + 1}-
@@ -1051,6 +1420,7 @@ function ManageProducts() {
         <table className="mp-table">
           <thead>
             <tr>
+              <th>الصورة</th>
               <th>الاسم</th>
               <th>العلامة التجارية</th>
               <th>السعر</th>
@@ -1062,6 +1432,32 @@ function ManageProducts() {
           <tbody>
             {currentProducts.map((product) => (
               <tr key={product.id}>
+                <td data-label="الصورة">
+                  <div className="mp-product-image">
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="mp-product-thumbnail"
+                        loading="lazy"
+                        onClick={() => {
+                          setSelectedImage(product.images[0]);
+                          setShowImageModal(true);
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          e.target.nextSibling.style.display = "block";
+                        }}
+                      />
+                    ) : null}
+                    {(!product.images || product.images.length === 0) && (
+                      <div className="mp-no-image">
+                        <span className="mp-no-image-icon">📷</span>
+                        <span className="mp-no-image-text">لا توجد صورة</span>
+                      </div>
+                    )}
+                  </div>
+                </td>
                 <td data-label="الاسم">{product.name}</td>
                 <td data-label="العلامة التجارية">
                   <span className="mp-brand-tag">
@@ -1198,6 +1594,36 @@ function ManageProducts() {
               لا توجد منتجات{" "}
               {searchTerm || stockFilter ? "تطابق معايير البحث" : ""}
             </p>
+          </div>
+        )}
+
+        {/* Image Modal */}
+        {showImageModal && selectedImage && (
+          <div
+            className="mp-image-modal-overlay"
+            onClick={() => setShowImageModal(false)}
+          >
+            <div
+              className="mp-image-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mp-image-modal-header">
+                <h3>معاينة الصورة</h3>
+                <button
+                  className="mp-image-modal-close"
+                  onClick={() => setShowImageModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <div className="mp-image-modal-content">
+                <img
+                  src={selectedImage}
+                  alt="معاينة المنتج"
+                  className="mp-image-modal-image"
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -98,12 +98,12 @@ function Navbar() {
           {!isAdmin && (
             <Link
               to="/cart"
-              className={`nav-link cart-link ${
+              className={`nav-link cart-link nav-cart-desktop ${
                 isActive("/cart") ? "nav-link-active" : ""
               }`}
               onClick={closeMenu}
             >
-              <span className="cart-icon">🛍️</span>
+              <span className="cart-icon">🛒</span>
               <span className="cart-text">السلة</span>
               {cartItemsCount > 0 && (
                 <span className="cart-badge">{cartItemsCount}</span>
@@ -126,28 +126,45 @@ function Navbar() {
           )}
         </nav>
 
-        <button
-          className="nav-toggle"
-          onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
-          aria-expanded={isMenuOpen}
-        >
-          <span
-            className={`nav-toggle-line ${
-              isMenuOpen ? "nav-toggle-line-1" : ""
-            }`}
-          ></span>
-          <span
-            className={`nav-toggle-line ${
-              isMenuOpen ? "nav-toggle-line-2" : ""
-            }`}
-          ></span>
-          <span
-            className={`nav-toggle-line ${
-              isMenuOpen ? "nav-toggle-line-3" : ""
-            }`}
-          ></span>
-        </button>
+        <div className="nav-right">
+          {/* Mobile Cart Button - Only show for non-admin users */}
+          {!isAdmin && (
+            <Link
+              to="/cart"
+              className="nav-cart-mobile"
+              onClick={closeMenu}
+              aria-label="عربة التسوق"
+            >
+              <span className="nav-cart-icon">🛒</span>
+              {cartItemsCount > 0 && (
+                <span className="nav-cart-badge">{cartItemsCount}</span>
+              )}
+            </Link>
+          )}
+
+          <button
+            className="nav-toggle"
+            onClick={toggleMenu}
+            aria-label="Toggle navigation menu"
+            aria-expanded={isMenuOpen}
+          >
+            <span
+              className={`nav-toggle-line ${
+                isMenuOpen ? "nav-toggle-line-1" : ""
+              }`}
+            ></span>
+            <span
+              className={`nav-toggle-line ${
+                isMenuOpen ? "nav-toggle-line-2" : ""
+              }`}
+            ></span>
+            <span
+              className={`nav-toggle-line ${
+                isMenuOpen ? "nav-toggle-line-3" : ""
+              }`}
+            ></span>
+          </button>
+        </div>
       </div>
     </header>
   );

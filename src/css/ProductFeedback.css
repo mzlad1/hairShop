@@ -94,6 +94,73 @@
   font-family: "Tajawal", Arial, sans-serif;
 }
 
+/* Rating Styles */
+.pf-rating-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pf-star {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 4px;
+  color: #ccc;
+}
+
+.pf-star:hover {
+  transform: scale(1.1);
+  color: #ffd700;
+}
+
+/* Correct hover effect - when hovering over a star, highlight it and all stars to the left */
+.pf-star:nth-child(1):hover {
+  color: #ffd700;
+}
+
+.pf-star:nth-child(2):hover,
+.pf-star:nth-child(2):hover ~ .pf-star:nth-child(1) {
+  color: #ffd700;
+}
+
+.pf-star:nth-child(3):hover,
+.pf-star:nth-child(3):hover ~ .pf-star:nth-child(2),
+.pf-star:nth-child(3):hover ~ .pf-star:nth-child(1) {
+  color: #ffd700;
+}
+
+.pf-star:nth-child(4):hover,
+.pf-star:nth-child(4):hover ~ .pf-star:nth-child(3),
+.pf-star:nth-child(4):hover ~ .pf-star:nth-child(2),
+.pf-star:nth-child(4):hover ~ .pf-star:nth-child(1) {
+  color: #ffd700;
+}
+
+.pf-star:nth-child(5):hover,
+.pf-star:nth-child(5):hover ~ .pf-star:nth-child(4),
+.pf-star:nth-child(5):hover ~ .pf-star:nth-child(3),
+.pf-star:nth-child(5):hover ~ .pf-star:nth-child(2),
+.pf-star:nth-child(5):hover ~ .pf-star:nth-child(1) {
+  color: #ffd700;
+}
+
+.pf-star.active {
+  color: #ffd700;
+  transform: scale(1.1);
+}
+
+.pf-rating-text {
+  font-size: 0.9rem;
+  color: #7a5a6c;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
 .pf-form-group input,
 .pf-form-group textarea {
   width: 100%;
@@ -223,10 +290,40 @@
 .pf-feedback-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(222, 170, 155, 0.2);
+  gap: 12px;
+}
+
+.pf-feedback-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.pf-feedback-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pf-display-star {
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+.pf-display-star.active {
+  color: #ffd700;
+}
+
+.pf-rating-value {
+  font-size: 0.8rem;
+  color: #7a5a6c;
+  font-weight: 600;
+  margin-left: 6px;
 }
 
 .pf-feedback-name {

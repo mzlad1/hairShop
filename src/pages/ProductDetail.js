@@ -530,12 +530,6 @@ function ProductDetail() {
             <span className="pd-breadcrumb-current">{product.name}</span>
           </nav>
 
-          {/* Back Button */}
-          <button onClick={handleBackClick} className="pd-back-btn">
-            <span>←</span>
-            العودة
-          </button>
-
           {error && (
             <div className="pd-error" role="alert">
               <span className="pd-error-icon">⚠️</span>

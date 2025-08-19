@@ -220,7 +220,7 @@
       rgba(255, 255, 255, 0.95),
       rgba(255, 255, 255, 0.9)
     );
-    box-shadow: 0 14px 36px rgba(191, 146, 144, 0.16),
+    box-shadow: 0 14px 36px rgba(191, 146, 255, 0.16),
       0 6px 18px rgba(185, 135, 123, 0.12);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -240,6 +240,99 @@
   }
   .navbar .nav-link {
     padding: 12px 14px;
+  }
+}
+
+/* Mobile Cart Button Styles */
+.nav-cart-mobile {
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--primary-400), var(--accent-500));
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(222, 170, 155, 0.3);
+  margin-left: 12px;
+}
+
+.nav-cart-mobile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(222, 170, 155, 0.4);
+}
+
+.nav-cart-icon {
+  font-size: 1.2rem;
+}
+
+.nav-cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff6b6b;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(255, 107, 107, 0.4);
+}
+
+/* Desktop Cart Button - Hide on mobile */
+.nav-cart-desktop {
+  display: inline-flex;
+}
+
+/* Mobile Layout */
+@media (max-width: 860px) {
+  .navbar .nav-container {
+    padding: 12px 16px;
+  }
+
+  /* Hide desktop cart button on mobile */
+  .nav-cart-desktop {
+    display: none;
+  }
+
+  /* Show mobile cart button */
+  .nav-cart-mobile {
+    display: flex;
+  }
+
+  /* Adjust container to accommodate mobile cart button */
+  .navbar .nav-container {
+    justify-content: space-between;
+  }
+
+  /* Create a right-side group for cart and toggle */
+  .navbar .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-cart-mobile {
+    width: 40px;
+    height: 40px;
+    margin-left: 8px;
+  }
+
+  .nav-cart-icon {
+    font-size: 1.1rem;
+  }
+
+  .nav-cart-badge {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    min-width: 16px;
   }
 }
 

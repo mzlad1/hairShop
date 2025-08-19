@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { db } from "../firebase";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../css/About.css";
@@ -62,26 +64,36 @@ function About() {
     },
   ];
 
-  const testimonials = [
-    {
-      name: "سارة أحمد",
-      text: "منتجات رائعة وخدمة ممتازة! أنصح الجميع بالتسوق من هنا",
-      rating: 5,
-      image: "👩‍💼",
-    },
-    {
-      name: "ليلى محمد",
-      text: "وجدت كل ما أحتاجه للعناية ببشرتي، والأسعار مناسبة جداً",
-      rating: 5,
-      image: "👩‍🎨",
-    },
-    {
-      name: "نور خالد",
-      text: "التوصيل سريع والمنتجات أصلية 100%. متجر موثوق",
-      rating: 5,
-      image: "👩‍💻",
-    },
-  ];
+  const [featuredFeedbacks, setFeaturedFeedbacks] = useState([]);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
+
+  // Fetch featured feedbacks
+  useEffect(() => {
+    const fetchFeaturedFeedbacks = async () => {
+      try {
+        const q = query(
+          collection(db, "feedbacks"),
+          where("status", "==", "approved"),
+          where("isFeatured", "==", true),
+          orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        const feedbacks = [];
+        querySnapshot.forEach((doc) => {
+          feedbacks.push({ id: doc.id, ...doc.data() });
+        });
+        setFeaturedFeedbacks(feedbacks);
+      } catch (error) {
+        console.error("Error fetching featured feedbacks:", error);
+        // Fallback to empty array
+        setFeaturedFeedbacks([]);
+      } finally {
+        setLoadingFeedbacks(false);
+      }
+    };
+
+    fetchFeaturedFeedbacks();
+  }, []);
 
   const milestones = [
     {
@@ -192,24 +204,42 @@ function About() {
             </div>
 
             <div className="bp-about-testimonials-grid">
-              {testimonials.map((t, i) => (
-                <div key={i} className="bp-about-testimonial-card">
-                  <div className="bp-about-testimonial-header">
-                    <div className="bp-about-customer-avatar">{t.image}</div>
-                    <div className="bp-about-customer-info">
-                      <h4 className="bp-about-customer-name">{t.name}</h4>
-                      <div className="bp-about-rating">
-                        {[...Array(t.rating)].map((_, r) => (
-                          <span key={r} className="bp-about-star">
-                            ⭐
-                          </span>
-                        ))}
+              {loadingFeedbacks ? (
+                <div className="bp-about-loading">
+                  جاري تحميل التقييمات المميزة...
+                </div>
+              ) : featuredFeedbacks.length > 0 ? (
+                featuredFeedbacks.map((feedback) => (
+                  <div key={feedback.id} className="bp-about-testimonial-card">
+                    <div className="bp-about-testimonial-header">
+                      <div className="bp-about-customer-avatar">👤</div>
+                      <div className="bp-about-customer-info">
+                        <h4 className="bp-about-customer-name">
+                          {feedback.name}
+                        </h4>
+                        <div className="bp-about-rating">
+                          {feedback.rating &&
+                            [...Array(feedback.rating)].map((_, r) => (
+                              <span key={r} className="bp-about-star">
+                                ⭐
+                              </span>
+                            ))}
+                        </div>
                       </div>
                     </div>
+                    <p className="bp-about-testimonial-text">
+                      "{feedback.comment}"
+                    </p>
                   </div>
-                  <p className="bp-about-testimonial-text">"{t.text}"</p>
+                ))
+              ) : (
+                <div className="bp-about-no-feedbacks">
+                  <p>لا توجد تقييمات مميزة حالياً</p>
+                  <p>
+                    سيتم عرض التقييمات المميزة هنا بعد إضافتها من قبل الإدارة
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

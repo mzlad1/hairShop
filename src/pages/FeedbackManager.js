@@ -123,9 +123,34 @@ function FeedbackManager() {
     }
   };
 
+  const toggleFeatured = async (feedbackId, isFeatured) => {
+    setUpdating((prev) => ({ ...prev, [feedbackId]: true }));
+    try {
+      await updateDoc(doc(db, "feedbacks", feedbackId), {
+        isFeatured: isFeatured,
+      });
+
+      // Update both arrays
+      const updateFunction = (feedback) =>
+        feedback.id === feedbackId
+          ? { ...feedback, isFeatured: isFeatured }
+          : feedback;
+
+      setAllFeedbacks((prev) => prev.map(updateFunction));
+      setFeedbacks((prev) => prev.map(updateFunction));
+
+      alert(isFeatured ? "تم تمييز التقييم بنجاح!" : "تم إلغاء تمييز التقييم");
+    } catch (error) {
+      console.error("Error toggling featured status:", error);
+      alert("حدث خطأ في تحديث حالة التميز");
+    } finally {
+      setUpdating((prev) => ({ ...prev, [feedbackId]: false }));
+    }
+  };
+
   const formatDate = (date) => {
     if (date && date.toDate) {
-      return date.toDate().toLocaleDateString("ar-SA", {
+      return date.toDate().toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -241,6 +266,23 @@ function FeedbackManager() {
                       <span className="fm-product-name">
                         المنتج: {feedback.productName}
                       </span>
+                      {feedback.rating && (
+                        <div className="fm-feedback-rating">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              className={`fm-display-star ${
+                                feedback.rating >= star ? "active" : ""
+                              }`}
+                            >
+                              {feedback.rating >= star ? "⭐" : "☆"}
+                            </span>
+                          ))}
+                          <span className="fm-rating-value">
+                            ({feedback.rating}/5)
+                          </span>
+                        </div>
+                      )}
                       <span className="fm-feedback-date">
                         {formatDate(feedback.createdAt)}
                       </span>
@@ -305,6 +347,23 @@ function FeedbackManager() {
                       disabled={updating[feedback.id]}
                     >
                       {updating[feedback.id] ? "..." : "✗ رفض"}
+                    </button>
+                  )}
+                  {feedback.status === "approved" && (
+                    <button
+                      className={`fm-feature-btn ${
+                        feedback.isFeatured ? "featured" : ""
+                      }`}
+                      onClick={() =>
+                        toggleFeatured(feedback.id, !feedback.isFeatured)
+                      }
+                      disabled={updating[feedback.id]}
+                    >
+                      {updating[feedback.id]
+                        ? "..."
+                        : feedback.isFeatured
+                        ? "⭐ إلغاء التميز"
+                        : "⭐ تمييز"}
                     </button>
                   )}
                   <button
