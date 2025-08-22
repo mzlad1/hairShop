@@ -425,7 +425,7 @@ function Orders() {
     const date = new Date(timestamp.seconds * 1000);
     return date.toLocaleString("ar-EG", {
       year: "numeric",
-      month: "long",
+      month: "numeric", // Changed from "long" to "numeric"
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
@@ -748,18 +748,6 @@ function Orders() {
                     </div>
 
                     <div className="ord-action-buttons">
-                      <a
-                        href={`tel:${order.customerPhone}`}
-                        className="ord-action-btn ord-call-btn"
-                      >
-                        📞 اتصال
-                      </a>
-                      <a
-                        href={`mailto:${order.customerEmail}`}
-                        className="ord-action-btn ord-email-btn"
-                      >
-                        ✉️ إيميل
-                      </a>
                       <button
                         className="ord-action-btn ord-delete-btn"
                         onClick={() => handleDeleteOrder(order.id)}

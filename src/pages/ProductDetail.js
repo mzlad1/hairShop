@@ -837,13 +837,6 @@ function ProductDetail() {
                         +
                       </button>
                     </div>
-                    <span className="pd-qty-note">
-                      المتاح للإضافة:{" "}
-                      {product.hasVariants && selectedVariant
-                        ? parseInt(selectedVariant.stock) || 0
-                        : maxAddable}{" "}
-                      قطعة
-                    </span>
                   </div>
                 )}
 

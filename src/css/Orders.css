@@ -1047,23 +1047,336 @@
   }
 }
 
+/* Fixed Mobile Orders Header - Replace the existing mobile section */
+
 @media (max-width: 560px) {
-  .ord-product-link {
+  .orders-page {
+    padding: 18px 10px 36px;
+  }
+
+  .orders-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .orders-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .orders-stats .ord-stat-card {
+    padding: 16px;
+  }
+
+  .orders-stats .ord-stat-card h3 {
     font-size: 0.85rem;
+  }
+
+  .orders-stats .ord-stat-card .ord-stat-number {
+    font-size: 1.4rem;
+  }
+
+  /* FIXED: Mobile order header - prevent overlapping */
+  .ord-header {
+    padding: 12px 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-400) transparent;
+    touch-action: pan-x;
+    cursor: grab;
+    /* Add scroll indicators */
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      transparent 15%,
+      transparent 85%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+  }
+
+  .ord-header:active {
+    cursor: grabbing;
+  }
+
+  /* FIXED: Proper grid layout for mobile */
+  .ord-basic-info {
+    display: grid;
+    grid-template-columns:
+      minmax(80px, auto) /* ID */
+      minmax(100px, 1fr) /* Name */
+      minmax(140px, auto) /* Date */
+      minmax(80px, auto) /* Total */
+      minmax(100px, auto) /* Status */
+      40px; /* Button */
+    gap: 8px;
+    min-width: 600px; /* Ensure minimum width for scrolling */
+    align-items: center;
+    padding-right: 16px; /* Extra space for scroll indicator */
+  }
+
+  /* FIXED: Ensure each element has proper sizing */
+  .ord-id {
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* Allow shrinking */
+  }
+
+  .ord-customer-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* Allow shrinking */
+  }
+
+  .ord-date {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* Allow shrinking */
+  }
+
+  .ord-total {
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .ord-status {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+    white-space: nowrap;
+    text-align: center;
+    border-radius: 12px;
+  }
+
+  .ord-expand-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    flex-shrink: 0; /* Don't shrink the button */
+    border-radius: 8px;
+  }
+
+  /* Custom scrollbar for webkit browsers */
+  .ord-header::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .ord-header::-webkit-scrollbar-track {
+    background: rgba(222, 170, 155, 0.1);
+    border-radius: 2px;
+  }
+
+  .ord-header::-webkit-scrollbar-thumb {
+    background: var(--primary-400);
+    border-radius: 2px;
+  }
+
+  .ord-header::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-500);
+  }
+
+  /* FIXED: Better scroll indicators */
+  .ord-header::after {
+    content: "← مرر لعرض المزيد →";
+    position: absolute;
+    bottom: 2px;
+    right: 12px;
+    font-size: 0.65rem;
+    color: var(--primary-400);
+    opacity: 0.6;
+    pointer-events: none;
+    animation: scrollHint 3s ease-in-out infinite;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+
+  @keyframes scrollHint {
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: translateX(0);
+    }
+    50% {
+      opacity: 0.8;
+      transform: translateX(-3px);
+    }
+  }
+
+  @keyframes scrollHintSimple {
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+  }
+
+  /* Mobile variant styles */
+  .ord-variant-info {
+    padding: 6px 8px;
+    margin-top: 4px;
+  }
+
+  .ord-variant-badge {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+
+  .ord-variant-price {
+    font-size: 0.75rem;
+  }
+
+  /* Mobile order summary styles */
+  .ord-summary-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .ord-summary-stat {
+    padding: 6px 8px;
+  }
+
+  .ord-summary-label {
+    font-size: 0.85rem;
+  }
+
+  .ord-summary-value {
+    font-size: 0.9rem;
+  }
+
+  /* Mobile customer details styles */
+  .ord-customer-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .ord-customer-details p {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
+  }
+
+  .ord-customer-details p strong {
+    min-width: auto;
+    font-size: 0.9rem;
+  }
+}
+
+/* ADDITIONAL: Extra small screens (< 400px) */
+@media (max-width: 400px) {
+  .ord-basic-info {
+    grid-template-columns:
+      60px /* ID - smaller */
+      1fr /* Name - flexible */
+      120px /* Date - smaller */
+      70px /* Total - smaller */
+      90px /* Status - smaller */
+      36px; /* Button - smaller */
+    gap: 6px;
+    min-width: 500px;
+  }
+
+  .ord-id {
+    font-size: 0.8rem;
+  }
+
+  .ord-customer-name {
+    font-size: 0.8rem;
+  }
+
+  .ord-date {
+    font-size: 0.75rem;
+  }
+
+  .ord-total {
+    font-size: 0.8rem;
+  }
+
+  .ord-status {
+    font-size: 0.7rem;
+    padding: 3px 5px;
+  }
+
+  .ord-expand-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
   }
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .ord-product-link {
-    border: 1px solid var(--primary-600);
+  .status-indicator.live {
+    background: rgba(46, 204, 113, 0.3);
+    border-color: #27ae60;
   }
 
-  .ord-product-link:hover {
-    border-color: var(--accent-600);
-    background: rgba(222, 170, 155, 0.2);
+  .status-indicator.updating {
+    background: rgba(52, 152, 219, 0.3);
+    border-color: #3498db;
   }
+
+  .orders-controls {
+    border: 2px solid var(--primary-400);
+  }
+}
+
+/* Dark mode support (if implemented) */
+@media (prefers-color-scheme: dark) {
+  .orders-page {
+    --bg: #1a1625;
+    --surface: rgba(45, 35, 55, 0.85);
+    --card: rgba(55, 45, 65, 0.65);
+    --text: #e8d5e0;
+    --muted: #b298a8;
+  }
+
+  .orders-controls {
+    background: rgba(45, 35, 55, 0.8);
+    border-color: rgba(222, 170, 155, 0.15);
+  }
+
+  .ord-search-input,
+  .ord-date-input,
+  .orders-controls select {
+    background: rgba(55, 45, 65, 0.9);
+    border-color: rgba(222, 170, 155, 0.2);
+    color: var(--text);
+  }
+
+  .orders-count {
+    background: rgba(55, 45, 65, 0.8);
+  }
+}
+
+/* Accessibility improvements */
+.refresh-btn:focus-visible,
+.ord-clear-filters-btn:focus-visible {
+  outline: 3px solid var(--primary-400);
+  outline-offset: 2px;
+}
+
+.status-indicator {
+  role: status;
+  aria-live: polite;
 }
 
 /* Print styles - hide interactive elements */
@@ -1146,159 +1459,24 @@
     gap: 12px;
     padding: 14px;
   }
-}
 
-@media (max-width: 560px) {
-  .orders-page {
-    padding: 18px 10px 36px;
+  /* Medium mobile order header improvements */
+  .ord-header {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .orders-header h1 {
-    font-size: 1.5rem;
+  .ord-basic-info {
+    min-width: 550px; /* Slightly smaller for medium mobile */
+    gap: 14px; /* Medium gap for medium mobile */
   }
 
-  .orders-stats {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
+  .ord-date {
+    min-width: 115px;
   }
 
-  .orders-stats .ord-stat-card {
-    padding: 16px;
-  }
-
-  .orders-stats .ord-stat-card h3 {
-    font-size: 0.85rem;
-  }
-
-  .orders-stats .ord-stat-card .ord-stat-number {
-    font-size: 1.4rem;
-  }
-
-  /* Mobile variant styles */
-  .ord-variant-info {
-    padding: 6px 8px;
-    margin-top: 4px;
-  }
-
-  .ord-variant-badge {
-    font-size: 0.8rem;
-    padding: 3px 6px;
-  }
-
-  .ord-variant-price {
-    font-size: 0.75rem;
-  }
-
-  /* Mobile order summary styles */
-  .ord-summary-stats {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .ord-summary-stat {
-    padding: 6px 8px;
-  }
-
-  .ord-summary-label {
-    font-size: 0.85rem;
-  }
-
-  .ord-summary-value {
-    font-size: 0.9rem;
-  }
-
-  /* Mobile customer details styles */
-  .ord-customer-details {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .ord-customer-details p {
-    padding: 10px 12px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .ord-customer-details p strong {
-    min-width: auto;
-    font-size: 0.9rem;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .status-indicator.live {
-    background: rgba(46, 204, 113, 0.3);
-    border-color: #27ae60;
-  }
-
-  .status-indicator.updating {
-    background: rgba(52, 152, 219, 0.3);
-    border-color: #3498db;
-  }
-
-  .orders-controls {
-    border: 2px solid var(--primary-400);
-  }
-}
-
-/* Dark mode support (if implemented) */
-@media (prefers-color-scheme: dark) {
-  .orders-page {
-    --bg: #1a1625;
-    --surface: rgba(45, 35, 55, 0.85);
-    --card: rgba(55, 45, 65, 0.65);
-    --text: #e8d5e0;
-    --muted: #b298a8;
-  }
-
-  .orders-controls {
-    background: rgba(45, 35, 55, 0.8);
-    border-color: rgba(222, 170, 155, 0.15);
-  }
-
-  .ord-search-input,
-  .ord-date-input,
-  .orders-controls select {
-    background: rgba(55, 45, 65, 0.9);
-    border-color: rgba(222, 170, 155, 0.2);
-    color: var(--text);
-  }
-
-  .orders-count {
-    background: rgba(55, 45, 65, 0.8);
-  }
-}
-
-/* Accessibility improvements */
-.refresh-btn:focus-visible,
-.ord-clear-filters-btn:focus-visible {
-  outline: 3px solid var(--primary-400);
-  outline-offset: 2px;
-}
-
-.status-indicator {
-  role: status;
-  aria-live: polite;
-}
-
-/* Print styles */
-@media print {
-  .orders-header .orders-actions,
-  .realtime-status,
-  .orders-controls,
-  .ord-pagination {
-    display: none;
-  }
-
-  .orders-page {
-    background: white;
-  }
-
-  .orders-stats .ord-stat-card {
-    break-inside: avoid;
+  .ord-customer-name {
+    min-width: 85px;
   }
 }
