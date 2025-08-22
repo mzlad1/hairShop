@@ -120,7 +120,6 @@ function Navbar() {
               }`}
               onClick={closeMenu}
             >
-              <span className="admin-icon">⚙️</span>
               لوحة التحكم
             </Link>
           )}

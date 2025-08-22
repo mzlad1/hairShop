@@ -16,6 +16,8 @@ import {
 import Footer from "../components/Footer";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import emailjs from "@emailjs/browser";
+import { EMAILJS_CONFIG } from "../config/emailjs";
 
 // صفحة سلة المشتريات والدفع
 function Cart() {
@@ -35,6 +37,9 @@ function Cart() {
   const [showStockModal, setShowStockModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   // Delivery options
   const [selectedDelivery, setSelectedDelivery] = useState("");
@@ -46,6 +51,85 @@ function Cart() {
     { id: "inside", name: "داخل الخط الأخضر", price: 60 },
     { id: "abughosh", name: "أبو غوش", price: 45 },
   ];
+
+  // Send order confirmation email
+  const sendOrderConfirmationEmail = async (orderData) => {
+    setEmailLoading(true);
+    setEmailError("");
+
+    try {
+      // Check if EmailJS is properly configured
+      if (
+        !EMAILJS_CONFIG.publicKey ||
+        EMAILJS_CONFIG.publicKey === "YOUR_PUBLIC_KEY_HERE"
+      ) {
+        throw new Error("EmailJS not configured. Please add your public key.");
+      }
+
+      // Prepare email template variables
+      const templateParams = {
+        order_id: orderData.id || "N/A", // Changed to match template
+        orderDate: new Date().toLocaleDateString("ar-EG", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        customerName: orderData.customerName || "N/A",
+        email: orderData.customerEmail || "N/A",
+        customerPhone: orderData.customerPhone || "N/A",
+        customerAddress: orderData.customerAddress || "N/A",
+        // Create simple order items for the template
+        orders: orderData.items.map((item) => ({
+          units: item.quantity, // Changed to match template
+          price: (() => {
+            const itemPrice =
+              item.selectedVariant && item.selectedVariant.price
+                ? parseFloat(item.selectedVariant.price)
+                : item.price;
+            return itemPrice.toFixed(2);
+          })(),
+          // Add variant info to name if exists
+          name: item.selectedVariant
+            ? `${item.name} (${item.selectedVariant.size} - ${item.selectedVariant.color})`
+            : item.name,
+        })),
+        deliveryOption: orderData.deliveryOption || "N/A",
+        deliveryFee: orderData.deliveryFee || 0,
+        subtotal: orderData.subtotal || 0,
+        finalTotal: orderData.total || 0,
+        // Add cost object for template
+        cost: {
+          shipping: orderData.deliveryFee || 0,
+          tax: 0, // We don't have tax
+          total: orderData.total || 0,
+        },
+      };
+
+      // Debug: Log the template parameters
+      console.log("EmailJS Template Parameters:", templateParams);
+      console.log("Order Data:", orderData);
+
+      // Send email using EmailJS
+      const response = await emailjs.send(
+        EMAILJS_CONFIG.serviceId,
+        EMAILJS_CONFIG.templateId,
+        templateParams,
+        EMAILJS_CONFIG.publicKey
+      );
+
+      console.log("Order confirmation email sent successfully:", response);
+      setEmailSent(true);
+      return true;
+    } catch (error) {
+      console.error("Error sending order confirmation email:", error);
+      setEmailError(error.message || "فشل في إرسال تأكيد الطلب");
+      return false;
+    } finally {
+      setEmailLoading(false);
+    }
+  };
 
   const deliveryFee = selectedDelivery
     ? deliveryOptions.find((option) => option.id === selectedDelivery)?.price ||
@@ -276,12 +360,22 @@ function Cart() {
           transaction.update(ref, updateData);
         });
 
-        return orderRef.id;
+        return { id: orderRef.id, ...orderData };
       });
 
       // Transaction successful
-      setOrderId(result);
+      setOrderId(result.id);
       setShowCheckout(false);
+
+      // Send order confirmation email
+      const emailSent = await sendOrderConfirmationEmail(result);
+      if (emailSent) {
+        console.log("Order confirmation email sent successfully");
+        setEmailSent(true);
+      } else {
+        console.log("Failed to send order confirmation email");
+      }
+
       clearCart();
       setName("");
       setEmail("");
@@ -584,6 +678,15 @@ function Cart() {
               تم إرسال طلبك بنجاح! رقم الطلب:
               <span className="ct-order-code">#{orderId}</span>
             </p>
+            {emailLoading && (
+              <p className="ct-email-loading">📧 جاري إرسال تأكيد الطلب...</p>
+            )}
+            {emailSent && (
+              <p className="ct-email-sent">
+                ✅ تم إرسال تأكيد الطلب إلى بريدك الإلكتروني
+              </p>
+            )}
+            {emailError && <p className="ct-email-error">⚠️ {emailError}</p>}
             <button
               type="button"
               className="ct-copy-btn"

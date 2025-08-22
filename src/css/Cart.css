@@ -733,6 +733,74 @@
   transform: translateY(-1px);
 }
 
+.ct-email-sent {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e8f5e8;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ct-email-sent::before {
+  content: "📧";
+  font-size: 1.1rem;
+}
+
+.ct-email-loading {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff3cd;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.ct-email-loading::before {
+  content: "⏳";
+  font-size: 1.1rem;
+}
+
+.ct-email-error {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffebee;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ct-email-error::before {
+  content: "⚠️";
+  font-size: 1.1rem;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Stock Modal Styles */
 .ct-stock-issues {
   margin-top: 1rem;
