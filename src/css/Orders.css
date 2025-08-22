@@ -107,27 +107,81 @@
   z-index: 1;
 }
 
-/* Orders header with refresh functionality */
+/* Orders Header */
 .orders-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 8px auto 18px;
-  max-width: 1100px;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .orders-header h1 {
   margin: 0;
-  text-align: left;
-  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  color: #2d3436;
+  font-size: 2rem;
   font-weight: 700;
-  letter-spacing: 0.2px;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Stock Management Note */
+.orders-stock-note {
+  background: linear-gradient(
+    135deg,
+    rgba(46, 204, 113, 0.1),
+    rgba(46, 204, 113, 0.05)
+  );
+  border: 2px solid rgba(46, 204, 113, 0.3);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  animation: stockNotePulse 3s ease-in-out infinite;
+}
+
+.stock-note-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.stock-note-icon {
+  font-size: 1.2rem;
+  animation: stockNoteBounce 2s ease-in-out infinite;
+}
+
+.stock-note-text {
+  color: #27ae60;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+@keyframes stockNotePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(46, 204, 113, 0);
+  }
+}
+
+@keyframes stockNoteBounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
 }
 
 .orders-actions {
@@ -630,33 +684,126 @@
   border: 1px solid rgba(222, 170, 155, 0.15);
 }
 
+/* Order Summary Stats */
 .ord-summary-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .ord-summary-stat {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 8px;
-  border: 1px solid rgba(222, 170, 155, 0.1);
+  padding: 0.5rem;
+  background: rgba(222, 170, 155, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(222, 170, 155, 0.2);
 }
 
 .ord-summary-label {
-  font-weight: 600;
-  color: var(--muted);
-  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2d3436;
 }
 
 .ord-summary-value {
+  font-weight: 600;
+  color: #deaa9b;
+}
+
+.ord-summary-total {
+  background: linear-gradient(
+    135deg,
+    rgba(222, 170, 155, 0.15),
+    rgba(191, 146, 144, 0.1)
+  );
+  border: 2px solid rgba(222, 170, 155, 0.3);
   font-weight: 700;
-  color: var(--primary-600);
+}
+
+.ord-summary-total .ord-summary-label {
   font-size: 1rem;
+  color: #2d3436;
+}
+
+.ord-summary-total .ord-summary-value {
+  font-size: 1.1rem;
+  color: #bf9290;
+}
+
+/* Delivery Information */
+.ord-delivery-info {
+  background: linear-gradient(
+    135deg,
+    rgba(116, 185, 255, 0.1),
+    rgba(9, 132, 227, 0.05)
+  );
+  border: 1px solid rgba(116, 185, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.ord-delivery-info h4 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3436;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ord-delivery-info h4::before {
+  content: "🚚";
+  font-size: 1.1rem;
+}
+
+.ord-delivery-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ord-delivery-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(116, 185, 255, 0.1);
+}
+
+.ord-delivery-item:last-child {
+  border-bottom: none;
+}
+
+.ord-delivery-label {
+  font-weight: 500;
+  color: #2d3436;
+  font-size: 0.9rem;
+}
+
+.ord-delivery-value {
+  font-weight: 600;
+  color: #0984e3;
+  font-size: 0.9rem;
+}
+
+.ord-delivery-total {
+  border-top: 2px solid rgba(116, 185, 255, 0.3);
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  font-weight: 700;
+}
+
+.ord-delivery-total .ord-delivery-label {
+  font-size: 1rem;
+  color: #2d3436;
+}
+
+.ord-delivery-total .ord-delivery-value {
+  font-size: 1.1rem;
+  color: #0984e3;
 }
 
 .ord-items .ord-items-table {

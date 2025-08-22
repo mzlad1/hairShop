@@ -29,6 +29,12 @@ function DiscountManager() {
   const [discountName, setDiscountName] = useState("");
   const [discountExpiry, setDiscountExpiry] = useState("");
 
+  // Edit discount state
+  const [editingDiscount, setEditingDiscount] = useState(null);
+  const [editDiscountValue, setEditDiscountValue] = useState("");
+  const [editDiscountName, setEditDiscountName] = useState("");
+  const [editDiscountExpiry, setEditDiscountExpiry] = useState("");
+
   // Search and pagination for products
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -202,8 +208,64 @@ function DiscountManager() {
       setDiscountName("");
       setDiscountExpiry("");
 
-      // Refresh data
-      await fetchData();
+      // Don't call fetchData() here to avoid potential loops
+      // Update local state with the new discounts
+      const updatedProducts = products.map((p) => {
+        const isAffected = affectedProducts.find((ap) => ap.id === p.id);
+        if (isAffected) {
+          if (p.hasVariants) {
+            // Update variants with new discounts
+            const updatedVariants = p.variants.map((variant) => {
+              const originalVariantPrice =
+                variant.originalPrice || variant.price;
+              const discountedVariantPrice = calculateDiscountedPrice(
+                originalVariantPrice,
+                parseFloat(discountValue),
+                discountMethod
+              );
+              return {
+                ...variant,
+                originalPrice: originalVariantPrice,
+                price: Math.round(discountedVariantPrice * 100) / 100,
+              };
+            });
+            return {
+              ...p,
+              variants: updatedVariants,
+              hasDiscount: true,
+              discountType: discountMethod,
+              discountValue: parseFloat(discountValue),
+              discountName: discountName,
+              discountAppliedAt: new Date(),
+              discountExpiresAt: discountExpiry
+                ? new Date(discountExpiry)
+                : null,
+            };
+          } else {
+            // Update regular product with new discount
+            const discountedPrice = calculateDiscountedPrice(
+              p.originalPrice || p.price,
+              parseFloat(discountValue),
+              discountMethod
+            );
+            return {
+              ...p,
+              originalPrice: p.originalPrice || p.price,
+              price: Math.round(discountedPrice * 100) / 100,
+              hasDiscount: true,
+              discountType: discountMethod,
+              discountValue: parseFloat(discountValue),
+              discountName: discountName,
+              discountAppliedAt: new Date(),
+              discountExpiresAt: discountExpiry
+                ? new Date(discountExpiry)
+                : null,
+            };
+          }
+        }
+        return p;
+      });
+      setProducts(updatedProducts);
 
       alert(`تم تطبيق الخصم على ${affectedProducts.length} منتج`);
     } catch (error) {
@@ -257,13 +319,295 @@ function DiscountManager() {
       // Invalidate products cache to ensure fresh data everywhere
       CacheManager.remove(CACHE_KEYS.PRODUCTS);
 
-      await fetchData();
+      // Don't call fetchData() here to avoid potential loops
+      // Update local state by removing the discount
+      const updatedProducts = products.map((p) => {
+        if (p.id === productId) {
+          if (p.hasVariants) {
+            // Restore original variant prices
+            const restoredVariants = p.variants.map((variant) => ({
+              ...variant,
+              price: variant.originalPrice || variant.price,
+              originalPrice: null,
+            }));
+            return {
+              ...p,
+              variants: restoredVariants,
+              hasDiscount: false,
+              discountType: null,
+              discountValue: null,
+              discountName: null,
+              discountAppliedAt: null,
+              discountExpiresAt: null,
+            };
+          } else {
+            return {
+              ...p,
+              price: p.originalPrice,
+              hasDiscount: false,
+              discountType: null,
+              discountValue: null,
+              discountName: null,
+              discountAppliedAt: null,
+              discountExpiresAt: null,
+              originalPrice: null,
+            };
+          }
+        }
+        return p;
+      });
+      setProducts(updatedProducts);
+
       alert("تم إزالة الخصم بنجاح");
     } catch (error) {
       console.error("Error removing discount:", error);
       alert("حدث خطأ في إزالة الخصم");
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const editDiscount = async (productId) => {
+    if (!editDiscountValue || !editDiscountName) {
+      alert("يرجى ملء جميع الحقول");
+      return;
+    }
+
+    if (
+      editDiscountValue <= 0 ||
+      (editingDiscount.discountType === "percentage" &&
+        editDiscountValue >= 100)
+    ) {
+      alert("يرجى إدخال قيمة خصم صحيحة");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const product = products.find((p) => p.id === productId);
+      const productRef = doc(db, "products", productId);
+
+      if (product.hasVariants) {
+        // Handle variants with updated discounts
+        const updatedVariants = product.variants.map((variant) => {
+          const originalVariantPrice = variant.originalPrice || variant.price;
+          const discountedVariantPrice = calculateDiscountedPrice(
+            originalVariantPrice,
+            parseFloat(editDiscountValue),
+            editingDiscount.discountType
+          );
+
+          return {
+            ...variant,
+            originalPrice: originalVariantPrice,
+            price: Math.round(discountedVariantPrice * 100) / 100,
+          };
+        });
+
+        await updateDoc(productRef, {
+          variants: updatedVariants,
+          discountValue: parseFloat(editDiscountValue),
+          discountName: editDiscountName,
+          discountExpiresAt: editDiscountExpiry
+            ? new Date(editDiscountExpiry)
+            : null,
+        });
+      } else {
+        // Handle regular products with updated discounts
+        const discountedPrice = calculateDiscountedPrice(
+          product.originalPrice || product.price,
+          parseFloat(editDiscountValue),
+          editingDiscount.discountType
+        );
+
+        await updateDoc(productRef, {
+          price: Math.round(discountedPrice * 100) / 100,
+          discountValue: parseFloat(editDiscountValue),
+          discountName: editDiscountName,
+          discountExpiresAt: editDiscountExpiry
+            ? new Date(editDiscountExpiry)
+            : null,
+        });
+      }
+
+      // Invalidate products cache to ensure fresh data everywhere
+      CacheManager.remove(CACHE_KEYS.PRODUCTS);
+
+      // Reset edit form
+      setEditingDiscount(null);
+      setEditDiscountValue("");
+      setEditDiscountName("");
+      setEditDiscountExpiry("");
+
+      // Don't call fetchData() here to avoid potential loops
+      // Update local state with the edited discount
+      const updatedProducts = products.map((p) => {
+        if (p.id === productId) {
+          if (p.hasVariants) {
+            // Update variants with new discount values
+            const updatedVariants = p.variants.map((variant) => {
+              const originalVariantPrice =
+                variant.originalPrice || variant.price;
+              const discountedVariantPrice = calculateDiscountedPrice(
+                originalVariantPrice,
+                parseFloat(editDiscountValue),
+                editingDiscount.discountType
+              );
+              return {
+                ...variant,
+                price: Math.round(discountedVariantPrice * 100) / 100,
+              };
+            });
+            return {
+              ...p,
+              variants: updatedVariants,
+              discountValue: parseFloat(editDiscountValue),
+              discountName: editDiscountName,
+              discountExpiresAt: editDiscountExpiry
+                ? new Date(editDiscountExpiry)
+                : null,
+            };
+          } else {
+            // Update regular product with new discount values
+            const discountedPrice = calculateDiscountedPrice(
+              p.originalPrice || p.price,
+              parseFloat(editDiscountValue),
+              editingDiscount.discountType
+            );
+            return {
+              ...p,
+              price: Math.round(discountedPrice * 100) / 100,
+              discountValue: parseFloat(editDiscountValue),
+              discountName: editDiscountName,
+              discountExpiresAt: editDiscountExpiry
+                ? new Date(editDiscountExpiry)
+                : null,
+            };
+          }
+        }
+        return p;
+      });
+      setProducts(updatedProducts);
+
+      alert("تم تحديث الخصم بنجاح");
+    } catch (error) {
+      console.error("Error updating discount:", error);
+      alert("حدث خطأ في تحديث الخصم");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const startEditingDiscount = (product) => {
+    setEditingDiscount(product);
+    setEditDiscountValue(product.discountValue.toString());
+    setEditDiscountName(product.discountName);
+    setEditDiscountExpiry(
+      product.discountExpiresAt
+        ? new Date(product.discountExpiresAt.seconds * 1000)
+            .toISOString()
+            .slice(0, 16)
+        : ""
+    );
+  };
+
+  const cancelEditingDiscount = () => {
+    setEditingDiscount(null);
+    setEditDiscountValue("");
+    setEditDiscountName("");
+    setEditDiscountExpiry("");
+  };
+
+  // Helper function to recalculate discounts for products when their original prices change
+  const recalculateProductDiscounts = async () => {
+    try {
+      const productsWithDiscounts = products.filter((p) => p.hasDiscount);
+      if (productsWithDiscounts.length === 0) return;
+
+      const batch = writeBatch(db);
+      let updatedCount = 0;
+
+      productsWithDiscounts.forEach((product) => {
+        if (product.hasVariants) {
+          // Recalculate variant discounts
+          const updatedVariants = product.variants.map((variant) => {
+            if (variant.originalPrice) {
+              const discountedVariantPrice = calculateDiscountedPrice(
+                variant.originalPrice,
+                product.discountValue,
+                product.discountType
+              );
+              return {
+                ...variant,
+                price: Math.round(discountedVariantPrice * 100) / 100,
+              };
+            }
+            return variant;
+          });
+
+          batch.update(doc(db, "products", product.id), {
+            variants: updatedVariants,
+          });
+          updatedCount++;
+        } else if (product.originalPrice) {
+          // Recalculate regular product discount
+          const discountedPrice = calculateDiscountedPrice(
+            product.originalPrice,
+            product.discountValue,
+            product.discountType
+          );
+
+          batch.update(doc(db, "products", product.id), {
+            price: Math.round(discountedPrice * 100) / 100,
+          });
+          updatedCount++;
+        }
+      });
+
+      if (updatedCount > 0) {
+        await batch.commit();
+        CacheManager.remove(CACHE_KEYS.PRODUCTS);
+        // Don't call fetchData() here to avoid infinite loops
+        // Just update the local state with the new data
+        const updatedProducts = products.map((product) => {
+          if (product.hasDiscount) {
+            if (product.hasVariants) {
+              // Update variants with recalculated prices
+              const updatedVariants = product.variants.map((variant) => {
+                if (variant.originalPrice) {
+                  const discountedPrice = calculateDiscountedPrice(
+                    variant.originalPrice,
+                    product.discountValue,
+                    product.discountType
+                  );
+                  return {
+                    ...variant,
+                    price: Math.round(discountedPrice * 100) / 100,
+                  };
+                }
+                return variant;
+              });
+              return { ...product, variants: updatedVariants };
+            } else if (product.originalPrice) {
+              // Update regular product price
+              const discountedPrice = calculateDiscountedPrice(
+                product.originalPrice,
+                product.discountValue,
+                product.discountType
+              );
+              return {
+                ...product,
+                price: Math.round(discountedPrice * 100) / 100,
+              };
+            }
+          }
+          return product;
+        });
+        setProducts(updatedProducts);
+        console.log(`Recalculated discounts for ${updatedCount} products`);
+      }
+    } catch (error) {
+      console.error("Error recalculating discounts:", error);
     }
   };
 
@@ -448,7 +792,45 @@ function DiscountManager() {
 
         await batch.commit();
         CacheManager.remove(CACHE_KEYS.PRODUCTS);
-        await fetchData();
+        // Don't call fetchData() here to avoid infinite loops
+        // Update local state by removing expired discounts
+        const updatedProducts = products.map((product) => {
+          const isExpired = expiredProducts.find((p) => p.id === product.id);
+          if (isExpired) {
+            if (product.hasVariants) {
+              // Restore original variant prices
+              const restoredVariants = product.variants.map((variant) => ({
+                ...variant,
+                price: variant.originalPrice || variant.price,
+                originalPrice: null,
+              }));
+              return {
+                ...product,
+                variants: restoredVariants,
+                hasDiscount: false,
+                discountType: null,
+                discountValue: null,
+                discountName: null,
+                discountAppliedAt: null,
+                discountExpiresAt: null,
+              };
+            } else {
+              return {
+                ...product,
+                price: product.originalPrice,
+                hasDiscount: false,
+                discountType: null,
+                discountValue: null,
+                discountName: null,
+                discountAppliedAt: null,
+                discountExpiresAt: null,
+                originalPrice: null,
+              };
+            }
+          }
+          return product;
+        });
+        setProducts(updatedProducts);
 
         if (expiredProducts.length === 1) {
           console.log(`1 discount expired and was removed`);
@@ -466,7 +848,7 @@ function DiscountManager() {
   // Check expired discounts on component mount
   useEffect(() => {
     checkExpiredDiscounts();
-  }, [products]);
+  }, []);
 
   const removeAllDiscounts = async () => {
     if (
@@ -520,7 +902,44 @@ function DiscountManager() {
       // Invalidate products cache
       CacheManager.remove(CACHE_KEYS.PRODUCTS);
 
-      await fetchData();
+      // Don't call fetchData() here to avoid potential loops
+      // Update local state by removing all discounts
+      const updatedProducts = products.map((product) => {
+        if (product.hasDiscount) {
+          if (product.hasVariants) {
+            // Restore original variant prices
+            const restoredVariants = product.variants.map((variant) => ({
+              ...variant,
+              price: variant.originalPrice || variant.price,
+              originalPrice: null,
+            }));
+            return {
+              ...product,
+              variants: restoredVariants,
+              hasDiscount: false,
+              discountType: null,
+              discountValue: null,
+              discountName: null,
+              discountAppliedAt: null,
+              discountExpiresAt: null,
+            };
+          } else {
+            return {
+              ...product,
+              price: product.originalPrice,
+              hasDiscount: false,
+              discountType: null,
+              discountValue: null,
+              discountName: null,
+              discountAppliedAt: null,
+              discountExpiresAt: null,
+              originalPrice: null,
+            };
+          }
+        }
+        return product;
+      });
+      setProducts(updatedProducts);
       setDiscountsPage(1);
       alert(`تم إزالة ${discountedProducts.length} خصم بنجاح`);
     } catch (error) {
@@ -735,25 +1154,23 @@ function DiscountManager() {
                     {discountType === "product" && (
                       <>
                         <p className="dm-price-display">
-                          {item.hasVariants ? (
-                            (() => {
-                              const prices = item.variants?.map(
-                                (v) => parseFloat(v.price) || 0
-                              ) || [0];
-                              const minPrice = Math.min(...prices);
-                              const maxPrice = Math.max(...prices);
+                          {item.hasVariants
+                            ? (() => {
+                                const prices = item.variants?.map(
+                                  (v) => parseFloat(v.price) || 0
+                                ) || [0];
+                                const minPrice = Math.min(...prices);
+                                const maxPrice = Math.max(...prices);
 
-                              // If all prices are the same, show single price
-                              if (minPrice === maxPrice) {
-                                return `السعر: ${minPrice} شيكل`;
-                              }
+                                // If all prices are the same, show single price
+                                if (minPrice === maxPrice) {
+                                  return `السعر: ${minPrice} شيكل`;
+                                }
 
-                              // If prices are different, show range
-                              return `السعر: من ${minPrice} إلى ${maxPrice} شيكل`;
-                            })()
-                          ) : (
-                            `السعر: ${item.price} شيكل`
-                          )}
+                                // If prices are different, show range
+                                return `السعر: من ${minPrice} إلى ${maxPrice} شيكل`;
+                              })()
+                            : `السعر: ${item.price} شيكل`}
                         </p>
                         {item.hasDiscount && (
                           <span className="dm-current-discount">
@@ -784,110 +1201,209 @@ function DiscountManager() {
         <div className="dm-current-section">
           <div className="dm-section-header">
             <h2>الخصومات الحالية ({totalDiscountedProducts})</h2>
-            {totalDiscountedProducts > 0 && (
-              <button
-                className="dm-remove-all-btn"
-                onClick={removeAllDiscounts}
-                disabled={updating}
-              >
-                إزالة جميع الخصومات
-              </button>
-            )}
+            <div className="dm-section-actions">
+              {totalDiscountedProducts > 0 && (
+                <>
+                  <button
+                    className="dm-refresh-discounts-btn"
+                    onClick={recalculateProductDiscounts}
+                    disabled={updating}
+                    title="إعادة حساب الخصومات"
+                  >
+                    🔄 تحديث الخصومات
+                  </button>
+                  <button
+                    className="dm-remove-all-btn"
+                    onClick={removeAllDiscounts}
+                    disabled={updating}
+                  >
+                    إزالة جميع الخصومات
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="dm-discounts-list">
             {getDiscountedProducts().map((product) => (
               <div key={product.id} className="dm-discount-item">
-                {/* Product Image */}
-                <div className="dm-discount-image">
-                  {product.images && product.images.length > 0 ? (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="dm-discount-thumbnail"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="dm-discount-no-image">
-                      <span className="dm-discount-no-image-icon">📷</span>
-                      <span className="dm-discount-no-image-text">لا توجد صورة</span>
+                {editingDiscount?.id === product.id ? (
+                  // Edit Discount Form
+                  <div className="dm-edit-discount-form">
+                    <div className="dm-edit-form-header">
+                      <h4>تعديل الخصم: {product.name}</h4>
                     </div>
-                  )}
-                </div>
 
-                <div className="dm-discount-info">
-                  <h4>{product.name}</h4>
-                  <p>
-                    السعر الأصلي:{" "}
-                    <span className="dm-original-price">
-                      {product.hasVariants ? (
-                        (() => {
-                          const prices = product.variants?.map(
-                            (v) => parseFloat(v.originalPrice || v.price) || 0
-                          ) || [0];
-                          const minPrice = Math.min(...prices);
-                          const maxPrice = Math.max(...prices);
-
-                          // If all prices are the same, show single price
-                          if (minPrice === maxPrice) {
-                            return `${minPrice} شيكل`;
+                    <div className="dm-edit-form-row">
+                      <div className="dm-edit-form-group">
+                        <label>قيمة الخصم:</label>
+                        <input
+                          type="number"
+                          value={editDiscountValue}
+                          onChange={(e) => setEditDiscountValue(e.target.value)}
+                          placeholder={
+                            editingDiscount.discountType === "percentage"
+                              ? "مثال: 25"
+                              : "مثال: 50"
                           }
-
-                          // If prices are different, show range
-                          return `من ${minPrice} إلى ${maxPrice} شيكل`;
-                        })()
-                      ) : (
-                        `${product.originalPrice} شيكل`
-                      )}
-                    </span>
-                  </p>
-                  <p>
-                    السعر بعد الخصم:{" "}
-                    <span className="dm-discounted-price">
-                      {product.hasVariants ? (
-                        (() => {
-                          const prices = product.variants?.map(
-                            (v) => parseFloat(v.price) || 0
-                          ) || [0];
-                          const minPrice = Math.min(...prices);
-                          const maxPrice = Math.max(...prices);
-
-                          // If all prices are the same, show single price
-                          if (minPrice === maxPrice) {
-                            return `${minPrice} شيكل`;
+                          min="0"
+                          max={
+                            editingDiscount.discountType === "percentage"
+                              ? "99"
+                              : undefined
                           }
+                        />
+                      </div>
 
-                          // If prices are different, show range
-                          return `من ${minPrice} إلى ${maxPrice} شيكل`;
-                        })()
+                      <div className="dm-edit-form-group">
+                        <label>اسم الخصم:</label>
+                        <input
+                          type="text"
+                          value={editDiscountName}
+                          onChange={(e) => setEditDiscountName(e.target.value)}
+                          placeholder="مثال: خصم الجمعة البيضاء"
+                          maxLength={50}
+                        />
+                      </div>
+
+                      <div className="dm-edit-form-group">
+                        <label>تاريخ انتهاء الخصم:</label>
+                        <input
+                          type="datetime-local"
+                          value={editDiscountExpiry}
+                          onChange={(e) =>
+                            setEditDiscountExpiry(e.target.value)
+                          }
+                          min={new Date().toISOString().slice(0, 16)}
+                          placeholder="اختر تاريخ انتهاء الخصم"
+                        />
+                        <small className="dm-expiry-note">
+                          اتركه فارغاً إذا كنت تريد خصماً دائماً
+                        </small>
+                      </div>
+                    </div>
+
+                    <div className="dm-edit-form-actions">
+                      <button
+                        className="dm-save-edit-btn"
+                        onClick={() => editDiscount(product.id)}
+                        disabled={updating}
+                      >
+                        {updating ? "جاري الحفظ..." : "حفظ التعديلات"}
+                      </button>
+                      <button
+                        className="dm-cancel-edit-btn"
+                        onClick={cancelEditingDiscount}
+                        disabled={updating}
+                      >
+                        إلغاء
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // Normal Discount Display
+                  <>
+                    {/* Product Image */}
+                    <div className="dm-discount-image">
+                      {product.images && product.images.length > 0 ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          className="dm-discount-thumbnail"
+                          loading="lazy"
+                        />
                       ) : (
-                        `${product.price} شيكل`
+                        <div className="dm-discount-no-image">
+                          <span className="dm-discount-no-image-icon">📷</span>
+                          <span className="dm-discount-no-image-text">
+                            لا توجد صورة
+                          </span>
+                        </div>
                       )}
-                    </span>
-                  </p>
-                  <p>اسم الخصم: {product.discountName}</p>
-                  <p>
-                    قيمة الخصم: {product.discountValue}
-                    {product.discountType === "percentage" ? "%" : " شيكل"}
-                  </p>
-                  {product.discountExpiresAt && (
-                    <p>
-                      ينتهي في:{" "}
-                      <span className="dm-expiry-time">
-                        {new Date(
-                          product.discountExpiresAt.seconds * 1000
-                        ).toLocaleString("ar-EG")}
-                      </span>
-                    </p>
-                  )}
-                </div>
-                <button
-                  className="dm-remove-btn"
-                  onClick={() => removeDiscount(product.id)}
-                  disabled={updating}
-                >
-                  إزالة الخصم
-                </button>
+                    </div>
+
+                    <div className="dm-discount-info">
+                      <h4>{product.name}</h4>
+                      <p>
+                        السعر الأصلي:{" "}
+                        <span className="dm-original-price">
+                          {product.hasVariants
+                            ? (() => {
+                                const prices = product.variants?.map(
+                                  (v) =>
+                                    parseFloat(v.originalPrice || v.price) || 0
+                                ) || [0];
+                                const minPrice = Math.min(...prices);
+                                const maxPrice = Math.max(...prices);
+
+                                // If all prices are the same, show single price
+                                if (minPrice === maxPrice) {
+                                  return `${minPrice} شيكل`;
+                                }
+
+                                // If prices are different, show range
+                                return `من ${minPrice} إلى ${maxPrice} شيكل`;
+                              })()
+                            : `${product.originalPrice} شيكل`}
+                        </span>
+                      </p>
+                      <p>
+                        السعر بعد الخصم:{" "}
+                        <span className="dm-discounted-price">
+                          {product.hasVariants
+                            ? (() => {
+                                const prices = product.variants?.map(
+                                  (v) => parseFloat(v.price) || 0
+                                ) || [0];
+                                const minPrice = Math.min(...prices);
+                                const maxPrice = Math.max(...prices);
+
+                                // If all prices are the same, show single price
+                                if (minPrice === maxPrice) {
+                                  return `${minPrice} شيكل`;
+                                }
+
+                                // If prices are different, show range
+                                return `من ${minPrice} إلى ${maxPrice} شيكل`;
+                              })()
+                            : `${product.price} شيكل`}
+                        </span>
+                      </p>
+                      <p>اسم الخصم: {product.discountName}</p>
+                      <p>
+                        قيمة الخصم: {product.discountValue}
+                        {product.discountType === "percentage" ? "%" : " شيكل"}
+                      </p>
+                      {product.discountExpiresAt && (
+                        <p>
+                          ينتهي في:{" "}
+                          <span className="dm-expiry-time">
+                            {new Date(
+                              product.discountExpiresAt.seconds * 1000
+                            ).toLocaleString("ar-EG")}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="dm-discount-actions">
+                      <button
+                        className="dm-edit-btn"
+                        onClick={() => startEditingDiscount(product)}
+                        disabled={updating}
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        className="dm-remove-btn"
+                        onClick={() => removeDiscount(product.id)}
+                        disabled={updating}
+                      >
+                        إزالة الخصم
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
 

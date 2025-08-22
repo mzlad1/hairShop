@@ -7,6 +7,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { CacheManager, CACHE_KEYS } from "../utils/cache";
@@ -149,20 +150,99 @@ function Orders() {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, { status: newStatus });
-      const updatedOrders = orders.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order
-      );
-      setOrders(updatedOrders);
+      const currentOrder = orders.find((order) => order.id === orderId);
 
-      // Update cache with short TTL and refresh stats
-      CacheManager.set(CACHE_KEYS.ORDERS, updatedOrders, 30 * 1000);
-      calculateStats(updatedOrders);
+      if (!currentOrder) {
+        console.error("Order not found for status update");
+        return;
+      }
 
-      // Optionally fetch fresh data after status change
-      setTimeout(() => fetchOrders(true), 1000);
+      // If status is changing to "مرفوض" (rejected), restore stock
+      if (newStatus === "مرفوض" && currentOrder.status !== "مرفوض") {
+        // Use Firestore transaction to ensure data consistency
+        const result = await runTransaction(db, async (transaction) => {
+          // Restore stock for all items in the order
+          const stockRestorations = [];
+
+          for (const item of currentOrder.items || []) {
+            const productRef = doc(db, "products", item.id);
+            const productSnap = await transaction.get(productRef);
+
+            if (productSnap.exists()) {
+              const productData = productSnap.data();
+              let stockUpdateData = {};
+
+              if (productData.hasVariants && item.selectedVariant) {
+                // For variant products, restore specific variant stock
+                const updatedVariants = productData.variants.map((v) => {
+                  if (
+                    v.size === item.selectedVariant.size &&
+                    v.color === item.selectedVariant.color
+                  ) {
+                    return {
+                      ...v,
+                      stock: parseInt(v.stock || 0) + item.quantity,
+                    };
+                  }
+                  return v;
+                });
+
+                stockUpdateData = { variants: updatedVariants };
+              } else {
+                // For regular products, restore product stock
+                stockUpdateData = {
+                  stock: parseInt(productData.stock || 0) + item.quantity,
+                };
+              }
+
+              stockRestorations.push({
+                ref: productRef,
+                updateData: stockUpdateData,
+              });
+            }
+          }
+
+          // Restore stock for all products
+          stockRestorations.forEach(({ ref, updateData }) => {
+            transaction.update(ref, updateData);
+          });
+
+          // Update order status
+          transaction.update(orderRef, { status: newStatus });
+
+          return "success";
+        });
+
+        // Transaction successful
+        const updatedOrders = orders.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        );
+        setOrders(updatedOrders);
+
+        // Update cache with short TTL and refresh stats
+        CacheManager.set(CACHE_KEYS.ORDERS, updatedOrders, 30 * 1000);
+        calculateStats(updatedOrders);
+
+        // Optionally fetch fresh data after status change
+        setTimeout(() => fetchOrders(true), 1000);
+      } else {
+        // For other status changes, just update the status
+        await updateDoc(orderRef, { status: newStatus });
+        const updatedOrders = orders.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        );
+        setOrders(updatedOrders);
+
+        // Update cache with short TTL and refresh stats
+        CacheManager.set(CACHE_KEYS.ORDERS, updatedOrders, 30 * 1000);
+        calculateStats(updatedOrders);
+
+        // Optionally fetch fresh data after status change
+        setTimeout(() => fetchOrders(true), 1000);
+      }
     } catch (error) {
       console.error("Error updating order status:", error);
+      alert("حدث خطأ أثناء تحديث حالة الطلب. يرجى المحاولة مرة أخرى.");
     }
   };
 
@@ -180,8 +260,71 @@ function Orders() {
 
   const handleDeleteOrder = async (orderId) => {
     if (!window.confirm("هل تريد حذف هذا الطلب؟")) return;
+
     try {
-      await deleteDoc(doc(db, "orders", orderId));
+      // Find the order to get its items before deletion
+      const orderToDelete = orders.find((order) => order.id === orderId);
+      if (!orderToDelete) {
+        console.error("Order not found for deletion");
+        return;
+      }
+
+      // Use Firestore transaction to ensure data consistency
+      const result = await runTransaction(db, async (transaction) => {
+        // First, restore stock for all items in the order
+        const stockRestorations = [];
+
+        for (const item of orderToDelete.items || []) {
+          const productRef = doc(db, "products", item.id);
+          const productSnap = await transaction.get(productRef);
+
+          if (productSnap.exists()) {
+            const productData = productSnap.data();
+            let stockUpdateData = {};
+
+            if (productData.hasVariants && item.selectedVariant) {
+              // For variant products, restore specific variant stock
+              const updatedVariants = productData.variants.map((v) => {
+                if (
+                  v.size === item.selectedVariant.size &&
+                  v.color === item.selectedVariant.color
+                ) {
+                  return {
+                    ...v,
+                    stock: parseInt(v.stock || 0) + item.quantity,
+                  };
+                }
+                return v;
+              });
+
+              stockUpdateData = { variants: updatedVariants };
+            } else {
+              // For regular products, restore product stock
+              stockUpdateData = {
+                stock: parseInt(productData.stock || 0) + item.quantity,
+              };
+            }
+
+            stockRestorations.push({
+              ref: productRef,
+              updateData: stockUpdateData,
+            });
+          }
+        }
+
+        // Restore stock for all products
+        stockRestorations.forEach(({ ref, updateData }) => {
+          transaction.update(ref, updateData);
+        });
+
+        // Delete the order
+        const orderRef = doc(db, "orders", orderId);
+        transaction.delete(orderRef);
+
+        return "success";
+      });
+
+      // Transaction successful
       const updatedOrders = orders.filter((order) => order.id !== orderId);
       setOrders(updatedOrders);
 
@@ -193,6 +336,7 @@ function Orders() {
       setTimeout(() => fetchOrders(true), 1000);
     } catch (error) {
       console.error("Error deleting order:", error);
+      alert("حدث خطأ أثناء حذف الطلب. يرجى المحاولة مرة أخرى.");
     }
   };
 
@@ -308,6 +452,17 @@ function Orders() {
                 آخر تحديث: {lastFetch.toLocaleTimeString("ar-EG")}
               </span>
             )}
+          </div>
+        </div>
+
+        {/* Stock Management Note */}
+        <div className="orders-stock-note">
+          <div className="stock-note-content">
+            <span className="stock-note-icon">📦</span>
+            <span className="stock-note-text">
+              <strong>ملاحظة:</strong> يتم إدارة المخزون تلقائياً. عند حذف الطلب
+              أو رفضه، يتم إرجاع الكميات إلى المخزون.
+            </span>
           </div>
         </div>
 
@@ -445,38 +600,53 @@ function Orders() {
                   </div>
 
                   {/* Order Summary with Variant Info */}
-                  <div className="ord-order-summary">
-                    <h4>ملخص الطلب:</h4>
-                    <div className="ord-summary-stats">
-                      <div className="ord-summary-stat">
-                        <span className="ord-summary-label">
-                          إجمالي المنتجات:
-                        </span>
-                        <span className="ord-summary-value">
-                          {order.items?.length || 0}
-                        </span>
-                      </div>
-                      {order.items?.some((item) => item.selectedVariant) && (
-                        <div className="ord-summary-stat">
-                          <span className="ord-summary-label">
-                            المنتجات مع متغيرات:
+
+                  {/* Delivery Information */}
+                  {(order.deliveryFee || order.deliveryOption) && (
+                    <div className="ord-delivery-info">
+                      <h4>معلومات التوصيل:</h4>
+                      <div className="ord-delivery-details">
+                        {order.deliveryOption && (
+                          <div className="ord-delivery-item">
+                            <span className="ord-delivery-label">
+                              منطقة التوصيل:
+                            </span>
+                            <span className="ord-delivery-value">
+                              {order.deliveryOption}
+                            </span>
+                          </div>
+                        )}
+                        {order.deliveryFee && (
+                          <div className="ord-delivery-item">
+                            <span className="ord-delivery-label">
+                              رسوم التوصيل:
+                            </span>
+                            <span className="ord-delivery-value">
+                              {order.deliveryFee} شيكل
+                            </span>
+                          </div>
+                        )}
+                        {order.subtotal && (
+                          <div className="ord-delivery-item">
+                            <span className="ord-delivery-label">
+                              المجموع الفرعي:
+                            </span>
+                            <span className="ord-delivery-value">
+                              {order.subtotal} شيكل
+                            </span>
+                          </div>
+                        )}
+                        <div className="ord-delivery-item ord-delivery-total">
+                          <span className="ord-delivery-label">
+                            الإجمالي النهائي:
                           </span>
-                          <span className="ord-summary-value">
-                            {order.items?.filter((item) => item.selectedVariant)
-                              .length || 0}
+                          <span className="ord-delivery-value">
+                            {order.total} شيكل
                           </span>
                         </div>
-                      )}
-                      <div className="ord-summary-stat">
-                        <span className="ord-summary-label">
-                          إجمالي المبلغ:
-                        </span>
-                        <span className="ord-summary-value">
-                          {order.total} شيكل
-                        </span>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="ord-items">
                     <h4>تفاصيل الطلب:</h4>

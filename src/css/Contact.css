@@ -119,6 +119,32 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.bp-contact-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(222, 170, 155, 0.05),
+    rgba(191, 146, 144, 0.05)
+  );
+  opacity: 0;
+  transition: var(--transition);
+  z-index: 0;
+}
+
+.bp-contact-card:hover::before {
+  opacity: 1;
 }
 
 .bp-contact-card:hover {
@@ -149,10 +175,20 @@
   justify-content: center;
   background: rgba(222, 170, 155, 0.1);
   border-radius: 50%;
+  position: relative;
+  z-index: 1;
+  transition: var(--transition);
+}
+
+.bp-contact-card:hover .bp-contact-card-icon {
+  background: rgba(222, 170, 155, 0.2);
+  transform: scale(1.1);
 }
 
 .bp-contact-card-content {
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .bp-contact-card-content h3 {
@@ -160,6 +196,7 @@
   font-weight: 600;
   color: var(--dark-color);
   margin: 0 0 0.25rem 0;
+  transition: var(--transition);
 }
 
 .bp-contact-card-content p {
@@ -167,19 +204,48 @@
   color: var(--gray-color);
   margin: 0 0 0.5rem 0;
   line-height: 1.4;
-}
-
-.bp-contact-link {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
   transition: var(--transition);
 }
 
-.bp-contact-link:hover {
+.bp-contact-link-text {
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  display: inline-block;
+  position: relative;
+}
+
+.bp-contact-link-text::after {
+  content: "→";
+  margin-right: 0.5rem;
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: var(--transition);
+}
+
+.bp-contact-card:hover .bp-contact-link-text::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.bp-contact-card:hover .bp-contact-link-text {
   color: var(--secondary-color);
-  text-decoration: underline;
+}
+
+.bp-contact-card:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+.bp-contact-card:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Remove old link styles since cards are now clickable */
+.bp-contact-link {
+  display: none;
 }
 
 /* Business Hours */
@@ -413,10 +479,17 @@
     flex-direction: column;
     text-align: center;
     padding: 1.25rem;
+    min-height: 140px;
+    justify-content: center;
   }
 
   .bp-contact-card-icon {
     margin-bottom: 0.5rem;
+  }
+
+  .bp-contact-link-text::after {
+    margin-right: 0;
+    margin-left: 0.5rem;
   }
 
   .bp-contact-hour-item {

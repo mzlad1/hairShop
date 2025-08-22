@@ -36,6 +36,22 @@ function Cart() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
 
+  // Delivery options
+  const [selectedDelivery, setSelectedDelivery] = useState("");
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false);
+
+  const deliveryOptions = [
+    { id: "westbank", name: "الضفة الغربية", price: 20 },
+    { id: "jerusalem", name: "القدس", price: 30 },
+    { id: "inside", name: "داخل الخط الأخضر", price: 60 },
+    { id: "abughosh", name: "أبو غوش", price: 45 },
+  ];
+
+  const deliveryFee = selectedDelivery
+    ? deliveryOptions.find((option) => option.id === selectedDelivery)?.price ||
+      0
+    : 0;
+
   const totalPrice = cartItems.reduce((total, item) => {
     let itemPrice = item.price;
 
@@ -46,6 +62,9 @@ function Cart() {
 
     return total + itemPrice * item.quantity;
   }, 0);
+
+  const subtotal = totalPrice;
+  const finalTotal = subtotal + deliveryFee;
 
   // Check stock availability before checkout
   const checkStockAvailability = async () => {
@@ -103,7 +122,8 @@ function Cart() {
       setStockIssues(issues);
       setShowStockModal(true);
     } else {
-      setShowCheckout(true);
+      // Show invoice preview instead of going directly to checkout
+      setShowInvoicePreview(true);
     }
   };
 
@@ -139,6 +159,17 @@ function Cart() {
 
     setShowStockModal(false);
     setStockIssues([]);
+  };
+
+  // Proceed to checkout after invoice preview
+  const proceedToCheckout = () => {
+    if (!selectedDelivery) {
+      setError("يرجى اختيار خيار التوصيل");
+      return;
+    }
+    setShowInvoicePreview(false);
+    setShowCheckout(true);
+    setError("");
   };
 
   // التعامل مع إرسال الطلب وتحديث المخزون
@@ -227,7 +258,12 @@ function Cart() {
           customerPhone: phone,
           customerAddress: address,
           items: cartItems,
-          total: totalPrice,
+          subtotal: subtotal,
+          deliveryFee: deliveryFee,
+          deliveryOption:
+            deliveryOptions.find((option) => option.id === selectedDelivery)
+              ?.name || "",
+          total: finalTotal,
           status: "قيد الانتظار",
           createdAt: Timestamp.now(),
         };
@@ -530,7 +566,7 @@ function Cart() {
         )}
         <div className="ct-summary">
           <p>
-            <strong>الإجمالي:</strong> {totalPrice} شيكل
+            <strong>الإجمالي:</strong> {finalTotal} شيكل
           </p>
           <button
             className="ct-open-checkout-btn"
@@ -617,6 +653,139 @@ function Cart() {
                       تواصل معنا لاقتراح بدائل
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Invoice Preview Modal */}
+        {showInvoicePreview && (
+          <div
+            className="ct-modal-overlay"
+            onClick={(e) => {
+              if (e.target.classList.contains("ct-modal-overlay")) {
+                setShowInvoicePreview(false);
+              }
+            }}
+          >
+            <div
+              className="ct-modal ct-invoice-modal"
+              role="dialog"
+              aria-modal="true"
+            >
+              <button
+                className="ct-modal-close"
+                onClick={() => setShowInvoicePreview(false)}
+                aria-label="إغلاق"
+              >
+                ×
+              </button>
+              <h2>مراجعة الفاتورة</h2>
+
+              {error && (
+                <div className="ct-error">
+                  <span>⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="ct-invoice-content">
+                {/* Order Items */}
+                <div className="ct-invoice-items">
+                  <h3>المنتجات المطلوبة</h3>
+                  <div className="ct-invoice-items-list">
+                    {cartItems.map((item) => (
+                      <div
+                        key={item.cartItemId || item.id}
+                        className="ct-invoice-item"
+                      >
+                        <div className="ct-invoice-item-info">
+                          <h4>{item.name}</h4>
+                          {item.selectedVariant && (
+                            <p className="ct-invoice-variant">
+                              {item.selectedVariant.size} -{" "}
+                              {item.selectedVariant.color}
+                            </p>
+                          )}
+                          <p className="ct-invoice-quantity">
+                            الكمية: {item.quantity}
+                          </p>
+                        </div>
+                        <div className="ct-invoice-item-price">
+                          {(() => {
+                            const itemPrice =
+                              item.selectedVariant && item.selectedVariant.price
+                                ? parseFloat(item.selectedVariant.price)
+                                : item.price;
+                            return `${itemPrice * item.quantity} شيكل`;
+                          })()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Delivery Options */}
+                <div className="ct-delivery-section">
+                  <h3>خيارات التوصيل</h3>
+                  <p className="ct-delivery-note">* يجب اختيار خيار التوصيل</p>
+
+                  <div className="ct-delivery-options">
+                    {deliveryOptions.map((option) => (
+                      <label key={option.id} className="ct-delivery-option">
+                        <input
+                          type="radio"
+                          name="delivery"
+                          value={option.id}
+                          checked={selectedDelivery === option.id}
+                          onChange={(e) => setSelectedDelivery(e.target.value)}
+                        />
+                        <span className="ct-delivery-option-content">
+                          <span className="ct-delivery-name">
+                            {option.name}
+                          </span>
+                          <span className="ct-delivery-price">
+                            {option.price} شيكل
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Invoice Summary */}
+                <div className="ct-invoice-summary">
+                  <h3>ملخص الفاتورة</h3>
+                  <div className="ct-invoice-summary-row">
+                    <span>المجموع الفرعي:</span>
+                    <span>{subtotal} شيكل</span>
+                  </div>
+                  <div className="ct-invoice-summary-row">
+                    <span>رسوم التوصيل:</span>
+                    <span>{deliveryFee} شيكل</span>
+                  </div>
+                  <div className="ct-invoice-summary-row ct-invoice-total">
+                    <span>الإجمالي النهائي:</span>
+                    <span>{finalTotal} شيكل</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="ct-invoice-actions">
+                  <button
+                    className="ct-back-to-cart-btn"
+                    onClick={() => setShowInvoicePreview(false)}
+                  >
+                    العودة للسلة
+                  </button>
+                  <button
+                    className="ct-proceed-checkout-btn"
+                    onClick={proceedToCheckout}
+                    disabled={!selectedDelivery}
+                  >
+                    متابعة الدفع
+                  </button>
                 </div>
               </div>
             </div>

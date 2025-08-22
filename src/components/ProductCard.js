@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../contexts/CartContext";
 import "../css/ProductCard.css";
 
 // مكون لعرض بطاقة المنتج في صفحة المنتجات
 function ProductCard({ product }) {
   const [timeLeft, setTimeLeft] = useState(null);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const { addToCart } = useCart();
 
   // Countdown timer for discounts
   useEffect(() => {
@@ -79,9 +83,129 @@ function ProductCard({ product }) {
 
   const badges = getBadges();
 
+  // Handle adding product to cart
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (addingToCart) return;
+
+    setAddingToCart(true);
+    try {
+      // For variant products, we'll add the first available variant
+      // For regular products, add directly
+      if (
+        product.hasVariants &&
+        product.variants &&
+        product.variants.length > 0
+      ) {
+        // Find first variant with stock
+        const availableVariant = product.variants.find(
+          (v) => (parseInt(v.stock) || 0) > 0
+        );
+        if (availableVariant) {
+          await addToCart({
+            ...product,
+            selectedVariant: availableVariant,
+            quantity: 1,
+          });
+          // Show success toast
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+        } else {
+          // All variants out of stock
+          alert("جميع الأحجام نفذت من المخزون");
+          return;
+        }
+      } else {
+        // Regular product
+        if (product.stock > 0 || product.onDemand) {
+          await addToCart({
+            ...product,
+            quantity: 1,
+          });
+          // Show success toast
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+        } else {
+          alert("المنتج نفذ من المخزون");
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("حدث خطأ أثناء إضافة المنتج للسلة");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
   return (
     <Link to={`/products/${product.id}`} className="pc-card pc-card--clickable">
+      {/* Success Toast Notification */}
+      {showToast && (
+        <div className="pc-toast-overlay">
+          <div className="pc-toast">
+            <span className="pc-toast-icon">✅</span>
+            <span className="pc-toast-text">تم إضافة المنتج للسلة!</span>
+          </div>
+        </div>
+      )}
+
       <div className="pc-image-container">
+        {/* Add to Cart Button - Top Left Corner */}
+        <button
+          className="pc-add-to-cart-corner-btn"
+          onClick={handleAddToCart}
+          disabled={
+            addingToCart || badges.some((badge) => badge.type === "sold-out")
+          }
+          title={addingToCart ? "جاري الإضافة..." : "أضف للسلة"}
+        >
+          {addingToCart ? (
+            <span className="pc-add-to-cart-corner-icon">⏳</span>
+          ) : (
+            <span className="pc-add-to-cart-corner-icon">🛒</span>
+          )}
+        </button>
+
+        {/* Countdown Timer - Overlay on Image */}
+        {product.hasDiscount && timeLeft && (
+          <div className="pc-countdown-overlay">
+            <div className="pc-countdown-timer-overlay">
+              <span className="pc-timer-label-overlay">ينتهي الخصم في:</span>
+              <div className="pc-timer-display-overlay">
+                {timeLeft.days > 0 && (
+                  <span className="pc-timer-unit-overlay">
+                    <span className="pc-timer-value-overlay">
+                      {timeLeft.days}
+                    </span>
+                    <span className="pc-timer-label-small-overlay">يوم</span>
+                  </span>
+                )}
+                <span className="pc-timer-unit-overlay">
+                  <span className="pc-timer-value-overlay">
+                    {timeLeft.hours.toString().padStart(2, "0")}
+                  </span>
+                  <span className="pc-timer-label-small-overlay">ساعة</span>
+                </span>
+                <span className="pc-timer-unit-overlay">
+                  <span className="pc-timer-value-overlay">
+                    {timeLeft.minutes.toString().padStart(2, "0")}
+                  </span>
+                  <span className="pc-timer-label-small-overlay">دقيقة</span>
+                </span>
+                <span className="pc-timer-unit-overlay">
+                  <span className="pc-timer-value-overlay">
+                    {timeLeft.seconds.toString().padStart(2, "0")}
+                  </span>
+                  <span className="pc-timer-label-small-overlay">ثانية</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <img
           src={
             product.images && product.images.length > 0 ? product.images[0] : ""
@@ -133,39 +257,6 @@ function ProductCard({ product }) {
             <p className="pc-price pc-price--original">
               {product.originalPrice} شيكل
             </p>
-            <div className="pc-savings-info">
-              {timeLeft && (
-                <div className="pc-countdown-timer">
-                  <span className="pc-timer-label">ينتهي الخصم في:</span>
-                  <div className="pc-timer-display">
-                    {timeLeft.days > 0 && (
-                      <span className="pc-timer-unit">
-                        <span className="pc-timer-value">{timeLeft.days}</span>
-                        <span className="pc-timer-label-small">يوم</span>
-                      </span>
-                    )}
-                    <span className="pc-timer-unit">
-                      <span className="pc-timer-value">
-                        {timeLeft.hours.toString().padStart(2, "0")}
-                      </span>
-                      <span className="pc-timer-label-small">ساعة</span>
-                    </span>
-                    <span className="pc-timer-unit">
-                      <span className="pc-timer-value">
-                        {timeLeft.minutes.toString().padStart(2, "0")}
-                      </span>
-                      <span className="pc-timer-label-small">دقيقة</span>
-                    </span>
-                    <span className="pc-timer-unit">
-                      <span className="pc-timer-value">
-                        {timeLeft.seconds.toString().padStart(2, "0")}
-                      </span>
-                      <span className="pc-timer-label-small">ثانية</span>
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
           </>
         ) : (
           <p className="pc-price">{product.price} شيكل</p>

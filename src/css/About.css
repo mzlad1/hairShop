@@ -68,7 +68,7 @@
 
 /* Hero Section */
 .bp-about-hero {
-  padding: 3rem 0;
+  padding-top: 3rem;
   text-align: center;
   animation: fadeInUp 0.8s ease-out;
 }

@@ -424,7 +424,7 @@
   .mp-table tbody td {
     padding: 6px 0;
     font-size: 0.85rem;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
     gap: 4px;
   }
@@ -678,6 +678,380 @@
   max-width: fit-content;
 }
 
+/* Discount note styling */
+.mp-discount-note {
+  display: block;
+  margin-top: 8px;
+  color: #3498db;
+  font-size: 0.85rem;
+  font-style: italic;
+  background: rgba(52, 152, 219, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #3498db;
+}
+
+/* Current discount info styling */
+.mp-current-discount-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(52, 152, 219, 0.08);
+  border: 1px solid rgba(52, 152, 219, 0.2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Form opened indicator styling */
+.mp-form-opened-indicator {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: linear-gradient(
+    135deg,
+    rgba(46, 204, 113, 0.1),
+    rgba(46, 204, 113, 0.05)
+  );
+  border: 2px solid rgba(46, 204, 113, 0.3);
+  border-radius: 10px;
+  text-align: center;
+  animation: mp-indicator-pulse 2s ease-in-out infinite;
+}
+
+.mp-indicator-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mp-indicator-icon {
+  font-size: 1.4rem;
+  animation: mp-indicator-bounce 1s ease-in-out infinite;
+}
+
+.mp-indicator-text {
+  color: #27ae60;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+@keyframes mp-indicator-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+  }
+}
+
+@keyframes mp-indicator-bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Scroll to form button styling */
+.mp-scroll-to-form {
+  text-align: center;
+  margin: 20px 0;
+  animation: mp-scroll-button-fade-in 0.5s ease-in-out;
+}
+
+.mp-scroll-to-form-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  animation: mp-scroll-button-pulse 2s ease-in-out infinite;
+}
+
+.mp-scroll-to-form-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+  animation: none;
+}
+
+@keyframes mp-scroll-button-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mp-scroll-button-pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(52, 152, 219, 0.5);
+  }
+}
+
+/* Image management styling */
+.mp-image-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.mp-image-item.marked-for-deletion {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+}
+
+.mp-image-item.marked-for-deletion .mp-image-preview {
+  opacity: 0.7;
+}
+
+.mp-delete-existing-image-btn,
+.mp-restore-existing-image-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.mp-delete-existing-image-btn {
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+}
+
+.mp-delete-existing-image-btn:hover {
+  background: rgba(231, 76, 60, 1);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+}
+
+.mp-restore-existing-image-btn {
+  background: rgba(46, 204, 113, 0.9);
+  color: white;
+}
+
+.mp-restore-existing-image-btn:hover {
+  background: rgba(46, 204, 113, 1);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.4);
+}
+
+.mp-deletion-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mp-deletion-text {
+  display: block;
+}
+
+.mp-image-management-info {
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(52, 152, 219, 0.1);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.mp-image-management-info small {
+  color: #2c3e50;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Remove selected file button styling */
+.mp-remove-selected-file-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.mp-remove-selected-file-btn:hover {
+  background: rgba(231, 76, 60, 1);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+}
+
+/* Update selected files styling to support remove buttons */
+.mp-file-item {
+  position: relative;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.mp-additive-note {
+  display: block;
+  margin-top: 6px;
+  color: #27ae60;
+  font-weight: 600;
+  background: rgba(39, 174, 96, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border-left: 2px solid #27ae60;
+}
+
+.mp-image-summary {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.mp-summary-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mp-summary-deleted {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.3);
+  color: #c0392b;
+}
+
+.mp-summary-added {
+  background: rgba(46, 204, 113, 0.1);
+  border-color: rgba(46, 204, 113, 0.3);
+  color: #27ae60;
+}
+
+.mp-summary-total {
+  background: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+  color: #2980b9;
+  font-weight: 700;
+}
+
+.mp-discount-label {
+  font-weight: 600;
+  color: #2980b9;
+  font-size: 0.9rem;
+}
+
+.mp-discount-name {
+  color: #e67e22;
+  font-weight: 600;
+  background: rgba(230, 126, 34, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.mp-discount-value {
+  color: #27ae60;
+  font-weight: 600;
+  background: rgba(39, 174, 96, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.mp-current-discounted-price {
+  color: #8e44ad;
+  font-weight: 600;
+  background: rgba(142, 68, 173, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Edit discount header styling */
+.mp-edit-discount-header {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: linear-gradient(
+    135deg,
+    rgba(52, 152, 219, 0.1),
+    rgba(52, 152, 219, 0.05)
+  );
+  border: 2px solid rgba(52, 152, 219, 0.2);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.mp-edit-discount-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mp-edit-discount-icon {
+  font-size: 1.2rem;
+}
+
+.mp-edit-discount-text {
+  color: #2c3e50;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.mp-edit-discount-text strong {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
 /* Brand tag and stock badges */
 .mp-brand-tag {
   display: inline-block;
@@ -705,6 +1079,43 @@
 }
 .mp-out-of-stock {
   background: linear-gradient(135deg, #ff8a8a, #ff6b6b);
+}
+
+/* Clickable product name styling */
+.mp-product-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(52, 152, 219, 0.05);
+  border: 1px solid transparent;
+}
+
+.mp-product-link:hover {
+  color: #2980b9;
+  background: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+.mp-product-link:active {
+  transform: translateY(0);
+}
+
+.mp-link-icon {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.mp-product-link:hover .mp-link-icon {
+  opacity: 1;
 }
 
 /* Form button styling - updated to match ManageBrands */

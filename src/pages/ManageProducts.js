@@ -16,8 +16,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { storage, db } from "../firebase";
-import { CacheManager, CACHE_KEYS } from "../utils/cache";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 
@@ -52,6 +51,16 @@ function ManageProducts() {
   const [currentPage, setCurrentPage] = useState(1); // Add pagination
   const [itemsPerPage] = useState(10); // 10 products per page
   const [stockFilter, setStockFilter] = useState(""); // Add stock filter
+
+  // Image management state
+  const [existingImages, setExistingImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState(new Set());
+
+  // Form visibility state
+  const [formJustOpened, setFormJustOpened] = useState(false);
+
+  // Refresh state
+  const [refreshing, setRefreshing] = useState(false);
 
   // New filter states
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -103,67 +112,29 @@ function ManageProducts() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Check caches first
-        const cachedProducts = CacheManager.get(CACHE_KEYS.PRODUCTS);
-        const cachedCategories = CacheManager.get(CACHE_KEYS.CATEGORIES);
-        const cachedBrands = CacheManager.get(CACHE_KEYS.BRANDS);
+        // Always fetch fresh data from Firebase (no caching)
+        const fetchPromises = [
+          getDocs(collection(db, "products")).then((snapshot) => {
+            const data = [];
+            snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+            setProducts(data);
+            return data;
+          }),
+          getDocs(collection(db, "categories")).then((snapshot) => {
+            const data = [];
+            snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+            setCategories(data);
+            return data;
+          }),
+          getDocs(collection(db, "brands")).then((snapshot) => {
+            const data = [];
+            snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+            setBrands(data);
+            return data;
+          }),
+        ];
 
-        let fetchPromises = [];
-
-        if (cachedProducts) {
-          console.log("Loading products from cache");
-          setProducts(cachedProducts);
-        } else {
-          fetchPromises.push(
-            getDocs(collection(db, "products")).then((snapshot) => {
-              const data = [];
-              snapshot.forEach((doc) =>
-                data.push({ id: doc.id, ...doc.data() })
-              );
-              setProducts(data);
-              CacheManager.set(CACHE_KEYS.PRODUCTS, data, 5 * 60 * 1000);
-              return data;
-            })
-          );
-        }
-
-        if (cachedCategories) {
-          console.log("Loading categories from cache");
-          setCategories(cachedCategories);
-        } else {
-          fetchPromises.push(
-            getDocs(collection(db, "categories")).then((snapshot) => {
-              const data = [];
-              snapshot.forEach((doc) =>
-                data.push({ id: doc.id, ...doc.data() })
-              );
-              setCategories(data);
-              CacheManager.set(CACHE_KEYS.CATEGORIES, data, 10 * 60 * 1000);
-              return data;
-            })
-          );
-        }
-
-        if (cachedBrands) {
-          console.log("Loading brands from cache");
-          setBrands(cachedBrands);
-        } else {
-          fetchPromises.push(
-            getDocs(collection(db, "brands")).then((snapshot) => {
-              const data = [];
-              snapshot.forEach((doc) =>
-                data.push({ id: doc.id, ...doc.data() })
-              );
-              setBrands(data);
-              CacheManager.set(CACHE_KEYS.BRANDS, data, 10 * 60 * 1000);
-              return data;
-            })
-          );
-        }
-
-        if (fetchPromises.length > 0) {
-          await Promise.all(fetchPromises);
-        }
+        await Promise.all(fetchPromises);
       } catch (error) {
         console.error("Error fetching data:", error);
         // بيانات تجريبية في حال عدم جلب البيانات
@@ -274,6 +245,17 @@ function ManageProducts() {
     }
     fetchData();
   }, []);
+
+  // Auto-hide form opened indicator after 5 seconds
+  useEffect(() => {
+    if (formJustOpened) {
+      const timer = setTimeout(() => {
+        setFormJustOpened(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [formJustOpened]);
 
   // التعامل مع تغيير مدخلات النموذج
   const handleChange = (e) => {
@@ -402,6 +384,20 @@ function ManageProducts() {
   // Handle file selection
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
+
+    // Calculate total images that would result
+    const currentKeptImages = formData.id
+      ? existingImages.length - imagesToDelete.size
+      : 0;
+    const totalImages = currentKeptImages + files.length;
+
+    if (totalImages > 9) {
+      alert(
+        `لا يمكن أن يتجاوز إجمالي الصور 9 صور. الصور الحالية: ${currentKeptImages}, الصور الجديدة: ${files.length}, الإجمالي: ${totalImages}`
+      );
+      return;
+    }
+
     if (files.length > 9) {
       alert("يمكنك اختيار حد أقصى 9 صور");
       return;
@@ -488,25 +484,66 @@ function ManageProducts() {
     setLoading(true);
 
     try {
-      let imageUrls = formData.images || [];
+      let finalImageUrls = [];
 
-      // Upload new images if files are selected
-      if (selectedFiles.length > 0) {
-        const productId = formData.id || `temp_${Date.now()}`;
-        const newImageUrls = await uploadImages(selectedFiles, productId);
+      if (formData.id) {
+        // Editing existing product - handle image management
+        const imagesToDeleteUrls = [];
+        const imagesToKeep = [];
 
-        // If editing, delete old images first
-        if (formData.id && formData.images?.length > 0) {
-          await deleteOldImages(formData.images);
+        // Separate images to keep vs delete
+        existingImages.forEach((imageUrl, index) => {
+          if (imagesToDelete.has(index)) {
+            imagesToDeleteUrls.push(imageUrl);
+          } else {
+            imagesToKeep.push(imageUrl);
+          }
+        });
+
+        // Upload new images if any
+        let newImageUrls = [];
+        if (selectedFiles.length > 0) {
+          const productId = formData.id;
+          newImageUrls = await uploadImages(selectedFiles, productId);
         }
 
-        imageUrls = newImageUrls;
+        // Combine kept existing images with new images
+        finalImageUrls = [...imagesToKeep, ...newImageUrls];
+
+        // Validate total image count
+        if (finalImageUrls.length > 9) {
+          alert(
+            "لا يمكن أن يتجاوز إجمالي الصور 9 صور. يرجى حذف بعض الصور أو تقليل عدد الصور الجديدة."
+          );
+          setLoading(false);
+          return;
+        }
+
+        // Delete marked images from Firebase Storage
+        if (imagesToDeleteUrls.length > 0) {
+          await deleteOldImages(imagesToDeleteUrls);
+        }
+      } else {
+        // Adding new product - just upload new images
+        if (selectedFiles.length > 0) {
+          const productId = `temp_${Date.now()}`;
+          finalImageUrls = await uploadImages(selectedFiles, productId);
+        }
+
+        // Validate total image count for new products
+        if (finalImageUrls.length > 9) {
+          alert(
+            "لا يمكن أن يتجاوز إجمالي الصور 9 صور. يرجى تقليل عدد الصور المختارة."
+          );
+          setLoading(false);
+          return;
+        }
       }
 
       const data = {
         name: formData.name,
         description: formData.description,
-        images: imageUrls,
+        images: finalImageUrls,
         categories: formData.categories,
         brand: formData.brand,
         isNew: formData.isNew || false,
@@ -527,11 +564,40 @@ function ManageProducts() {
         data.stock = null;
       } else {
         data.hasVariants = false;
-        data.price = parseFloat(formData.price);
+        const newPrice = parseFloat(formData.price);
+        data.price = newPrice;
         data.stock = parseInt(formData.stock) || 0;
         data.variants = [];
         data.sizes = [];
         data.colors = [];
+
+        // Handle discount preservation when updating price
+        if (formData.id) {
+          const existingProduct = products.find((p) => p.id === formData.id);
+          if (existingProduct && existingProduct.hasDiscount) {
+            // Product has a discount, update the original price and recalculate discounted price
+            data.originalPrice = newPrice;
+            data.hasDiscount = true;
+            data.discountType = existingProduct.discountType;
+            data.discountValue = existingProduct.discountValue;
+            data.discountName = existingProduct.discountName;
+            data.discountAppliedAt = existingProduct.discountAppliedAt;
+            data.discountExpiresAt = existingProduct.discountExpiresAt;
+
+            // Recalculate discounted price based on the new original price
+            if (existingProduct.discountType === "percentage") {
+              data.price =
+                Math.round(
+                  newPrice * (1 - existingProduct.discountValue / 100) * 100
+                ) / 100;
+            } else {
+              data.price = Math.max(
+                0,
+                newPrice - existingProduct.discountValue
+              );
+            }
+          }
+        }
       }
 
       let updatedProducts;
@@ -551,7 +617,7 @@ function ManageProducts() {
       setProducts(updatedProducts);
 
       // Update cache
-      CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000);
+      // CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000); // Removed caching
 
       // إعادة تعيين النموذج
       setFormData({
@@ -588,10 +654,10 @@ function ManageProducts() {
       price: product.hasVariants
         ? ""
         : product.hasDiscount && product.originalPrice
-        ? product.originalPrice
-        : product.price,
+        ? product.originalPrice // Show original price for products with discounts
+        : product.price, // Show current price for products without discounts
       description: product.description,
-      images: product.images || [],
+      images: [], // Empty array since we manage existing images separately
       categories: product.categories || [],
       brand: product.brand || "",
       stock: product.hasVariants ? "" : product.stock || 0,
@@ -603,7 +669,22 @@ function ManageProducts() {
       colors: product.colors || [],
     });
     setSelectedFiles([]);
+    setExistingImages(product.images || []);
+    setImagesToDelete(new Set());
     setShowForm(true);
+    setFormJustOpened(true);
+
+    // Scroll to the form with smooth animation
+    setTimeout(() => {
+      const formElement = document.querySelector(".mp-form");
+      if (formElement) {
+        formElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+    }, 100);
   };
 
   // حذف منتج
@@ -622,7 +703,7 @@ function ManageProducts() {
       setProducts(updatedProducts);
 
       // Update cache
-      CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000);
+      // CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000); // Removed caching
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("حدث خطأ في حذف المنتج. يرجى المحاولة مرة أخرى.");
@@ -641,9 +722,45 @@ function ManageProducts() {
       stock: "",
       isNew: false,
       onDemand: false,
+      hasVariants: false,
+      variants: [],
+      sizes: [],
+      colors: [],
     });
     setSelectedFiles([]);
+    setExistingImages([]);
+    setImagesToDelete(new Set());
     setShowForm(false);
+    setFormJustOpened(false); // Reset the indicator
+  };
+
+  // Image management functions
+  const handleDeleteExistingImage = (imageIndex) => {
+    setImagesToDelete((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(imageIndex);
+      return newSet;
+    });
+  };
+
+  const handleRestoreExistingImage = (imageIndex) => {
+    setImagesToDelete((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(imageIndex);
+      return newSet;
+    });
+  };
+
+  const removeSelectedFile = (fileIndex) => {
+    setSelectedFiles((prev) => prev.filter((_, index) => index !== fileIndex));
+  };
+
+  const getFinalImages = () => {
+    // Combine existing images (excluding deleted ones) with new images
+    const keptExistingImages = existingImages.filter(
+      (_, index) => !imagesToDelete.has(index)
+    );
+    return [...keptExistingImages, ...formData.images];
   };
 
   // Helper functions for badge management
@@ -670,15 +787,15 @@ function ManageProducts() {
     return count;
   };
 
-  const clearAllFilters = () => {
+  const clearFilters = () => {
     setSearchTerm("");
-    setStockFilter("");
     setSelectedCategory("");
     setSelectedBrand("");
     setPriceRange({ min: "", max: "" });
     setSelectedBadges([]);
     setSortOrder("");
     setAvailabilityFilter("all");
+    setStockFilter("");
   };
 
   // Enhanced filtering function for products
@@ -832,11 +949,29 @@ function ManageProducts() {
     availabilityFilter,
   ]);
 
+  // Refresh data function
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchData();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleDateFilterChange = (field, value) => {
+    setDateFilter((prev) => ({ ...prev, [field]: value }));
+  };
+
   return (
     <>
       <Navbar />
       <div className="manage-products-page">
-        <h1>إدارة منتجات العناية بالشعر</h1>
+        <div className="mp-header">
+          <h1>إدارة منتجات العناية بالشعر</h1>
+        </div>
 
         {/* Add Product Button */}
         {!showForm && (
@@ -1026,7 +1161,31 @@ function ManageProducts() {
         {/* Product Form */}
         {showForm && (
           <form onSubmit={handleSubmit} className="mp-form">
+            {formJustOpened && (
+              <div className="mp-form-opened-indicator">
+                <div className="mp-indicator-content">
+                  <span className="mp-indicator-icon">✅</span>
+                  <span className="mp-indicator-text">
+                    تم فتح نموذج التعديل! يمكنك الآن تعديل بيانات المنتج
+                  </span>
+                </div>
+              </div>
+            )}
+
             <h2>{formData.id ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
+
+            {formData.id &&
+              products.find((p) => p.id === formData.id)?.hasDiscount && (
+                <div className="mp-edit-discount-header">
+                  <div className="mp-edit-discount-summary">
+                    <span className="mp-edit-discount-icon">🏷️</span>
+                    <span className="mp-edit-discount-text">
+                      هذا المنتج يحتوي على خصم. أنت تقوم بتعديل{" "}
+                      <strong>السعر الأصلي</strong> (قبل الخصم).
+                    </span>
+                  </div>
+                </div>
+              )}
 
             <div className="mp-form-group">
               <label>اسم المنتج:</label>
@@ -1083,6 +1242,39 @@ function ManageProducts() {
                   step="0.01"
                   onChange={handleChange}
                 />
+                {formData.id && (
+                  <small className="mp-discount-note">
+                    💡 ملاحظة: إذا كان المنتج يحتوي على خصم، سيتم عرض السعر
+                    الأصلي (قبل الخصم) في هذا الحقل. عند الحفظ، سيتم تطبيق الخصم
+                    تلقائياً على السعر الجديد
+                  </small>
+                )}
+                {formData.id &&
+                  products.find((p) => p.id === formData.id)?.hasDiscount && (
+                    <div className="mp-current-discount-info">
+                      <span className="mp-discount-label">خصم حالي:</span>
+                      <span className="mp-discount-name">
+                        {
+                          products.find((p) => p.id === formData.id)
+                            ?.discountName
+                        }
+                      </span>
+                      <span className="mp-discount-value">
+                        {
+                          products.find((p) => p.id === formData.id)
+                            ?.discountValue
+                        }
+                        {products.find((p) => p.id === formData.id)
+                          ?.discountType === "percentage"
+                          ? "%"
+                          : " شيكل"}
+                      </span>
+                      <span className="mp-current-discounted-price">
+                        السعر الحالي بعد الخصم:{" "}
+                        {products.find((p) => p.id === formData.id)?.price} شيكل
+                      </span>
+                    </div>
+                  )}
               </div>
             ) : (
               <div className="mp-variants-section">
@@ -1313,6 +1505,16 @@ function ManageProducts() {
               <div className="mp-file-info">
                 <small>
                   يُسمح بملفات JPG, PNG, WEBP فقط. حد أقصى 5 ميجابايت لكل صورة.
+                  {formData.id && existingImages.length > 0 && (
+                    <span className="mp-additive-note">
+                      الصور الجديدة ستضاف إلى الصور المحتفظ بها. الصور المحتفظ
+                      بها: {existingImages.length - imagesToDelete.size} | الصور
+                      الجديدة: {selectedFiles.length} | الإجمالي النهائي:{" "}
+                      {existingImages.length -
+                        imagesToDelete.size +
+                        selectedFiles.length}
+                    </span>
+                  )}
                 </small>
               </div>
 
@@ -1336,6 +1538,14 @@ function ManageProducts() {
                             )}
                           </div>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => removeSelectedFile(index)}
+                          className="mp-remove-selected-file-btn"
+                          title="إزالة هذه الصورة"
+                        >
+                          ×
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -1343,23 +1553,84 @@ function ManageProducts() {
               )}
 
               {/* Show existing images when editing */}
-              {formData.id && formData.images?.length > 0 && (
+              {formData.id && existingImages.length > 0 && (
                 <div className="mp-existing-images">
                   <h4>الصور الحالية:</h4>
                   <div className="mp-image-grid">
-                    {formData.images.map((imageUrl, index) => (
-                      <div key={index} className="mp-image-item">
-                        <img
-                          src={imageUrl}
-                          alt={`Product ${index + 1}`}
-                          className="mp-image-preview"
-                        />
-                      </div>
-                    ))}
+                    {existingImages.map((imageUrl, index) => {
+                      const isMarkedForDeletion = imagesToDelete.has(index);
+                      return (
+                        <div
+                          key={index}
+                          className={`mp-image-item ${
+                            isMarkedForDeletion ? "marked-for-deletion" : ""
+                          }`}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`Product ${index + 1}`}
+                            className="mp-image-preview"
+                          />
+                          {isMarkedForDeletion ? (
+                            <button
+                              type="button"
+                              onClick={() => handleRestoreExistingImage(index)}
+                              className="mp-restore-existing-image-btn"
+                              title="استعادة هذه الصورة"
+                            >
+                              ↺
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteExistingImage(index)}
+                              className="mp-delete-existing-image-btn"
+                              title="حذف هذه الصورة"
+                            >
+                              ×
+                            </button>
+                          )}
+                          {isMarkedForDeletion && (
+                            <div className="mp-deletion-overlay">
+                              <span className="mp-deletion-text">
+                                سيتم حذفها
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                  <small>
-                    سيتم استبدال الصور الحالية بالصور الجديدة عند اختيارها.
-                  </small>
+                  <div className="mp-image-management-info">
+                    <small>
+                      💡 يمكنك حذف صور محددة بالنقر على × أو إضافة صور جديدة
+                      أدناه. الصور المحذوفة ستظهر مع علامة "سيتم حذفها".
+                    </small>
+                    {formData.id && (
+                      <div className="mp-image-summary">
+                        <span className="mp-summary-item">
+                          📸 الصور المحتفظ بها:{" "}
+                          {existingImages.length - imagesToDelete.size}
+                        </span>
+                        {imagesToDelete.size > 0 && (
+                          <span className="mp-summary-item mp-summary-deleted">
+                            🗑️ الصور المحذوفة: {imagesToDelete.size}
+                          </span>
+                        )}
+                        {selectedFiles.length > 0 && (
+                          <span className="mp-summary-item mp-summary-added">
+                            ➕ الصور الجديدة: {selectedFiles.length}
+                          </span>
+                        )}
+                        <span className="mp-summary-item mp-summary-total">
+                          📊 إجمالي الصور النهائي:{" "}
+                          {existingImages.length -
+                            imagesToDelete.size +
+                            selectedFiles.length}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1458,7 +1729,17 @@ function ManageProducts() {
                     )}
                   </div>
                 </td>
-                <td data-label="الاسم">{product.name}</td>
+                <td data-label="الاسم">
+                  <Link
+                    to={`/products/${product.id}`}
+                    target="_blank"
+                    className="mp-product-link"
+                    title={`عرض تفاصيل ${product.name}`}
+                  >
+                    {product.name}
+                    <span className="mp-link-icon">🔗</span>
+                  </Link>
+                </td>
                 <td data-label="العلامة التجارية">
                   <span className="mp-brand-tag">
                     {product.brand || "بدون علامة تجارية"}

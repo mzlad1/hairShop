@@ -40,12 +40,6 @@ function Contact() {
     },
   ];
 
-  const businessHours = [
-    { day: "الأحد - الخميس", hours: "9:00 ص - 8:00 م" },
-    { day: "الجمعة", hours: "2:00 م - 8:00 م" },
-    { day: "السبت", hours: "9:00 ص - 6:00 م" },
-  ];
-
   return (
     <>
       <Navbar />
@@ -54,9 +48,6 @@ function Contact() {
           {/* Header Section */}
           <div className="bp-contact-header">
             <h1 className="bp-contact-title">💄 تواصل معنا</h1>
-            <p className="bp-contact-subtitle">
-              نحن هنا لمساعدتك! تواصل معنا بأي طريقة تناسبك
-            </p>
           </div>
 
           {/* Contact Content */}
@@ -70,73 +61,31 @@ function Contact() {
 
               <div className="bp-contact-cards">
                 {contactInfo.map((info, index) => (
-                  <div key={index} className={`bp-contact-card ${info.type}`}>
+                  <a
+                    key={index}
+                    href={info.link}
+                    target={
+                      info.type === "phone" || info.type === "email"
+                        ? "_self"
+                        : "_blank"
+                    }
+                    rel={
+                      info.type === "phone" || info.type === "email"
+                        ? ""
+                        : "noopener noreferrer"
+                    }
+                    className={`bp-contact-card ${info.type}`}
+                  >
                     <div className="bp-contact-card-icon">{info.icon}</div>
                     <div className="bp-contact-card-content">
                       <h3>{info.title}</h3>
                       <p>{info.content}</p>
-                      <a
-                        href={info.link}
-                        target={
-                          info.type === "phone" || info.type === "email"
-                            ? "_self"
-                            : "_blank"
-                        }
-                        rel={
-                          info.type === "phone" || info.type === "email"
-                            ? ""
-                            : "noopener noreferrer"
-                        }
-                        className="bp-contact-link"
-                      >
+                      <span className="bp-contact-link-text">
                         {info.linkText}
-                      </a>
+                      </span>
                     </div>
-                  </div>
+                  </a>
                 ))}
-              </div>
-
-              {/* Business Hours */}
-              <div className="bp-contact-business-hours">
-                <h3>🕐 أوقات العمل</h3>
-                <div className="bp-contact-hours-list">
-                  {businessHours.map((schedule, index) => (
-                    <div key={index} className="bp-contact-hour-item">
-                      <span className="bp-contact-day">{schedule.day}</span>
-                      <span className="bp-contact-hours">{schedule.hours}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bp-contact-quick-actions">
-                <h3>⚡ إجراءات سريعة</h3>
-                <div className="bp-contact-action-buttons">
-                  <a
-                    href="https://wa.me/970590000000?text=مرحباً، أريد الاستفسار عن منتجاتكم"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bp-contact-action-btn bp-contact-whatsapp-btn"
-                  >
-                    <span>💬</span>
-                    محادثة واتساب
-                  </a>
-                  <a
-                    href="tel:+970590000000"
-                    className="bp-contact-action-btn bp-contact-call-btn"
-                  >
-                    <span>📞</span>
-                    اتصال مباشر
-                  </a>
-                  <a
-                    href="/products"
-                    className="bp-contact-action-btn bp-contact-products-btn"
-                  >
-                    <span>🛍️</span>
-                    تصفح المنتجات
-                  </a>
-                </div>
               </div>
             </div>
           </div>
