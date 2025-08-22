@@ -3,6 +3,9 @@
 /* Card Container */
 .pc-card {
   display: block;
+  height: -webkit-fill-available;
+  align-items: center;
+  text-align: center;
   background: #ffffff;
   border: 1px solid #e1e5e9;
   border-radius: 8px;
@@ -12,7 +15,6 @@
   text-decoration: none;
   color: inherit;
   position: relative;
-  height: 100%;
 }
 
 .pc-card--clickable:hover {
@@ -155,7 +157,6 @@
 /* Price Container */
 .pc-price-container {
   padding: 0 16px 16px;
-  margin-top: auto;
 }
 
 /* Price Styles */
@@ -192,7 +193,6 @@
   left: 10px;
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #deaa9b, #bf9290);
   color: white;
   border: none;
   border-radius: 50%;
@@ -201,7 +201,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(222, 170, 155, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   z-index: 3;
   backdrop-filter: blur(4px);
 }
