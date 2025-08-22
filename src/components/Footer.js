@@ -17,7 +17,7 @@ function Footer() {
           <div className="ft-contact-section">
             <h3 className="ft-contact-title">تواصل معنا</h3>
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/unlock.your.curls"
               target="_blank"
               rel="noopener noreferrer"
               className="ft-instagram-logo"

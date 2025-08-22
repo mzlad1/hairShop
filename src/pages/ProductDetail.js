@@ -616,7 +616,7 @@ function ProductDetail() {
                     <div className="pd-variants-pricing">
                       <span className="pd-price-value pd-price-variants">
                         <small>
-                          {" "}
+                          من{" "}
                           {Math.min(
                             ...(product.variants?.map(
                               (v) => parseFloat(v.price) || 0
@@ -625,6 +625,7 @@ function ProductDetail() {
                           شيكل
                         </small>
                         <small>
+                          {" "}
                           إلى{" "}
                           {Math.max(
                             ...(product.variants?.map(
@@ -632,7 +633,7 @@ function ProductDetail() {
                             ) || [0])
                           )}{" "}
                           شيكل
-                        </small>{" "}
+                        </small>
                       </span>
                       <div className="pd-variants-overview"></div>
                     </div>
@@ -644,11 +645,7 @@ function ProductDetail() {
                       <span className="pd-original-price">
                         {product.originalPrice} شيكل
                       </span>
-                      {product.discountName && (
-                        <span className="pd-discount-badge">
-                          {product.discountName}
-                        </span>
-                      )}
+
                       {product.discountExpiresAt && (
                         <div className="pd-countdown-timer">
                           <span className="pd-timer-label">

@@ -19,6 +19,7 @@ import { storage, db } from "../firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { CacheManager, CACHE_KEYS } from "../utils/cache";
 
 // صفحة إدارة المنتجات
 function ManageProducts() {
@@ -109,140 +110,141 @@ function ManageProducts() {
   ];
 
   // جلب المنتجات والفئات والعلامات التجارية من قاعدة البيانات
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Always fetch fresh data from Firebase (no caching)
-        const fetchPromises = [
-          getDocs(collection(db, "products")).then((snapshot) => {
-            const data = [];
-            snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
-            setProducts(data);
-            return data;
-          }),
-          getDocs(collection(db, "categories")).then((snapshot) => {
-            const data = [];
-            snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
-            setCategories(data);
-            return data;
-          }),
-          getDocs(collection(db, "brands")).then((snapshot) => {
-            const data = [];
-            snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
-            setBrands(data);
-            return data;
-          }),
-        ];
+  const fetchData = async () => {
+    try {
+      // Always fetch fresh data from Firebase (no caching)
+      const fetchPromises = [
+        getDocs(collection(db, "products")).then((snapshot) => {
+          const data = [];
+          snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+          setProducts(data);
+          return data;
+        }),
+        getDocs(collection(db, "categories")).then((snapshot) => {
+          const data = [];
+          snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+          setCategories(data);
+          return data;
+        }),
+        getDocs(collection(db, "brands")).then((snapshot) => {
+          const data = [];
+          snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+          setBrands(data);
+          return data;
+        }),
+      ];
 
-        await Promise.all(fetchPromises);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // بيانات تجريبية في حال عدم جلب البيانات
-        setProducts([
-          {
-            id: "1",
-            name: "شامبو للشعر الجاف",
-            price: 50,
-            description: "شامبو مخصص للشعر الجاف والمتضرر بتركيبة مرطبة عميقة.",
-            images: ["/images/sample1.jpg"],
-            categories: ["الشعر"],
-            brand: "لوريال",
-            stock: 15,
-            isNew: true,
-            onDemand: false,
-            hasVariants: false,
-            createdAt: new Date("2024-01-15"),
-          },
-          {
-            id: "2",
-            name: "ماسك مغذي للشعر",
-            price: 75,
-            description: "ماسك للشعر بالزيوت الطبيعية للتغذية العميقة.",
-            images: ["/images/sample2.jpg"],
-            categories: ["العناية بالشعر"],
-            brand: "بانتين",
-            stock: 0,
-            isNew: false,
-            onDemand: false,
-            hasVariants: false,
-            createdAt: new Date("2023-12-01"),
-          },
-          {
-            id: "3",
-            name: "كريم تصفيف الشعر",
-            price: 60,
-            description: "كريم طبيعي لتصفيف وتثبيت الشعر بدون كيماويات ضارة.",
-            images: ["/images/sample3.jpg"],
-            categories: ["تصفيف"],
-            brand: "لوريال",
-            stock: 25,
-            isNew: false,
-            onDemand: true,
-            hasVariants: false,
-            createdAt: new Date("2023-11-20"),
-          },
-          {
-            id: "4",
-            name: "زيت الأرغان للشعر",
-            price: 85,
-            description: "زيت طبيعي 100% لتقوية الشعر وإضافة اللمعان الطبيعي.",
-            images: ["/images/sample1.jpg"],
-            categories: ["العناية بالشعر"],
-            brand: "The Ordinary",
-            stock: 3,
-            isNew: true,
-            onDemand: false,
-            hasVariants: true,
-            variants: [
-              { size: "30ml", price: 85, stock: 3 },
-              { size: "60ml", price: 150, stock: 0 },
-            ],
-            createdAt: new Date("2024-01-10"),
-          },
-          {
-            id: "5",
-            name: "سيروم فيتامين سي",
-            price: 95,
-            description:
-              "سيروم مضاد للأكسدة لإشراق البشرة ومحاربة علامات التقدم.",
-            images: ["/images/sample2.jpg"],
-            categories: ["العناية بالبشرة"],
-            brand: "The Ordinary",
-            stock: 8,
-            isNew: false,
-            onDemand: false,
-            hasVariants: false,
-            createdAt: new Date("2023-10-15"),
-          },
-          {
-            id: "6",
-            name: "كريم مرطب للوجه",
-            price: 45,
-            description:
-              "كريم يرطب البشرة ويمنحها نعومة فائقة مع الحماية اليومية.",
-            images: ["/images/sample3.jpg"],
-            categories: ["العناية بالبشرة"],
-            brand: "Nivea",
-            stock: 2,
-            isNew: false,
-            onDemand: true,
-            hasVariants: false,
-            createdAt: new Date("2023-09-30"),
-          },
-        ]);
-        setCategories([
-          { id: "cat1", name: "شامبو" },
-          { id: "cat2", name: "بلسم" },
-          { id: "cat3", name: "ماسك الشعر" },
-          { id: "cat4", name: "كريمات التصفيف" },
-        ]);
-        setBrands([
-          { id: "brand1", name: "لوريال" },
-          { id: "brand2", name: "بانتين" },
-          { id: "brand3", name: "هيد آند شولدرز" },
-        ]);
-      }
+      await Promise.all(fetchPromises);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // بيانات تجريبية في حال عدم جلب البيانات
+      setProducts([
+        {
+          id: "1",
+          name: "شامبو للشعر الجاف",
+          price: 50,
+          description: "شامبو مخصص للشعر الجاف والمتضرر بتركيبة مرطبة عميقة.",
+          images: ["/images/sample1.jpg"],
+          categories: ["الشعر"],
+          brand: "لوريال",
+          stock: 15,
+          isNew: true,
+          onDemand: false,
+          hasVariants: false,
+          createdAt: new Date("2024-01-15"),
+        },
+        {
+          id: "2",
+          name: "ماسك مغذي للشعر",
+          price: 75,
+          description: "ماسك للشعر بالزيوت الطبيعية للتغذية العميقة.",
+          images: ["/images/sample2.jpg"],
+          categories: ["العناية بالشعر"],
+          brand: "بانتين",
+          stock: 0,
+          isNew: false,
+          onDemand: false,
+          hasVariants: false,
+          createdAt: new Date("2023-12-01"),
+        },
+        {
+          id: "3",
+          name: "كريم تصفيف الشعر",
+          price: 60,
+          description: "كريم طبيعي لتصفيف وتثبيت الشعر بدون كيماويات ضارة.",
+          images: ["/images/sample3.jpg"],
+          categories: ["تصفيف"],
+          brand: "لوريال",
+          stock: 25,
+          isNew: false,
+          onDemand: true,
+          hasVariants: false,
+          createdAt: new Date("2023-11-20"),
+        },
+        {
+          id: "4",
+          name: "زيت الأرغان للشعر",
+          price: 85,
+          description: "زيت طبيعي 100% لتقوية الشعر وإضافة اللمعان الطبيعي.",
+          images: ["/images/sample1.jpg"],
+          categories: ["العناية بالشعر"],
+          brand: "The Ordinary",
+          stock: 3,
+          isNew: true,
+          onDemand: false,
+          hasVariants: true,
+          variants: [
+            { size: "30ml", price: 85, stock: 3 },
+            { size: "60ml", price: 150, stock: 0 },
+          ],
+          createdAt: new Date("2024-01-10"),
+        },
+        {
+          id: "5",
+          name: "سيروم فيتامين سي",
+          price: 95,
+          description:
+            "سيروم مضاد للأكسدة لإشراق البشرة ومحاربة علامات التقدم.",
+          images: ["/images/sample2.jpg"],
+          categories: ["العناية بالبشرة"],
+          brand: "The Ordinary",
+          stock: 8,
+          isNew: false,
+          onDemand: false,
+          hasVariants: false,
+          createdAt: new Date("2023-10-15"),
+        },
+        {
+          id: "6",
+          name: "كريم مرطب للوجه",
+          price: 45,
+          description:
+            "كريم يرطب البشرة ويمنحها نعومة فائقة مع الحماية اليومية.",
+          images: ["/images/sample3.jpg"],
+          categories: ["العناية بالبشرة"],
+          brand: "Nivea",
+          stock: 2,
+          isNew: false,
+          onDemand: true,
+          hasVariants: false,
+          createdAt: new Date("2023-09-30"),
+        },
+      ]);
+      setCategories([
+        { id: "cat1", name: "شامبو" },
+        { id: "cat2", name: "بلسم" },
+        { id: "cat3", name: "ماسك الشعر" },
+        { id: "cat4", name: "كريمات التصفيف" },
+      ]);
+      setBrands([
+        { id: "brand1", name: "لوريال" },
+        { id: "brand2", name: "بانتين" },
+        { id: "brand3", name: "هيد آند شولدرز" },
+      ]);
     }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -617,7 +619,10 @@ function ManageProducts() {
       setProducts(updatedProducts);
 
       // Update cache
-      // CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000); // Removed caching
+      CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000);
+
+      // Clear products cache to ensure fresh data on other pages
+      clearProductsCache();
 
       // إعادة تعيين النموذج
       setFormData({
@@ -703,7 +708,10 @@ function ManageProducts() {
       setProducts(updatedProducts);
 
       // Update cache
-      // CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000); // Removed caching
+      CacheManager.set(CACHE_KEYS.PRODUCTS, updatedProducts, 5 * 60 * 1000);
+
+      // Clear products cache to ensure fresh data on other pages
+      clearProductsCache();
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("حدث خطأ في حذف المنتج. يرجى المحاولة مرة أخرى.");
@@ -732,6 +740,9 @@ function ManageProducts() {
     setImagesToDelete(new Set());
     setShowForm(false);
     setFormJustOpened(false); // Reset the indicator
+
+    // Clear products cache to ensure fresh data on other pages
+    clearProductsCache();
   };
 
   // Image management functions
@@ -954,11 +965,21 @@ function ManageProducts() {
     setRefreshing(true);
     try {
       await fetchData();
+      // Clear products cache to ensure fresh data on other pages
+      clearProductsCache();
     } catch (error) {
       console.error("Error refreshing data:", error);
     } finally {
       setRefreshing(false);
     }
+  };
+
+  // Clear products cache to ensure fresh data on other pages
+  // This ensures that the home page and products page will fetch fresh data
+  // instead of using stale cached data when products are modified
+  const clearProductsCache = () => {
+    CacheManager.remove(CACHE_KEYS.PRODUCTS);
+    console.log("Products cache cleared - other pages will fetch fresh data");
   };
 
   const handleDateFilterChange = (field, value) => {
@@ -971,6 +992,14 @@ function ManageProducts() {
       <div className="manage-products-page">
         <div className="mp-header">
           <h1>إدارة منتجات العناية بالشعر</h1>
+          <button
+            className="mp-refresh-btn"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            title="تحديث البيانات ومسح الكاش"
+          >
+            {refreshing ? "جاري التحديث..." : "🔄 تحديث"}
+          </button>
         </div>
 
         {/* Add Product Button */}
