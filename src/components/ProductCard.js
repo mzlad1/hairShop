@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
+import { auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import "../css/ProductCard.css";
 
 // مكون لعرض بطاقة المنتج في صفحة المنتجات
@@ -8,7 +10,16 @@ function ProductCard({ product }) {
   const [timeLeft, setTimeLeft] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { addToCart } = useCart();
+
+  // Check if user is admin
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAdmin(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Countdown timer for discounts
   useEffect(() => {
@@ -88,7 +99,7 @@ function ProductCard({ product }) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (addingToCart) return;
+    if (addingToCart || isAdmin) return;
 
     setAddingToCart(true);
     try {
@@ -158,11 +169,21 @@ function ProductCard({ product }) {
           className="pc-add-to-cart-corner-btn"
           onClick={handleAddToCart}
           disabled={
-            addingToCart || badges.some((badge) => badge.type === "sold-out")
+            addingToCart ||
+            badges.some((badge) => badge.type === "sold-out") ||
+            isAdmin
           }
-          title={addingToCart ? "جاري الإضافة..." : "أضف للسلة"}
+          title={
+            isAdmin
+              ? "المديرون لا يمكنهم التسوق"
+              : addingToCart
+              ? "جاري الإضافة..."
+              : "أضف للسلة"
+          }
         >
-          {addingToCart ? (
+          {isAdmin ? (
+            <span className="pc-add-to-cart-corner-icon">🔒</span>
+          ) : addingToCart ? (
             <span className="pc-add-to-cart-corner-icon">⏳</span>
           ) : (
             <span className="pc-add-to-cart-corner-icon">🛒</span>
@@ -238,15 +259,9 @@ function ProductCard({ product }) {
                 (v) => parseFloat(v.price) || 0
               ) || [0];
               const minPrice = Math.min(...prices);
-              const maxPrice = Math.max(...prices);
 
-              // If all prices are the same, show single price
-              if (minPrice === maxPrice) {
-                return `${minPrice} شيكل`;
-              }
-
-              // If prices are different, show range
-              return `من ${minPrice} إلى ${maxPrice} شيكل`;
+              // Always show only the minimum price for variant products
+              return `${minPrice} شيكل`;
             })()}
           </div>
         ) : product.hasDiscount && product.originalPrice ? (

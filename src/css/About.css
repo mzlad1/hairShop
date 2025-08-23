@@ -232,6 +232,128 @@
   margin: 0;
 }
 
+/* Features Section */
+.bp-about-features-section {
+  padding: 4rem 0;
+  animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+
+.bp-about-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+
+.bp-about-feature-card {
+  background: var(--light-color);
+  padding: 3rem 2.5rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.bp-about-feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.bp-about-feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.bp-about-feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--primary-color);
+}
+
+.bp-about-feature-icon {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+  display: block;
+  transition: var(--transition);
+}
+
+.bp-about-feature-card:hover .bp-about-feature-icon {
+  transform: scale(1.1);
+}
+
+.bp-about-feature-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--dark-color);
+  margin-bottom: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bp-about-feature-description {
+  color: var(--gray-color);
+  line-height: 1.7;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  text-align: right;
+}
+
+.bp-about-feature-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.bp-about-feature-benefit {
+  background: rgba(222, 170, 155, 0.1);
+  color: var(--primary-color);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid rgba(222, 170, 155, 0.3);
+  transition: var(--transition);
+}
+
+.bp-about-feature-benefit:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Specific feature card styles */
+.bp-about-feature-quality {
+  border-left: 4px solid #00b894;
+}
+
+.bp-about-feature-delivery {
+  border-left: 4px solid #fdcb6e;
+}
+
+.bp-about-feature-service {
+  border-left: 4px solid #e17055;
+}
+
 /* Achievements Section */
 .bp-about-achievements-section {
   padding: 4rem 0;
@@ -686,6 +808,11 @@
     gap: 1.5rem;
   }
 
+  .bp-about-features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
   .bp-about-achievements-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1.5rem;
@@ -749,7 +876,23 @@
   }
 
   .bp-about-value-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .bp-about-feature-card {
     padding: 2rem 1.5rem;
+  }
+
+  .bp-about-feature-icon {
+    font-size: 3rem;
+  }
+
+  .bp-about-feature-title {
+    font-size: 1.2rem;
+  }
+
+  .bp-about-value-icon {
+    font-size: 2.5rem;
   }
 
   .bp-about-achievements-grid,
@@ -808,6 +951,18 @@
 
   .bp-about-value-card {
     padding: 1.5rem 1rem;
+  }
+
+  .bp-about-feature-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .bp-about-feature-icon {
+    font-size: 3rem;
+  }
+
+  .bp-about-feature-title {
+    font-size: 1.2rem;
   }
 
   .bp-about-value-icon {

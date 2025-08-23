@@ -29,13 +29,14 @@
   width: 100%;
   height: 240px;
   overflow: hidden;
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
+  background-color: white;
 }
 
 .pc-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 
@@ -144,7 +145,6 @@
   font-weight: 600;
   color: #23282d;
   line-height: 1.4;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;

@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 1rem 2rem;
+  padding: 6rem 2rem;
   margin-top: -50px;
   text-align: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -77,7 +77,7 @@
 
 /* Shop Name */
 .shop-name-container {
-  margin-bottom: 2rem;
+  direction: ltr;
 }
 
 .shop-name {
@@ -106,7 +106,6 @@
 
 /* Hero Description */
 .hero-description {
-  margin-bottom: 3rem;
   max-width: 600px;
 }
 

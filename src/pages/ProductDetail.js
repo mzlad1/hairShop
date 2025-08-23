@@ -218,7 +218,11 @@ function ProductDetail() {
         ...product,
         selectedVariant: product.hasVariants ? selectedVariant : null,
         variantId: product.hasVariants
-          ? `${selectedVariant.size}-${selectedVariant.color}`
+          ? selectedVariant.size && selectedVariant.color
+            ? `${selectedVariant.size}-${selectedVariant.color}`
+            : selectedVariant.size
+            ? selectedVariant.size
+            : selectedVariant.color
           : null,
       };
 
@@ -228,7 +232,9 @@ function ProductDetail() {
 
       // Show success toast
       const variantInfo = product.hasVariants
-        ? ` (${selectedVariant.size} - ${selectedVariant.color})`
+        ? ` (${selectedVariant.size ? selectedVariant.size : ""}${
+            selectedVariant.size && selectedVariant.color ? " - " : ""
+          }${selectedVariant.color ? selectedVariant.color : ""})`
         : "";
       showToastMessage(
         `تم إضافة ${qtyToAdd} قطعة${
@@ -272,7 +278,20 @@ function ProductDetail() {
   // Helper to get variant info for size/color combination
   const getVariantInfo = (size, color) => {
     if (!product?.variants) return null;
-    return product.variants.find((v) => v.size === size && v.color === color);
+
+    // Handle different variant types
+    if (size && color) {
+      // Both size and color
+      return product.variants.find((v) => v.size === size && v.color === color);
+    } else if (size && !color) {
+      // Only size
+      return product.variants.find((v) => v.size === size && !v.color);
+    } else if (!size && color) {
+      // Only color
+      return product.variants.find((v) => !v.size && v.color === color);
+    }
+
+    return null;
   };
 
   // Helper to check if a variant is available
@@ -288,7 +307,17 @@ function ProductDetail() {
     setSelectedVariant(null); // Reset variant selection
     setQuantity(1); // Reset quantity
 
-    showToastMessage(`تم اختيار الحجم: ${size}`, "success");
+    // Check if this is a size-only product
+    if (product.colors && product.colors.length === 0) {
+      // Product has only sizes, auto-select the variant
+      const variant = getVariantInfo(size, null);
+      if (variant) {
+        setSelectedVariant(variant);
+        showToastMessage(`تم اختيار الحجم: ${size}`, "success");
+      }
+    } else {
+      showToastMessage(`تم اختيار الحجم: ${size}`, "success");
+    }
   };
 
   // Handle color selection
@@ -297,8 +326,16 @@ function ProductDetail() {
     setSelectedVariant(null); // Reset variant selection
     setQuantity(1); // Reset quantity
 
-    // If both size and color are selected, auto-select the variant
-    if (selectedSize) {
+    // Check if this is a color-only product
+    if (product.sizes && product.sizes.length === 0) {
+      // Product has only colors, auto-select the variant
+      const variant = getVariantInfo(null, color);
+      if (variant) {
+        setSelectedVariant(variant);
+        showToastMessage(`تم اختيار اللون: ${color}`, "success");
+      }
+    } else if (selectedSize) {
+      // Both size and color are selected
       const variant = getVariantInfo(selectedSize, color);
       if (variant) {
         setSelectedVariant(variant);
@@ -614,27 +651,46 @@ function ProductDetail() {
                   <span className="pd-price-label">السعر:</span>
                   {product.hasVariants ? (
                     <div className="pd-variants-pricing">
-                      <span className="pd-price-value pd-price-variants">
-                        <small>
-                          من{" "}
-                          {Math.min(
-                            ...(product.variants?.map(
-                              (v) => parseFloat(v.price) || 0
-                            ) || [0])
-                          )}{" "}
-                          شيكل
-                        </small>
-                        <small>
-                          {" "}
-                          إلى{" "}
-                          {Math.max(
-                            ...(product.variants?.map(
-                              (v) => parseFloat(v.price) || 0
-                            ) || [0])
-                          )}{" "}
-                          شيكل
-                        </small>
-                      </span>
+                      {selectedVariant ? (
+                        // Show selected variant price
+                        <span className="pd-price-value pd-price-variants">
+                          {selectedVariant.price} شيكل
+                          <small className="pd-variant-note">
+                            (المحدد:{" "}
+                            {selectedVariant.size && `${selectedVariant.size}`}
+                            {selectedVariant.size &&
+                              selectedVariant.color &&
+                              " - "}
+                            {selectedVariant.color &&
+                              `${selectedVariant.color}`}
+                            )
+                          </small>
+                        </span>
+                      ) : (
+                        // Show price range with note
+                        <span className="pd-price-value pd-price-variants">
+                          <small>
+                            يبدأ من{" "}
+                            {Math.min(
+                              ...(product.variants?.map(
+                                (v) => parseFloat(v.price) || 0
+                              ) || [0])
+                            )}{" "}
+                            شيكل
+                          </small>
+                          <div className="pd-variants-note">
+                            <small>
+                              💡 السعر يتغير حسب{" "}
+                              {product.sizes?.length > 0 &&
+                              product.colors?.length > 0
+                                ? "الحجم واللون المختار"
+                                : product.sizes?.length > 0
+                                ? "الحجم المختار"
+                                : "اللون المختار"}
+                            </small>
+                          </div>
+                        </span>
+                      )}
                       <div className="pd-variants-overview"></div>
                     </div>
                   ) : product.hasDiscount && product.originalPrice ? (
@@ -715,79 +771,135 @@ function ProductDetail() {
               {/* Variants Selection */}
               {product.hasVariants && (
                 <div className="pd-variants-selection">
-                  <h4>اختر الحجم واللون</h4>
+                  <h4>
+                    {product.sizes?.length > 0 && product.colors?.length > 0
+                      ? "اختر الحجم واللون"
+                      : product.sizes?.length > 0
+                      ? "اختر الحجم"
+                      : "اختر اللون"}
+                  </h4>
+
+                  <div className="pd-variants-info">
+                    <small className="pd-variants-info-text">
+                      💡 <strong>ملاحظة:</strong> السعر يتغير حسب{" "}
+                      {product.sizes?.length > 0 && product.colors?.length > 0
+                        ? "الحجم واللون المختار"
+                        : product.sizes?.length > 0
+                        ? "الحجم المختار"
+                        : "اللون المختار"}
+                      . اختر{" "}
+                      {product.sizes?.length > 0 && product.colors?.length > 0
+                        ? "الحجم واللون"
+                        : product.sizes?.length > 0
+                        ? "الحجم"
+                        : "اللون"}{" "}
+                      لرؤية السعر النهائي.
+                    </small>
+                  </div>
 
                   <div className="pd-selection-options">
-                    {/* Size Selection */}
-                    <div className="pd-size-selection">
-                      <h5>اختر الحجم:</h5>
-                      <div className="pd-size-options">
-                        {product.sizes?.map((size) => {
-                          const isAvailable = product.colors?.some((color) =>
-                            isVariantAvailable(size, color)
-                          );
-                          const isSelected = selectedSize === size;
+                    {/* Size Selection - Only show if product has sizes */}
+                    {product.sizes && product.sizes.length > 0 && (
+                      <div className="pd-size-selection">
+                        <h5>اختر الحجم:</h5>
+                        <div className="pd-size-options">
+                          {product.sizes.map((size) => {
+                            let isAvailable = false;
+                            let isSelected = selectedSize === size;
 
-                          return (
-                            <button
-                              key={size}
-                              className={`pd-size-option ${
-                                isSelected ? "selected" : ""
-                              } ${!isAvailable ? "unavailable" : ""}`}
-                              onClick={() =>
-                                isAvailable && handleSizeSelect(size)
-                              }
-                              disabled={!isAvailable}
-                            >
-                              <span className="pd-size-name">{size}</span>
-                              {isSelected && (
-                                <span className="pd-selected-icon">✓</span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Color Selection */}
-                    <div className="pd-color-selection">
-                      <h5>اختر اللون:</h5>
-                      <div className="pd-color-options">
-                        {(() => {
-                          // If size is selected, show only available colors for that size
-                          // If no size selected, show all available colors
-                          const availableColors = selectedSize
-                            ? getAvailableColorsForSize(selectedSize)
-                            : product.colors?.filter((color) =>
-                                product.sizes?.some((size) =>
-                                  isVariantAvailable(size, color)
-                                )
-                              ) || [];
-
-                          return availableColors.map((color) => {
-                            const isSelected = selectedColor === color;
+                            if (product.colors && product.colors.length > 0) {
+                              // Product has both sizes and colors
+                              isAvailable = product.colors.some((color) =>
+                                isVariantAvailable(size, color)
+                              );
+                            } else {
+                              // Product has only sizes
+                              isAvailable = product.variants?.some(
+                                (v) =>
+                                  v.size === size &&
+                                  !v.color &&
+                                  (parseInt(v.stock) || 0) > 0
+                              );
+                            }
 
                             return (
                               <button
-                                key={color}
-                                className={`pd-color-option ${
+                                key={size}
+                                className={`pd-size-option ${
                                   isSelected ? "selected" : ""
-                                }`}
-                                onClick={() => handleColorSelect(color)}
+                                } ${!isAvailable ? "unavailable" : ""}`}
+                                onClick={() =>
+                                  isAvailable && handleSizeSelect(size)
+                                }
+                                disabled={!isAvailable}
                               >
-                                <span className="pd-color-name">{color}</span>
+                                <span className="pd-size-name">{size}</span>
                                 {isSelected && (
                                   <span className="pd-selected-icon">✓</span>
                                 )}
                               </button>
                             );
-                          });
-                        })()}
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    )}
 
-                  {/* Show selected variant info */}
+                    {/* Color Selection - Only show if product has colors */}
+                    {product.colors && product.colors.length > 0 && (
+                      <div className="pd-color-selection">
+                        <h5>اختر اللون:</h5>
+                        <div className="pd-color-options">
+                          {(() => {
+                            let availableColors = [];
+
+                            if (product.sizes && product.sizes.length > 0) {
+                              // Product has both sizes and colors
+                              if (selectedSize) {
+                                availableColors =
+                                  getAvailableColorsForSize(selectedSize);
+                              } else {
+                                availableColors = product.colors.filter(
+                                  (color) =>
+                                    product.sizes.some((size) =>
+                                      isVariantAvailable(size, color)
+                                    )
+                                );
+                              }
+                            } else {
+                              // Product has only colors
+                              availableColors = product.colors.filter((color) =>
+                                product.variants?.some(
+                                  (v) =>
+                                    !v.size &&
+                                    v.color === color &&
+                                    (parseInt(v.stock) || 0) > 0
+                                )
+                              );
+                            }
+
+                            return availableColors.map((color) => {
+                              const isSelected = selectedColor === color;
+
+                              return (
+                                <button
+                                  key={color}
+                                  className={`pd-color-option ${
+                                    isSelected ? "selected" : ""
+                                  }`}
+                                  onClick={() => handleColorSelect(color)}
+                                >
+                                  <span className="pd-color-name">{color}</span>
+                                  {isSelected && (
+                                    <span className="pd-selected-icon">✓</span>
+                                  )}
+                                </button>
+                              );
+                            });
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -892,7 +1004,11 @@ function ProductDetail() {
                       أضف {quantity > 1 ? `(${quantity})` : ""} إلى السلة
                       {product.hasVariants && selectedVariant && (
                         <span className="pd-variant-info">
-                          {selectedVariant.size} - {selectedVariant.color}
+                          {selectedVariant.size && `${selectedVariant.size}`}
+                          {selectedVariant.size &&
+                            selectedVariant.color &&
+                            " - "}
+                          {selectedVariant.color && `${selectedVariant.color}`}
                         </span>
                       )}
                     </>

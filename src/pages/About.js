@@ -193,6 +193,65 @@ function About() {
             </div>
           </div>
 
+          {/* Key Features Section */}
+          <div className="bp-about-features-section">
+            <div className="bp-about-section-header">
+              <h2>🚀 مميزاتنا الأساسية</h2>
+              <p>ثلاثة أسباب تجعل عملائنا يختاروننا</p>
+            </div>
+
+            <div className="bp-about-features-grid">
+              <div className="bp-about-feature-card bp-about-feature-quality">
+                <div className="bp-about-feature-icon">✨</div>
+                <h3 className="bp-about-feature-title">الجودة العالية</h3>
+                <p className="bp-about-feature-description">
+                  نختار منتجاتنا بعناية فائقة من أفضل العلامات التجارية
+                  العالمية. كل منتج يخضع لاختبارات الجودة لضمان الفعالية
+                  والأمان. نؤمن بأن الجودة هي الأساس الذي نبني عليه ثقة عملائنا.
+                </p>
+                <div className="bp-about-feature-benefits">
+                  <span className="bp-about-feature-benefit">
+                    ✓ منتجات معتمدة
+                  </span>
+                  <span className="bp-about-feature-benefit">
+                    ✓ مكونات آمنة
+                  </span>
+                  <span className="bp-about-feature-benefit">
+                    ✓ نتائج مضمونة
+                  </span>
+                </div>
+              </div>
+
+              <div className="bp-about-feature-card bp-about-feature-delivery">
+                <div className="bp-about-feature-icon">🚚</div>
+                <h3 className="bp-about-feature-title">التوصيل السريع</h3>
+                <p className="bp-about-feature-description">
+                  نضمن وصول منتجاتك بسرعة وأمان إلى باب منزلك. نقدم خيارات توصيل
+                  مرنة تناسب جميع احتياجاتك، مع تتبع مباشر لطلبك من لحظة التأكيد
+                  حتى الوصول.
+                </p>
+                <div className="bp-about-feature-benefits">
+                  <span className="bp-about-feature-benefit">✓ توصيل سريع</span>
+                  <span className="bp-about-feature-benefit">✓ تغليف آمن</span>
+                </div>
+              </div>
+
+              <div className="bp-about-feature-card bp-about-feature-service">
+                <div className="bp-about-feature-icon">💝</div>
+                <h3 className="bp-about-feature-title">خدمة العملاء</h3>
+                <p className="bp-about-feature-description">
+                  فريق خدمة العملاء لدينا متاح على مدار الساعة لمساعدتك. نقدم
+                  نصائح شخصية لاختيار المنتجات المناسبة، مع ضمان رضاك التام عن
+                  تجربتك معنا.
+                </p>
+                <div className="bp-about-feature-benefits">
+                  <span className="bp-about-feature-benefit">✓ دعم 24/7</span>
+                  <span className="bp-about-feature-benefit">✓ ضمان الرضا</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Testimonials Section */}
           <div className="bp-about-testimonials-section">
             <div className="bp-about-section-header">
@@ -237,40 +296,6 @@ function About() {
                   </p>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Team Section */}
-          <div className="bp-about-team-section">
-            <div className="bp-about-section-header">
-              <h2>👥 فريق العمل</h2>
-              <p>الأشخاص المتميزون وراء نجاحنا</p>
-            </div>
-
-            <div className="bp-about-team-content">
-              <div className="bp-about-team-message">
-                <h3>🌟 فريق متخصص ومتفاني</h3>
-                <p>
-                  يتكون فريقنا من خبراء في مجال التجميل والعناية بالبشرة، يعملون
-                  بشغف لتقديم أفضل الخدمات والمنتجات. نحن نؤمن بأن الجمال
-                  الحقيقي يأتي من الثقة بالنفس، ونسعى لمساعدة كل عميلة على
-                  اكتشاف جمالها الطبيعي.
-                </p>
-                <div className="bp-about-team-qualities">
-                  <div className="bp-about-quality">
-                    <span className="bp-about-quality-icon">🎓</span>
-                    <span>خبرة متخصصة</span>
-                  </div>
-                  <div className="bp-about-quality">
-                    <span className="bp-about-quality-icon">❤️</span>
-                    <span>شغف بالجمال</span>
-                  </div>
-                  <div className="bp-about-quality">
-                    <span className="bp-about-quality-icon">🤝</span>
-                    <span>خدمة مميزة</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 

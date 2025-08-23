@@ -22,22 +22,6 @@ function Contact() {
       linkText: "@unlock.your.curls",
       type: "instagram",
     },
-    {
-      icon: "📘",
-      title: "الفيسبوك",
-      content: "انضم إلى مجتمعنا على فيسبوك",
-      link: "https://www.facebook.com/yourfbpage",
-      linkText: "متجر التجميل - نابلس",
-      type: "facebook",
-    },
-    {
-      icon: "📞",
-      title: "رقم الهاتف",
-      content: "اتصل بنا للاستفسارات",
-      link: "tel:+970590000000",
-      linkText: "+970 59 000 0000",
-      type: "phone",
-    },
   ];
 
   return (

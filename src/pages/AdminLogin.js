@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import "../css/AdminLogin.css";
 import { auth } from "../firebase";
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-} from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 // صفحة تسجيل دخول المشرف
@@ -18,25 +14,12 @@ function AdminLogin() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
 
-  // Session timeout configuration (30 minutes)
-  const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-  // Check if user is already logged in and handle session timeout
+  // Check if user is already logged in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Check if session has expired
-        const loginTime = localStorage.getItem("adminLoginTime");
-        const currentTime = new Date().getTime();
-
-        if (loginTime && currentTime - parseInt(loginTime) > SESSION_TIMEOUT) {
-          // Session expired, log out user
-          console.log("Session expired, logging out user");
-          handleSessionExpired();
-        } else {
-          // User is logged in and session is valid, redirect to dashboard
-          navigate("/admin/dashboard");
-        }
+        // User is logged in, redirect to dashboard
+        navigate("/admin/dashboard");
       } else {
         setCheckingAuth(false);
       }
@@ -45,19 +28,6 @@ function AdminLogin() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Handle session expiration
-  const handleSessionExpired = async () => {
-    try {
-      await signOut(auth);
-      localStorage.removeItem("adminLoginTime");
-      setError("انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.");
-      setCheckingAuth(false);
-    } catch (error) {
-      console.error("Error signing out:", error);
-      setCheckingAuth(false);
-    }
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -65,8 +35,6 @@ function AdminLogin() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Store login time for session management
-      localStorage.setItem("adminLoginTime", new Date().getTime().toString());
       navigate("/admin/dashboard"); // Redirect to dashboard after login
     } catch (error) {
       console.error("Login error:", error);

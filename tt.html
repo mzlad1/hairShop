@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تأكيد الطلب</title>
+    <style>
+      body {
+        font-family: "Tajawal", Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        text-align: right;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        direction: rtl;
+      }
+      .header {
+        background: linear-gradient(135deg, #deaa9b 0%, #bf9290 100%);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+        direction: rtl;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        direction: rtl;
+      }
+      .header .subtitle {
+        margin: 10px 0 0 0;
+        font-size: 16px;
+        opacity: 0.9;
+        direction: rtl;
+      }
+      .content {
+        padding: 30px 20px;
+        direction: rtl;
+      }
+      .order-number {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #deaa9b;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 25px;
+        direction: rtl;
+      }
+      .order-number h2 {
+        margin: 0 0 10px 0;
+        color: #deaa9b;
+        font-size: 24px;
+        direction: rtl;
+      }
+      .order-number .number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #bf9290;
+        letter-spacing: 2px;
+        direction: rtl;
+      }
+      .section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-right: 4px solid #deaa9b;
+        direction: rtl;
+      }
+      .section h3 {
+        margin: 0 0 15px 0;
+        color: #bf9290;
+        font-size: 18px;
+        border-bottom: 2px solid #deaa9b;
+        padding-bottom: 8px;
+        direction: rtl;
+        text-align: right;
+      }
+      .customer-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        direction: rtl;
+      }
+      .info-item {
+        display: flex;
+        flex-direction: column;
+        direction: rtl;
+        text-align: right;
+      }
+      .info-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 5px;
+        direction: rtl;
+        text-align: right;
+      }
+      .info-value {
+        font-size: 16px;
+        color: #333;
+        direction: rtl;
+        text-align: right;
+      }
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        direction: rtl;
+      }
+      .items-table th,
+      .items-table td {
+        padding: 12px 8px;
+        text-align: right;
+        border-bottom: 1px solid #dee2e6;
+        direction: rtl;
+      }
+      .items-table th {
+        background-color: #deaa9b;
+        color: white;
+        font-weight: 600;
+        direction: rtl;
+        text-align: right;
+      }
+      .items-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+      .variant-info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+        direction: rtl;
+        text-align: right;
+      }
+      .summary {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 1px solid #ffc107;
+        direction: rtl;
+      }
+      .summary h3 {
+        color: #856404;
+        border-bottom-color: #ffc107;
+        direction: rtl;
+        text-align: right;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 193, 7, 0.3);
+        direction: rtl;
+        flex-direction: row-reverse;
+      }
+      .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 700;
+        font-size: 18px;
+        color: #856404;
+      }
+      .footer {
+        background-color: white;
+        color: #bf9290;
+        text-align: center;
+        margin-top: -40px;
+        direction: rtl;
+      }
+      .footer p {
+        margin-bottom: -5px;
+        font-size: 14px;
+        direction: rtl;
+      }
+      .contact-info {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        direction: rtl;
+      }
+      .contact-info a {
+        color: #deaa9b;
+        text-decoration: none;
+        direction: rtl;
+      }
+      .contact-info a:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 600px) {
+        .customer-info {
+          grid-template-columns: 1fr;
+        }
+        .items-table {
+          font-size: 14px;
+        }
+        .items-table th,
+        .items-table td {
+          padding: 8px 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🎉 تم تأكيد طلبك بنجاح!</h1>
+        <p class="subtitle">شكراً لك على اختيار منتجاتنا</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Order Number -->
+        <div class="order-number">
+          <h2>رقم الطلب</h2>
+          <div class="number">{{order_id}}</div>
+          <p>تاريخ الطلب: {{orderDate}}</p>
+        </div>
+
+        <!-- Order Items -->
+        <div class="section">
+          <h3>🛍️ المنتجات المطلوبة</h3>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>المنتج</th>
+                <th>السعر</th>
+                <th>الكمية</th>
+                <th>المجموع</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#orders}}
+              <tr>
+                <td data-label="المنتج">
+                  <strong>{{name}}</strong>
+                </td>
+                <td data-label="السعر">{{price}} شيكل</td>
+                <td data-label="الكمية">{{units}}</td>
+                <td data-label="المجموع">{{total}} شيكل</td>
+              </tr>
+              {{/orders}}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="section">
+          <h3>👤 معلومات العميل</h3>
+          <div class="customer-info">
+            <div class="info-item">
+              <span class="info-label">الاسم الكامل : </span>
+              <span class="info-value">{{customerName}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">البريد الإلكتروني : </span>
+              <span class="info-value">{{email}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">رقم الهاتف : </span>
+              <span class="info-value">{{customerPhone}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">المنطقة : </span>
+              <span class="info-value">{{deliveryOption}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">العنوان : </span>
+              <span class="info-value">{{customerAddress}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="section summary">
+          <h3>💰 ملخص الطلب</h3>
+          <div class="summary-row">
+            <span>مجموع سعر المنتجات : </span>
+            <span>{{subtotal}} شيكل</span>
+          </div>
+          <div class="summary-row">
+            <span>رسوم التوصيل : </span>
+            <span>{{cost.shipping}} شيكل</span>
+          </div>
+
+          <div class="summary-row">
+            <span>الإجمالي النهائي : </span>
+            <span>{{cost.total}} شيكل</span>
+          </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="section">
+          <h3>📋 الخطوات التالية</h3>
+          <ol
+            style="
+              margin: 0;
+              padding-right: 20px;
+              direction: rtl;
+              text-align: right;
+            "
+          >
+            <li>سيتم مراجعة طلبك من قبل فريقنا</li>
+            <li>سيتم التواصل معك لتأكيد موعد التوصيل</li>
+            <li>يمكنك متابعة حالة طلبك من خلال التواصل معنا</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <img
+          src="https://firebasestorage.googleapis.com/v0/b/beaty-shop-db.firebasestorage.app/o/logo.png?alt=media&token=982479cd-154d-48b2-8b3b-8a86d64f1025"
+          alt="Company Logo"
+          style="
+            max-width: 80px;
+            height: auto;
+            background-color: white;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto 10px auto;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+          "
+        />
+        <p><strong>Unlock Your Curls</strong></p>
+        <div class="contact-info">
+          <p>www.unlockyourcurls.com</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -18,6 +18,7 @@ import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import emailjs from "@emailjs/browser";
 import { EMAILJS_CONFIG } from "../config/emailjs";
+import { Link } from "react-router-dom";
 
 // صفحة سلة المشتريات والدفع
 function Cart() {
@@ -81,20 +82,23 @@ function Cart() {
         customerPhone: orderData.customerPhone || "N/A",
         customerAddress: orderData.customerAddress || "N/A",
         // Create simple order items for the template
-        orders: orderData.items.map((item) => ({
-          units: item.quantity, // Changed to match template
-          price: (() => {
-            const itemPrice =
-              item.selectedVariant && item.selectedVariant.price
-                ? parseFloat(item.selectedVariant.price)
-                : item.price;
-            return itemPrice.toFixed(2);
-          })(),
-          // Add variant info to name if exists
-          name: item.selectedVariant
-            ? `${item.name} (${item.selectedVariant.size} - ${item.selectedVariant.color})`
-            : item.name,
-        })),
+        orders: orderData.items.map((item) => {
+          const itemPrice =
+            item.selectedVariant && item.selectedVariant.price
+              ? parseFloat(item.selectedVariant.price)
+              : item.price;
+          const totalPrice = (itemPrice * item.quantity).toFixed(2);
+
+          return {
+            units: item.quantity, // Changed to match template
+            price: itemPrice.toFixed(2),
+            total: totalPrice, // Add calculated total for each item
+            // Add variant info to name if exists
+            name: item.selectedVariant
+              ? `${item.name} (${item.selectedVariant.size} - ${item.selectedVariant.color})`
+              : item.name,
+          };
+        }),
         deliveryOption: orderData.deliveryOption || "N/A",
         deliveryFee: orderData.deliveryFee || 0,
         subtotal: orderData.subtotal || 0,
@@ -256,6 +260,34 @@ function Cart() {
     setError("");
   };
 
+  // Reset delivery selection when closing invoice preview
+  const handleCloseInvoicePreview = () => {
+    setShowInvoicePreview(false);
+    setSelectedDelivery(""); // Reset delivery selection
+    setError("");
+  };
+
+  // Reset delivery selection when completing order
+  const handleOrderComplete = () => {
+    setSelectedDelivery(""); // Reset delivery selection
+    setShowCheckout(false);
+    setShowInvoicePreview(false);
+  };
+
+  // Reset delivery selection when going back from checkout to invoice preview
+  const handleBackToInvoicePreview = () => {
+    setShowCheckout(false);
+    // Keep the delivery selection when going back to invoice preview
+    setError("");
+  };
+
+  // Reset delivery selection when going back to cart from checkout
+  const handleBackToCartFromCheckout = () => {
+    setShowCheckout(false);
+    setSelectedDelivery(""); // Reset delivery selection
+    setError("");
+  };
+
   // التعامل مع إرسال الطلب وتحديث المخزون
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -366,6 +398,7 @@ function Cart() {
       // Transaction successful
       setOrderId(result.id);
       setShowCheckout(false);
+      setSelectedDelivery(""); // Reset delivery selection
 
       // Send order confirmation email
       const emailSent = await sendOrderConfirmationEmail(result);
@@ -498,7 +531,14 @@ function Cart() {
                           )}
                         </div>
                       </td>
-                      <td data-label="المنتج">{item.name}</td>
+                      <td data-label="المنتج">
+                        <Link
+                          to={`/products/${item.id}`}
+                          className="ct-product-name-link"
+                        >
+                          {item.name}
+                        </Link>
+                      </td>
                       <td data-label="السعر">
                         {item.selectedVariant && item.selectedVariant.price
                           ? `${parseFloat(item.selectedVariant.price)} شيكل`
@@ -583,7 +623,14 @@ function Cart() {
                       )}
                     </div>
                     <div className="ct-mobile-product-info">
-                      <h4 className="ct-mobile-product-name">{item.name}</h4>
+                      <h4 className="ct-mobile-product-name">
+                        <Link
+                          to={`/products/${item.id}`}
+                          className="ct-product-name-link"
+                        >
+                          {item.name}
+                        </Link>
+                      </h4>
                       <div className="ct-mobile-price">
                         {item.selectedVariant && item.selectedVariant.price
                           ? `${parseFloat(item.selectedVariant.price)} شيكل`
@@ -677,6 +724,14 @@ function Cart() {
             <p>
               تم إرسال طلبك بنجاح! رقم الطلب:
               <span className="ct-order-code">#{orderId}</span>
+              <button
+                type="button"
+                className="ct-copy-btn"
+                onClick={handleCopyOrderId}
+                aria-label="نسخ رقم الطلب"
+              >
+                {copied ? "تم النسخ" : "نسخ"}
+              </button>
             </p>
             {emailLoading && (
               <p className="ct-email-loading">📧 جاري إرسال تأكيد الطلب...</p>
@@ -687,14 +742,6 @@ function Cart() {
               </p>
             )}
             {emailError && <p className="ct-email-error">⚠️ {emailError}</p>}
-            <button
-              type="button"
-              className="ct-copy-btn"
-              onClick={handleCopyOrderId}
-              aria-label="نسخ رقم الطلب"
-            >
-              {copied ? "تم النسخ" : "نسخ"}
-            </button>
           </div>
         )}
 
@@ -768,7 +815,7 @@ function Cart() {
             className="ct-modal-overlay"
             onClick={(e) => {
               if (e.target.classList.contains("ct-modal-overlay")) {
-                setShowInvoicePreview(false);
+                handleCloseInvoicePreview();
               }
             }}
           >
@@ -779,7 +826,7 @@ function Cart() {
             >
               <button
                 className="ct-modal-close"
-                onClick={() => setShowInvoicePreview(false)}
+                onClick={handleCloseInvoicePreview}
                 aria-label="إغلاق"
               >
                 ×
@@ -878,7 +925,7 @@ function Cart() {
                 <div className="ct-invoice-actions">
                   <button
                     className="ct-back-to-cart-btn"
-                    onClick={() => setShowInvoicePreview(false)}
+                    onClick={handleCloseInvoicePreview}
                   >
                     العودة للسلة
                   </button>
@@ -901,7 +948,7 @@ function Cart() {
             className="ct-modal-overlay"
             onClick={(e) => {
               if (e.target.classList.contains("ct-modal-overlay")) {
-                setShowCheckout(false);
+                handleOrderComplete();
               }
             }}
           >
@@ -913,7 +960,7 @@ function Cart() {
             >
               <button
                 className="ct-modal-close"
-                onClick={() => setShowCheckout(false)}
+                onClick={handleOrderComplete}
                 aria-label="إغلاق"
               >
                 ×
@@ -969,6 +1016,15 @@ function Cart() {
                   disabled={loading || cartItems.length === 0}
                 >
                   {loading ? "... جاري الإرسال" : "إرسال الطلب"}
+                </button>
+
+                <button
+                  type="button"
+                  className="ct-back-btn"
+                  onClick={handleBackToInvoicePreview}
+                  disabled={loading}
+                >
+                  العودة لمراجعة الفاتورة
                 </button>
               </form>
             </div>

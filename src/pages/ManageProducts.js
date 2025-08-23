@@ -68,7 +68,7 @@ function ManageProducts() {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [selectedBadges, setSelectedBadges] = useState([]);
-  const [sortOrder, setSortOrder] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -99,6 +99,7 @@ function ManageProducts() {
 
   // Sort options
   const sortOptions = [
+    { value: "newest", label: "الأحدث أولاً (افتراضي)" },
     { value: "", label: "بدون ترتيب" },
     { value: "name", label: "الاسم (أ-ي)" },
     { value: "brand", label: "العلامة التجارية (أ-ي)" },
@@ -106,7 +107,6 @@ function ManageProducts() {
     { value: "priceDesc", label: "السعر (الأعلى أولاً)" },
     { value: "stockAsc", label: "المخزون (الأقل أولاً)" },
     { value: "stockDesc", label: "المخزون (الأكثر أولاً)" },
-    { value: "newest", label: "الأحدث" },
   ];
 
   // جلب المنتجات والفئات والعلامات التجارية من قاعدة البيانات
@@ -319,9 +319,20 @@ function ManageProducts() {
   const updateVariant = (size, color, field, value) => {
     setFormData((prev) => {
       const newVariants = [...prev.variants];
-      const existingIndex = newVariants.findIndex(
-        (v) => v.size === size && v.color === color
-      );
+      // Handle cases where either size or color might be null
+      const existingIndex = newVariants.findIndex((v) => {
+        if (size && color) {
+          // Both size and color
+          return v.size === size && v.color === color;
+        } else if (size && !color) {
+          // Only size
+          return v.size === size && !v.color;
+        } else if (!size && color) {
+          // Only color
+          return !v.size && v.color === color;
+        }
+        return false;
+      });
 
       if (existingIndex >= 0) {
         newVariants[existingIndex] = {
@@ -330,8 +341,8 @@ function ManageProducts() {
         };
       } else {
         newVariants.push({
-          size,
-          color,
+          size: size || null,
+          color: color || null,
           price: "",
           stock: 0,
         });
@@ -344,9 +355,19 @@ function ManageProducts() {
   const removeVariant = (size, color) => {
     setFormData((prev) => ({
       ...prev,
-      variants: prev.variants.filter(
-        (v) => !(v.size === size && v.color === color)
-      ),
+      variants: prev.variants.filter((v) => {
+        if (size && color) {
+          // Both size and color
+          return !(v.size === size && v.color === color);
+        } else if (size && !color) {
+          // Only size
+          return !(v.size === size && !v.color);
+        } else if (!size && color) {
+          // Only color
+          return !(!v.size && v.color === color);
+        }
+        return true;
+      }),
     }));
   };
 
@@ -550,6 +571,7 @@ function ManageProducts() {
         brand: formData.brand,
         isNew: formData.isNew || false,
         onDemand: formData.onDemand || false,
+        createdAt: formData.id ? undefined : new Date(), // Only add creation date for new products
       };
 
       if (formData.hasVariants) {
@@ -793,7 +815,7 @@ function ManageProducts() {
     if (selectedBrand) count++;
     if (priceRange.min || priceRange.max) count++;
     if (selectedBadges.length > 0) count++;
-    if (sortOrder) count++;
+    if (sortOrder && sortOrder !== "newest") count++; // Don't count "newest" as it's default
     if (availabilityFilter !== "all") count++;
     return count;
   };
@@ -804,7 +826,7 @@ function ManageProducts() {
     setSelectedBrand("");
     setPriceRange({ min: "", max: "" });
     setSelectedBadges([]);
-    setSortOrder("");
+    setSortOrder("newest");
     setAvailabilityFilter("all");
     setStockFilter("");
   };
@@ -920,7 +942,18 @@ function ManageProducts() {
           case "stockDesc":
             return (b.stock || 0) - (a.stock || 0);
           case "newest":
-            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            // Handle products with and without creation dates
+            const aDate = a.createdAt
+              ? new Date(
+                  a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt
+                )
+              : new Date(0);
+            const bDate = b.createdAt
+              ? new Date(
+                  b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt
+                )
+              : new Date(0);
+            return bDate - aDate;
           default:
             return 0;
         }
@@ -960,6 +993,13 @@ function ManageProducts() {
     availabilityFilter,
   ]);
 
+  // Ensure default sorting is always "newest" when no sorting is selected
+  useEffect(() => {
+    if (!sortOrder) {
+      setSortOrder("newest");
+    }
+  }, [sortOrder]);
+
   // Refresh data function
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -992,14 +1032,6 @@ function ManageProducts() {
       <div className="manage-products-page">
         <div className="mp-header">
           <h1>إدارة منتجات العناية بالشعر</h1>
-          <button
-            className="mp-refresh-btn"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            title="تحديث البيانات ومسح الكاش"
-          >
-            {refreshing ? "جاري التحديث..." : "🔄 تحديث"}
-          </button>
         </div>
 
         {/* Add Product Button */}
@@ -1173,7 +1205,7 @@ function ManageProducts() {
             {/* Active Filters Display */}
             {getActiveFiltersCount() > 0 && (
               <div className="mp-active-filters">
-                <button className="mp-clear-filters" onClick={clearAllFilters}>
+                <button className="mp-clear-filters" onClick={clearFilters}>
                   مسح جميع الفلاتر
                 </button>
               </div>
@@ -1202,6 +1234,36 @@ function ManageProducts() {
             )}
 
             <h2>{formData.id ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
+
+            {/* Show creation date when editing */}
+            {formData.id && (
+              <div className="mp-creation-date-display">
+                <span className="mp-creation-date-label">
+                  📅 تاريخ الإنشاء:
+                </span>
+                <span className="mp-creation-date-value">
+                  {(() => {
+                    const product = products.find((p) => p.id === formData.id);
+                    if (product?.createdAt) {
+                      const date = new Date(
+                        product.createdAt.toDate
+                          ? product.createdAt.toDate()
+                          : product.createdAt
+                      );
+                      return (
+                        date.toLocaleDateString("en-US") +
+                        " " +
+                        date.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      );
+                    }
+                    return "غير محدد";
+                  })()}
+                </span>
+              </div>
+            )}
 
             {formData.id &&
               products.find((p) => p.id === formData.id)?.hasDiscount && (
@@ -1366,76 +1428,204 @@ function ManageProducts() {
                 </div>
 
                 {/* Variants Table */}
-                {formData.sizes.length > 0 && formData.colors.length > 0 && (
+                {(formData.sizes.length > 0 || formData.colors.length > 0) && (
                   <div className="mp-variants-table">
                     <h5>جدول الأسعار والمخزون</h5>
-                    <table className="mp-variants-grid">
-                      <thead>
-                        <tr>
-                          <th>الحجم / اللون</th>
-                          {formData.colors.map((color) => (
-                            <th key={color}>{color}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {formData.sizes.map((size) => (
-                          <tr key={size}>
-                            <td className="mp-size-label">{size}</td>
-                            {formData.colors.map((color) => {
-                              const variant = formData.variants.find(
-                                (v) => v.size === size && v.color === color
-                              );
-                              return (
-                                <td key={color} className="mp-variant-cell">
-                                  <div className="mp-variant-inputs">
-                                    <input
-                                      type="number"
-                                      placeholder="السعر"
-                                      value={variant?.price || ""}
-                                      onChange={(e) =>
-                                        updateVariant(
-                                          size,
-                                          color,
-                                          "price",
-                                          e.target.value
-                                        )
-                                      }
-                                      min="0"
-                                      step="0.01"
-                                      className="mp-variant-price"
-                                    />
-                                    <input
-                                      type="number"
-                                      placeholder="المخزون"
-                                      value={variant?.stock || ""}
-                                      onChange={(e) =>
-                                        updateVariant(
-                                          size,
-                                          color,
-                                          "stock",
-                                          e.target.value
-                                        )
-                                      }
-                                      min="0"
-                                      className="mp-variant-stock"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => removeVariant(size, color)}
-                                      className="mp-remove-variant-btn"
-                                      title="إزالة هذا المتغير"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                </td>
-                              );
-                            })}
+                    {formData.sizes.length > 0 && formData.colors.length > 0 ? (
+                      // Both sizes and colors
+                      <table className="mp-variants-grid">
+                        <thead>
+                          <tr>
+                            <th>الحجم / اللون</th>
+                            {formData.colors.map((color) => (
+                              <th key={color}>{color}</th>
+                            ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {formData.sizes.map((size) => (
+                            <tr key={size}>
+                              <td className="mp-size-label">{size}</td>
+                              {formData.colors.map((color) => {
+                                const variant = formData.variants.find(
+                                  (v) => v.size === size && v.color === color
+                                );
+                                return (
+                                  <td key={color} className="mp-variant-cell">
+                                    <div className="mp-variant-inputs">
+                                      <input
+                                        type="number"
+                                        placeholder="السعر"
+                                        value={variant?.price || ""}
+                                        onChange={(e) =>
+                                          updateVariant(
+                                            size,
+                                            color,
+                                            "price",
+                                            e.target.value
+                                          )
+                                        }
+                                        min="0"
+                                        step="0.01"
+                                        className="mp-variant-price"
+                                      />
+                                      <input
+                                        type="number"
+                                        placeholder="المخزون"
+                                        value={variant?.stock || ""}
+                                        onChange={(e) =>
+                                          updateVariant(
+                                            size,
+                                            color,
+                                            "stock",
+                                            e.target.value
+                                          )
+                                        }
+                                        min="0"
+                                        className="mp-variant-stock"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeVariant(size, color)
+                                        }
+                                        className="mp-remove-variant-btn"
+                                        title="إزالة هذا المتغير"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : formData.sizes.length > 0 ? (
+                      // Only sizes
+                      <div className="mp-sizes-only-variants">
+                        <h6>متغيرات الأحجام فقط</h6>
+                        <div className="mp-size-variants-list">
+                          {formData.sizes.map((size) => {
+                            const variant = formData.variants.find(
+                              (v) => v.size === size && !v.color
+                            );
+                            return (
+                              <div key={size} className="mp-size-variant-item">
+                                <span className="mp-size-variant-label">
+                                  {size}
+                                </span>
+                                <div className="mp-size-variant-inputs">
+                                  <input
+                                    type="number"
+                                    placeholder="السعر"
+                                    value={variant?.price || ""}
+                                    onChange={(e) =>
+                                      updateVariant(
+                                        size,
+                                        null,
+                                        "price",
+                                        e.target.value
+                                      )
+                                    }
+                                    min="0"
+                                    step="0.01"
+                                    className="mp-variant-price"
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="المخزون"
+                                    value={variant?.stock || ""}
+                                    onChange={(e) =>
+                                      updateVariant(
+                                        size,
+                                        null,
+                                        "stock",
+                                        e.target.value
+                                      )
+                                    }
+                                    min="0"
+                                    className="mp-variant-stock"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeVariant(size, null)}
+                                    className="mp-remove-variant-btn"
+                                    title="إزالة هذا المتغير"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      // Only colors
+                      <div className="mp-colors-only-variants">
+                        <h6>متغيرات الألوان فقط</h6>
+                        <div className="mp-color-variants-list">
+                          {formData.colors.map((color) => {
+                            const variant = formData.variants.find(
+                              (v) => !v.size && v.color === color
+                            );
+                            return (
+                              <div
+                                key={color}
+                                className="mp-color-variant-item"
+                              >
+                                <span className="mp-color-variant-label">
+                                  {color}
+                                </span>
+                                <div className="mp-color-variant-inputs">
+                                  <input
+                                    type="number"
+                                    placeholder="السعر"
+                                    value={variant?.price || ""}
+                                    onChange={(e) =>
+                                      updateVariant(
+                                        null,
+                                        color,
+                                        "price",
+                                        e.target.value
+                                      )
+                                    }
+                                    min="0"
+                                    step="0.01"
+                                    className="mp-variant-price"
+                                  />
+                                  <input
+                                    type="number"
+                                    placeholder="المخزون"
+                                    value={variant?.stock || ""}
+                                    onChange={(e) =>
+                                      updateVariant(
+                                        null,
+                                        color,
+                                        "stock",
+                                        e.target.value
+                                      )
+                                    }
+                                    min="0"
+                                    className="mp-variant-stock"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeVariant(null, color)}
+                                    className="mp-remove-variant-btn"
+                                    title="إزالة هذا المتغير"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1726,6 +1916,7 @@ function ManageProducts() {
               <th>السعر</th>
               <th>المخزون</th>
               <th>الفئات</th>
+              <th>تاريخ الإنشاء</th>
               <th>إجراءات</th>
             </tr>
           </thead>
@@ -1778,15 +1969,23 @@ function ManageProducts() {
                   {product.hasVariants ? (
                     <div className="mp-variants-summary">
                       <span className="mp-variants-indicator">
-                        متغيرات متعددة
+                        {product.sizes?.length > 0 && product.colors?.length > 0
+                          ? "متغيرات متعددة"
+                          : product.sizes?.length > 0
+                          ? "متغيرات أحجام"
+                          : "متغيرات ألوان"}
                       </span>
                       <div className="mp-variants-details">
-                        <small>
-                          الأحجام: {product.sizes?.join(", ") || "غير محدد"}
-                        </small>
-                        <small>
-                          الألوان: {product.colors?.join(", ") || "غير محدد"}
-                        </small>
+                        {product.sizes?.length > 0 && (
+                          <small>الأحجام: {product.sizes.join(", ")}</small>
+                        )}
+                        {product.colors?.length > 0 && (
+                          <small>الألوان: {product.colors.join(", ")}</small>
+                        )}
+                        {(!product.sizes || product.sizes.length === 0) &&
+                          (!product.colors || product.colors.length === 0) && (
+                            <small>لا توجد متغيرات محددة</small>
+                          )}
                       </div>
                     </div>
                   ) : product.hasDiscount && product.originalPrice ? (
@@ -1806,7 +2005,11 @@ function ManageProducts() {
                   {product.hasVariants ? (
                     <div className="mp-variants-stock">
                       <span className="mp-variants-stock-indicator">
-                        مخزون متغير
+                        {product.sizes?.length > 0 && product.colors?.length > 0
+                          ? "مخزون متغير"
+                          : product.sizes?.length > 0
+                          ? "مخزون أحجام"
+                          : "مخزون ألوان"}
                       </span>
                       <div className="mp-variants-stock-summary">
                         <small>
@@ -1819,6 +2022,12 @@ function ManageProducts() {
                             0
                           ) || 0}
                         </small>
+                        {product.sizes?.length > 0 && (
+                          <small>الأحجام: {product.sizes.join(", ")}</small>
+                        )}
+                        {product.colors?.length > 0 && (
+                          <small>الألوان: {product.colors.join(", ")}</small>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -1842,6 +2051,31 @@ function ManageProducts() {
                   {product.categories && product.categories.length > 0
                     ? product.categories.join(", ")
                     : "بدون فئة"}
+                </td>
+                <td data-label="تاريخ الإنشاء">
+                  {product.createdAt ? (
+                    <div className="mp-creation-date">
+                      <span className="mp-date">
+                        {new Date(
+                          product.createdAt.toDate
+                            ? product.createdAt.toDate()
+                            : product.createdAt
+                        ).toLocaleDateString("en-US")}
+                      </span>
+                      <small className="mp-time">
+                        {new Date(
+                          product.createdAt.toDate
+                            ? product.createdAt.toDate()
+                            : product.createdAt
+                        ).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </small>
+                    </div>
+                  ) : (
+                    <span className="mp-no-date">غير محدد</span>
+                  )}
                 </td>
                 <td data-label="إجراءات">
                   <button

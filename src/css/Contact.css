@@ -28,7 +28,7 @@
 
 /* Contact Page */
 .bp-contact-page {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background: linear-gradient(135deg, #faf8f7 0%, #f8f9fa 100%);
   padding: 2rem 0;
   font-family: "Tajawal", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;

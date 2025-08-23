@@ -157,92 +157,201 @@ function Orders() {
         return;
       }
 
-      // If status is changing to "مرفوض" (rejected), restore stock
-      if (newStatus === "مرفوض" && currentOrder.status !== "مرفوض") {
-        // Use Firestore transaction to ensure data consistency
-        const result = await runTransaction(db, async (transaction) => {
-          // Restore stock for all items in the order
-          const stockRestorations = [];
+      const oldStatus = currentOrder.status;
 
-          for (const item of currentOrder.items || []) {
-            const productRef = doc(db, "products", item.id);
-            const productSnap = await transaction.get(productRef);
+      // Skip if status hasn't actually changed
+      if (oldStatus === newStatus) {
+        return;
+      }
 
-            if (productSnap.exists()) {
-              const productData = productSnap.data();
-              let stockUpdateData = {};
+      // Use Firestore transaction to ensure data consistency for stock changes
+      const result = await runTransaction(db, async (transaction) => {
+        const stockUpdates = [];
 
-              if (productData.hasVariants && item.selectedVariant) {
-                // For variant products, restore specific variant stock
-                const updatedVariants = productData.variants.map((v) => {
-                  if (
-                    v.size === item.selectedVariant.size &&
-                    v.color === item.selectedVariant.color
-                  ) {
-                    return {
-                      ...v,
-                      stock: parseInt(v.stock || 0) + item.quantity,
-                    };
+        // Handle stock changes based on status transitions
+        // Process each item individually to handle multiple variants of the same product
+        for (const item of currentOrder.items || []) {
+          const productRef = doc(db, "products", item.id);
+          const productSnap = await transaction.get(productRef);
+
+          if (productSnap.exists()) {
+            const productData = productSnap.data();
+            let stockUpdateData = {};
+            let shouldUpdateStock = false;
+
+            if (productData.hasVariants && item.selectedVariant) {
+              // For variant products
+              const updatedVariants = productData.variants.map((v) => {
+                if (
+                  v.size === item.selectedVariant.size &&
+                  v.color === item.selectedVariant.color
+                ) {
+                  let newStock = parseInt(v.stock || 0);
+
+                  // Stock restoration logic
+                  if (newStatus === "مرفوض" && oldStatus !== "مرفوض") {
+                    // Changing TO rejected: restore stock
+                    newStock += item.quantity;
+                    shouldUpdateStock = true;
+                  } else if (oldStatus === "مرفوض" && newStatus !== "مرفوض") {
+                    // Changing FROM rejected: deduct stock
+                    newStock -= item.quantity;
+                    shouldUpdateStock = true;
+
+                    // Check if we have enough stock
+                    if (newStock < 0) {
+                      throw new Error(
+                        `المخزون غير كافي للمنتج ${item.name} (${item.selectedVariant.size} - ${item.selectedVariant.color}). المتوفر: ${v.stock}، المطلوب: ${item.quantity}`
+                      );
+                    }
                   }
-                  return v;
-                });
 
-                stockUpdateData = { variants: updatedVariants };
-              } else {
-                // For regular products, restore product stock
-                stockUpdateData = {
-                  stock: parseInt(productData.stock || 0) + item.quantity,
-                };
+                  return {
+                    ...v,
+                    stock: Math.max(0, newStock),
+                  };
+                }
+                return v;
+              });
+
+              stockUpdateData = { variants: updatedVariants };
+            } else {
+              // For regular products
+              let newStock = parseInt(productData.stock || 0);
+
+              // Stock restoration logic
+              if (newStatus === "مرفوض" && oldStatus !== "مرفوض") {
+                // Changing TO rejected: restore stock
+                newStock += item.quantity;
+                shouldUpdateStock = true;
+              } else if (oldStatus === "مرفوض" && newStatus !== "مرفوض") {
+                // Changing FROM rejected: deduct stock
+                newStock -= item.quantity;
+                shouldUpdateStock = true;
+
+                // Check if we have enough stock
+                if (newStock < 0) {
+                  throw new Error(
+                    `المخزون غير كافي للمنتج ${item.name}. المتوفر: ${productData.stock}، المطلوب: ${item.quantity}`
+                  );
+                }
               }
 
-              stockRestorations.push({
+              stockUpdateData = {
+                stock: Math.max(0, newStock),
+              };
+            }
+
+            if (shouldUpdateStock) {
+              // Create a unique key for each item to handle multiple variants of the same product
+              const itemKey = item.selectedVariant 
+                ? `${item.id}-${item.selectedVariant.size}-${item.selectedVariant.color}`
+                : item.id;
+              
+              stockUpdates.push({
                 ref: productRef,
                 updateData: stockUpdateData,
+                itemKey: itemKey, // Add unique identifier
+                item: item // Store the item for reference
               });
             }
           }
+        }
 
-          // Restore stock for all products
-          stockRestorations.forEach(({ ref, updateData }) => {
-            transaction.update(ref, updateData);
+        // Apply all stock updates, handling multiple variants of the same product
+        const productUpdates = new Map(); // Use Map to group updates by product
+
+        // Group updates by product ID
+        stockUpdates.forEach(({ ref, updateData, itemKey, item }) => {
+          const productId = ref.id;
+          
+          if (!productUpdates.has(productId)) {
+            productUpdates.set(productId, {
+              ref: ref,
+              updates: [],
+              productData: null
+            });
+          }
+          
+          productUpdates.get(productId).updates.push({
+            updateData,
+            itemKey,
+            item
           });
-
-          // Update order status
-          transaction.update(orderRef, { status: newStatus });
-
-          return "success";
         });
 
-        // Transaction successful
-        const updatedOrders = orders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        );
-        setOrders(updatedOrders);
+        // Apply updates for each product, merging variant updates
+        for (const [productId, productUpdate] of productUpdates) {
+          const { ref, updates } = productUpdate;
+          
+          if (updates.length === 1) {
+            // Single update, apply directly
+            transaction.update(ref, updates[0].updateData);
+          } else {
+            // Multiple updates for the same product (different variants)
+            // Need to merge the updates properly
+            const productSnap = await transaction.get(ref);
+            if (productSnap.exists()) {
+              const currentProductData = productSnap.data();
+              
+              if (currentProductData.hasVariants) {
+                // For variant products, merge all variant updates
+                const updatedVariants = [...currentProductData.variants];
+                
+                updates.forEach(({ updateData, item }) => {
+                  if (item.selectedVariant) {
+                    const variantIndex = updatedVariants.findIndex(v => 
+                      v.size === item.selectedVariant.size && 
+                      v.color === item.selectedVariant.color
+                    );
+                    
+                    if (variantIndex !== -1) {
+                      updatedVariants[variantIndex] = updateData.variants.find(v => 
+                        v.size === item.selectedVariant.size && 
+                        v.color === item.selectedVariant.color
+                      );
+                    }
+                  }
+                });
+                
+                transaction.update(ref, { variants: updatedVariants });
+              } else {
+                // For regular products, this shouldn't happen but handle it
+                console.warn(`Multiple updates for regular product ${productId} - using last update`);
+                transaction.update(ref, updates[updates.length - 1].updateData);
+              }
+            }
+          }
+        }
 
-        // Update cache with short TTL and refresh stats
-        CacheManager.set(CACHE_KEYS.ORDERS, updatedOrders, 30 * 1000);
-        calculateStats(updatedOrders);
+        // Update order status
+        transaction.update(orderRef, { status: newStatus });
 
-        // Optionally fetch fresh data after status change
-        setTimeout(() => fetchOrders(true), 1000);
-      } else {
-        // For other status changes, just update the status
-        await updateDoc(orderRef, { status: newStatus });
-        const updatedOrders = orders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        );
-        setOrders(updatedOrders);
+        return "success";
+      });
 
-        // Update cache with short TTL and refresh stats
-        CacheManager.set(CACHE_KEYS.ORDERS, updatedOrders, 30 * 1000);
-        calculateStats(updatedOrders);
+      // Transaction successful - update local state
+      const updatedOrders = orders.map((order) =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      );
+      setOrders(updatedOrders);
 
-        // Optionally fetch fresh data after status change
-        setTimeout(() => fetchOrders(true), 1000);
+      // Update cache with short TTL and refresh stats
+      CacheManager.set(CACHE_KEYS.ORDERS, updatedOrders, 30 * 1000);
+      calculateStats(updatedOrders);
+
+      // Show success message for stock changes
+      if (oldStatus === "مرفوض" && newStatus !== "مرفوض") {
+        console.log("تم خصم الكميات من المخزون بنجاح");
+      } else if (newStatus === "مرفوض" && oldStatus !== "مرفوض") {
+        console.log("تم إرجاع الكميات إلى المخزون بنجاح");
       }
+
+      // Optionally fetch fresh data after status change
+      setTimeout(() => fetchOrders(true), 1000);
     } catch (error) {
       console.error("Error updating order status:", error);
-      alert("حدث خطأ أثناء تحديث حالة الطلب. يرجى المحاولة مرة أخرى.");
+      alert(`حدث خطأ أثناء تحديث حالة الطلب: ${error.message}`);
     }
   };
 
