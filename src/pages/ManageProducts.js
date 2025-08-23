@@ -571,8 +571,12 @@ function ManageProducts() {
         brand: formData.brand,
         isNew: formData.isNew || false,
         onDemand: formData.onDemand || false,
-        createdAt: formData.id ? undefined : new Date(), // Only add creation date for new products
       };
+
+      // Only add createdAt for new products
+      if (!formData.id) {
+        data.createdAt = new Date();
+      }
 
       if (formData.hasVariants) {
         data.hasVariants = true;

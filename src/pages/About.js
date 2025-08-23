@@ -173,26 +173,6 @@ function About() {
             </div>
           </div>
 
-          {/* Values Section */}
-          <div className="bp-about-values-section">
-            <div className="bp-about-section-header">
-              <h2>💝 قيمنا ومبادئنا</h2>
-              <p>ما يميزنا ويجعلنا مختلفين</p>
-            </div>
-
-            <div className="bp-about-values-grid">
-              {values.map((value, i) => (
-                <div key={i} className="bp-about-value-card">
-                  <div className="bp-about-value-icon">{value.icon}</div>
-                  <h3 className="bp-about-value-title">{value.title}</h3>
-                  <p className="bp-about-value-description">
-                    {value.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Key Features Section */}
           <div className="bp-about-features-section">
             <div className="bp-about-section-header">
