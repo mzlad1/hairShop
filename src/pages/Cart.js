@@ -41,6 +41,7 @@ function Cart() {
   const [emailSent, setEmailSent] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [emailValid, setEmailValid] = useState(true);
 
   // Delivery options
   const [selectedDelivery, setSelectedDelivery] = useState("");
@@ -53,8 +54,33 @@ function Cart() {
     { id: "abughosh", name: "أبو غوش", price: 45 },
   ];
 
+  // Validate email format
+  const validateEmail = (emailValue) => {
+    if (!emailValue || emailValue.trim() === "") {
+      setEmailValid(true); // Empty email is valid (optional)
+      return true;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValid = emailRegex.test(emailValue.trim());
+    setEmailValid(isValid);
+    return isValid;
+  };
+
   // Send order confirmation email
   const sendOrderConfirmationEmail = async (orderData) => {
+    // If no email provided, don't send email
+    if (!orderData.customerEmail || orderData.customerEmail.trim() === "") {
+      console.log("No email provided, skipping email sending");
+      return true; // Return true to indicate "success" (no email needed)
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(orderData.customerEmail.trim())) {
+      console.log("Invalid email format, skipping email sending");
+      return true; // Return true to indicate "success" (no email needed)
+    }
+
     setEmailLoading(true);
     setEmailError("");
 
@@ -293,6 +319,15 @@ function Cart() {
     e.preventDefault();
     if (cartItems.length === 0) return;
 
+    // Validate email format if provided
+    if (email && email.trim() !== "") {
+      if (!validateEmail(email)) {
+        setError("يرجى إدخال بريد إلكتروني صحيح أو ترك الحقل فارغاً");
+        setLoading(false);
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
     try {
@@ -401,12 +436,18 @@ function Cart() {
       setSelectedDelivery(""); // Reset delivery selection
 
       // Send order confirmation email
-      const emailSent = await sendOrderConfirmationEmail(result);
-      if (emailSent) {
-        console.log("Order confirmation email sent successfully");
-        setEmailSent(true);
+      const emailResult = await sendOrderConfirmationEmail(result);
+      if (emailResult) {
+        if (result.customerEmail && result.customerEmail.trim() !== "") {
+          console.log("Order confirmation email sent successfully");
+          setEmailSent(true);
+        } else {
+          console.log("No email provided, no email sent");
+          setEmailSent(false);
+        }
       } else {
         console.log("Failed to send order confirmation email");
+        setEmailSent(false);
       }
 
       clearCart();
@@ -736,9 +777,20 @@ function Cart() {
             {emailLoading && (
               <p className="ct-email-loading">📧 جاري إرسال تأكيد الطلب...</p>
             )}
-            {emailSent && (
+            {emailSent && email && email.trim() !== "" && (
               <p className="ct-email-sent">
                 ✅ تم إرسال تأكيد الطلب إلى بريدك الإلكتروني
+              </p>
+            )}
+            {!emailSent && email && email.trim() !== "" && (
+              <p className="ct-email-not-sent">
+                ℹ️ لم يتم إرسال تأكيد الطلب عبر البريد الإلكتروني
+              </p>
+            )}
+            {!emailSent && (!email || email.trim() === "") && (
+              <p className="ct-email-not-provided">
+                ℹ️ لم يتم إرسال تأكيد الطلب عبر البريد الإلكتروني (لم يتم توفير
+                بريد إلكتروني)
               </p>
             )}
             {emailError && <p className="ct-email-error">⚠️ {emailError}</p>}
@@ -985,13 +1037,33 @@ function Cart() {
                   />
                 </div>
                 <div className="ct-form-group">
-                  <label>البريد الإلكتروني:</label>
+                  <label>
+                    البريد الإلكتروني:{" "}
+                    <span className="ct-optional">(اختياري)</span>
+                  </label>
                   <input
                     type="email"
                     value={email}
-                    required
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="إذا كنت لا تريد إرسال تفاصيل الطلب عبر البريد الإلكتروني، اترك هذا الحقل فارغاً"
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      validateEmail(e.target.value);
+                    }}
+                    className={
+                      email && email.trim() !== "" && !emailValid
+                        ? "ct-input-invalid"
+                        : ""
+                    }
                   />
+                  <small className="ct-email-note">
+                    إذا لم تملأ هذا الحقل، لن نرسل لك تأكيد الطلب عبر البريد
+                    الإلكتروني
+                  </small>
+                  {email && email.trim() !== "" && !emailValid && (
+                    <small className="ct-email-error-note">
+                      ⚠️ يرجى إدخال بريد إلكتروني صحيح
+                    </small>
+                  )}
                 </div>
                 <div className="ct-form-group">
                   <label>رقم الهاتف:</label>
@@ -1013,7 +1085,11 @@ function Cart() {
                 <button
                   type="submit"
                   className="ct-checkout-btn"
-                  disabled={loading || cartItems.length === 0}
+                  disabled={
+                    loading ||
+                    cartItems.length === 0 ||
+                    (email && email.trim() !== "" && !emailValid)
+                  }
                 >
                   {loading ? "... جاري الإرسال" : "إرسال الطلب"}
                 </button>

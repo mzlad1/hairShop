@@ -272,6 +272,25 @@
   transition: border-color 160ms ease, box-shadow 160ms ease,
     background 160ms ease;
 }
+
+.ct-form-group input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.ct-form-group input.ct-input-invalid {
+  border-color: var(--warn);
+  background: rgba(255, 107, 107, 0.05);
+}
+
+.ct-email-error-note {
+  display: block;
+  margin-top: 6px;
+  color: var(--warn);
+  font-size: 0.85em;
+  line-height: 1.4;
+}
 .ct-form-group textarea {
   min-height: 110px;
   resize: vertical;
@@ -281,6 +300,24 @@
   border-color: transparent;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 0 0 4px var(--ring), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Optional label styling */
+.ct-optional {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Email note styling */
+.ct-email-note {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.85em;
+  line-height: 1.4;
+  opacity: 0.8;
 }
 
 /* Checkout button */
@@ -819,6 +856,44 @@
 
 .ct-email-error::before {
   content: "⚠️";
+  font-size: 1.1rem;
+}
+
+.ct-email-not-sent {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff3cd;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ct-email-not-sent::before {
+  content: "ℹ️";
+  font-size: 1.1rem;
+}
+
+.ct-email-not-provided {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e3f2fd;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ct-email-not-provided::before {
+  content: "ℹ️";
   font-size: 1.1rem;
 }
 
