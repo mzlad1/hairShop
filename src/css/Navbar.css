@@ -256,6 +256,7 @@ body {
 @media (max-width: 1024px) {
   .nav-container {
     padding: 0 16px;
+    flex-direction: row;
   }
 
   .nav-menu {
@@ -276,6 +277,7 @@ body {
   .nav-container {
     height: 60px;
     padding: 0 12px;
+    flex-direction: row;
   }
 
   .nav-logo-text {
