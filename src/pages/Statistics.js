@@ -17,7 +17,12 @@ function Statistics() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [error, setError] = useState(null);
-
+  const [activityFilter, setActivityFilter] = useState("all"); // "all", "today", "month", "custom"
+  const [customDate, setCustomDate] = useState("");
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activitiesPerPage] = useState(10);
+  const [selectedMonth, setSelectedMonth] = useState(""); // For month selector
   // Statistics data
   const [stats, setStats] = useState({
     totalOrders: 0,
@@ -29,9 +34,11 @@ function Statistics() {
     totalBrands: 0,
     ordersByStatus: {},
     ordersByMonth: {},
+    allOrdersByMonth: {}, // Store all monthly data for filtering
     topProducts: [],
     recentActivity: [],
     mostOrderedProducts: [],
+    allActivities: [], // Store all activities for filtering
   });
 
   const fetchStatistics = async (force = false) => {
@@ -90,10 +97,12 @@ function Statistics() {
 
       // Calculate statistics
       const totalOrders = orders.length;
-      const totalRevenue = orders.reduce(
-        (sum, order) => sum + (order.total || 0),
-        0
-      );
+
+      // Calculate total revenue only from completed orders
+      const totalRevenue = orders
+        .filter((order) => order.status === "منجز")
+        .reduce((sum, order) => sum + (order.total || 0), 0);
+
       const totalProducts = products.length;
       const totalFeedbacks = feedbacks.length;
       const totalCategories = categories.length;
@@ -106,18 +115,8 @@ function Statistics() {
         ordersByStatus[status] = (ordersByStatus[status] || 0) + 1;
       });
 
-      // Calculate orders by month (last 6 months)
-      const ordersByMonth = {};
-      const now = new Date();
-      for (let i = 0; i < 6; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthKey = date.toLocaleDateString("ar-EG", {
-          year: "numeric",
-          month: "long",
-        });
-        ordersByMonth[monthKey] = 0;
-      }
-
+      // Calculate orders by month for all available months
+      const allOrdersByMonth = {};
       orders.forEach((order) => {
         if (order.createdAt) {
           const orderDate = order.createdAt.toDate
@@ -127,11 +126,35 @@ function Statistics() {
             year: "numeric",
             month: "long",
           });
-          if (ordersByMonth[monthKey] !== undefined) {
-            ordersByMonth[monthKey]++;
-          }
+          allOrdersByMonth[monthKey] = (allOrdersByMonth[monthKey] || 0) + 1;
         }
       });
+
+      // Get available months for selector
+      const availableMonths = Object.keys(allOrdersByMonth).sort((a, b) => {
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return dateB - dateA;
+      });
+
+      // Set default selected month to current month if none selected
+      if (!selectedMonth && availableMonths.length > 0) {
+        const currentMonth = new Date().toLocaleDateString("ar-EG", {
+          year: "numeric",
+          month: "long",
+        });
+        setSelectedMonth(
+          availableMonths.includes(currentMonth)
+            ? currentMonth
+            : availableMonths[0]
+        );
+      }
+
+      // Filter orders by selected month
+      const ordersByMonth =
+        selectedMonth && allOrdersByMonth[selectedMonth]
+          ? { [selectedMonth]: allOrdersByMonth[selectedMonth] }
+          : allOrdersByMonth;
 
       // Get top products by orders
       const productOrderCount = {};
@@ -178,9 +201,9 @@ function Statistics() {
         }));
       }
 
-      // Get recent activity
-      const recentActivity = [
-        ...orders.slice(0, 3).map((order) => ({
+      // Get all activities for filtering
+      const allActivities = [
+        ...orders.map((order) => ({
           type: "order",
           title: `طلب جديد #${order.id}`,
           description: `طلب من ${order.customerName || "عميل"} بقيمة ${
@@ -189,20 +212,25 @@ function Statistics() {
           date: order.createdAt,
           status: order.status,
         })),
-        ...feedbacks.slice(0, 3).map((feedback) => ({
+        ...feedbacks.map((feedback) => ({
           type: "feedback",
           title: `تقييم جديد`,
           description: `تقييم من ${feedback.name} للمنتج`,
           date: feedback.createdAt,
           status: feedback.status,
         })),
-      ]
-        .sort((a, b) => {
-          const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-          const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
-          return dateB - dateA;
-        })
-        .slice(0, 5);
+      ].sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+        return dateB - dateA;
+      });
+
+      // Get recent activity based on filter
+      const recentActivity = getFilteredActivities(
+        allActivities,
+        activityFilter,
+        customDate
+      ).slice(0, 5);
 
       // Estimate unique customers (based on unique customer names in orders)
       const uniqueCustomers = new Set(
@@ -220,9 +248,11 @@ function Statistics() {
         totalBrands,
         ordersByStatus,
         ordersByMonth,
+        allOrdersByMonth,
         topProducts,
         recentActivity,
         mostOrderedProducts,
+        allActivities,
       });
 
       setLastUpdate(new Date());
@@ -234,6 +264,93 @@ function Statistics() {
       setRefreshing(false);
     }
   };
+
+  // Helper function to filter activities based on date
+  const getFilteredActivities = (activities, filter, customDate) => {
+    const now = new Date();
+
+    switch (filter) {
+      case "today":
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        return activities.filter((activity) => {
+          const activityDate = activity.date?.toDate
+            ? activity.date.toDate()
+            : new Date(activity.date);
+          return activityDate >= today;
+        });
+
+      case "month":
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        return activities.filter((activity) => {
+          const activityDate = activity.date?.toDate
+            ? activity.date.toDate()
+            : new Date(activity.date);
+          return activityDate >= monthStart;
+        });
+
+      case "custom":
+        if (!customDate) return activities;
+        const selectedDate = new Date(customDate);
+        const selectedDayStart = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth(),
+          selectedDate.getDate()
+        );
+        const selectedDayEnd = new Date(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth(),
+          selectedDate.getDate() + 1
+        );
+        return activities.filter((activity) => {
+          const activityDate = activity.date?.toDate
+            ? activity.date.toDate()
+            : new Date(activity.date);
+          return (
+            activityDate >= selectedDayStart && activityDate < selectedDayEnd
+          );
+        });
+
+      default:
+        return activities;
+    }
+  };
+
+  // Update activities when filter changes
+  useEffect(() => {
+    if (stats.allActivities.length > 0) {
+      const filteredActivities = getFilteredActivities(
+        stats.allActivities,
+        activityFilter,
+        customDate
+      );
+      setStats((prev) => ({
+        ...prev,
+        recentActivity: filteredActivities.slice(0, 5),
+      }));
+    }
+  }, [activityFilter, customDate]);
+
+  // Update orders by month when selected month changes
+  useEffect(() => {
+    if (
+      stats.allOrdersByMonth &&
+      Object.keys(stats.allOrdersByMonth).length > 0
+    ) {
+      const ordersByMonth =
+        selectedMonth && stats.allOrdersByMonth[selectedMonth]
+          ? { [selectedMonth]: stats.allOrdersByMonth[selectedMonth] }
+          : stats.allOrdersByMonth;
+
+      setStats((prev) => ({
+        ...prev,
+        ordersByMonth,
+      }));
+    }
+  }, [selectedMonth, stats.allOrdersByMonth]);
 
   useEffect(() => {
     fetchStatistics();
@@ -252,7 +369,74 @@ function Statistics() {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("ar-EG").format(amount);
+    return new Intl.NumberFormat("en-US").format(amount);
+  };
+
+  // Helper function to get total stock for variant products
+  const getTotalStock = (product) => {
+    if (
+      product.hasVariants &&
+      product.variants &&
+      product.variants.length > 0
+    ) {
+      return product.variants.reduce(
+        (total, variant) => total + (variant.stock || 0),
+        0
+      );
+    }
+    return product.stock || 0;
+  };
+
+  // Helper function to get stock status class
+  const getStockStatusClass = (stock) => {
+    if (stock > 10) return "high";
+    if (stock > 5) return "medium";
+    return "low";
+  };
+
+  const handleFilterChange = (newFilter) => {
+    setActivityFilter(newFilter);
+    if (newFilter !== "custom") {
+      setCustomDate("");
+    }
+  };
+
+  const handleMonthChange = (month) => {
+    setSelectedMonth(month);
+  };
+
+  // Pagination functions
+  const getCurrentActivities = () => {
+    const filteredActivities = getFilteredActivities(
+      stats.allActivities,
+      activityFilter,
+      customDate
+    );
+    const startIndex = (currentPage - 1) * activitiesPerPage;
+    return filteredActivities.slice(startIndex, startIndex + activitiesPerPage);
+  };
+
+  const getTotalPages = () => {
+    const filteredActivities = getFilteredActivities(
+      stats.allActivities,
+      activityFilter,
+      customDate
+    );
+    return Math.ceil(filteredActivities.length / activitiesPerPage);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const openActivityModal = () => {
+    setShowActivityModal(true);
+    setCurrentPage(1); // Reset to first page when opening modal
+  };
+
+  const closeActivityModal = () => {
+    setShowActivityModal(false);
+    setCurrentPage(1);
   };
 
   if (loading) {
@@ -336,7 +520,7 @@ function Statistics() {
               <div className="metric-value">
                 {formatCurrency(stats.totalRevenue)} شيكل
               </div>
-              <div className="metric-label">إجمالي المبيعات</div>
+              <div className="metric-label">إجمالي المبيعات (طلبات مكتملة)</div>
             </div>
           </div>
 
@@ -409,27 +593,66 @@ function Statistics() {
             {/* Orders by Month */}
             <div className="stats-card chart-card">
               <h3>📈 الطلبات حسب الشهر</h3>
+
+              {/* Month Selector */}
+              <div className="month-selector-container">
+                <label
+                  htmlFor="month-selector"
+                  className="month-selector-label"
+                >
+                  اختر الشهر:
+                </label>
+                <select
+                  id="month-selector"
+                  value={selectedMonth}
+                  onChange={(e) => handleMonthChange(e.target.value)}
+                  className="month-selector"
+                >
+                  <option value="">جميع الأشهر</option>
+                  {Object.keys(stats.allOrdersByMonth || {})
+                    .sort((a, b) => {
+                      const dateA = new Date(a);
+                      const dateB = new Date(b);
+                      return dateB - dateA;
+                    })
+                    .map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
               <div className="chart-content">
-                {Object.entries(stats.ordersByMonth).map(([month, count]) => (
-                  <div key={month} className="chart-item">
-                    <div className="chart-label">{month}</div>
-                    <div className="chart-bar">
-                      <div
-                        className="chart-bar-fill"
-                        style={{
-                          width: `${Math.max(
-                            (count /
-                              Math.max(...Object.values(stats.ordersByMonth))) *
-                              100,
-                            5
-                          )}%`,
-                          backgroundColor: "#4CAF50",
-                        }}
-                      ></div>
+                {Object.entries(stats.ordersByMonth).length > 0 ? (
+                  Object.entries(stats.ordersByMonth).map(([month, count]) => (
+                    <div key={month} className="chart-item">
+                      <div className="chart-label">{month}</div>
+                      <div className="chart-bar">
+                        <div
+                          className="chart-bar-fill"
+                          style={{
+                            width: `${Math.max(
+                              (count /
+                                Math.max(
+                                  ...Object.values(stats.ordersByMonth)
+                                )) *
+                                100,
+                              5
+                            )}%`,
+                            backgroundColor: "#4CAF50",
+                          }}
+                        ></div>
+                      </div>
+                      <div className="chart-value">{count}</div>
                     </div>
-                    <div className="chart-value">{count}</div>
+                  ))
+                ) : (
+                  <div className="no-month-data-message">
+                    <div className="no-month-data-icon">📅</div>
+                    <p>لا توجد بيانات للشهر المحدد</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -469,27 +692,100 @@ function Statistics() {
             {/* Recent Activity */}
             <div className="stats-card activity-card">
               <h3>🕒 النشاطات الأخيرة</h3>
-              <div className="activity-list">
-                {stats.recentActivity.map((activity, index) => (
-                  <div key={index} className="activity-item">
-                    <div className="activity-icon">
-                      {activity.type === "order" ? "📦" : "💬"}
-                    </div>
-                    <div className="activity-content">
-                      <div className="activity-title">{activity.title}</div>
-                      <div className="activity-description">
-                        {activity.description}
-                      </div>
-                      <div className="activity-date">
-                        {formatDate(activity.date)}
-                      </div>
-                    </div>
-                    <div className={`activity-status ${activity.status}`}>
-                      {activity.status}
-                    </div>
+
+              {/* Activity Filter Controls */}
+              <div className="activity-filter-controls">
+                <div className="filter-buttons">
+                  <button
+                    className={`filter-btn ${
+                      activityFilter === "all" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("all")}
+                  >
+                    الكل
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activityFilter === "today" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("today")}
+                  >
+                    اليوم
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activityFilter === "month" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("month")}
+                  >
+                    هذا الشهر
+                  </button>
+                  <button
+                    className={`filter-btn ${
+                      activityFilter === "custom" ? "active" : ""
+                    }`}
+                    onClick={() => handleFilterChange("custom")}
+                  >
+                    تاريخ محدد
+                  </button>
+                </div>
+
+                {activityFilter === "custom" && (
+                  <div className="custom-date-input">
+                    <input
+                      type="date"
+                      value={customDate}
+                      onChange={(e) => setCustomDate(e.target.value)}
+                      className="date-picker"
+                    />
                   </div>
-                ))}
+                )}
               </div>
+
+              <div className="activity-list">
+                {stats.recentActivity.length > 0 ? (
+                  stats.recentActivity.map((activity, index) => (
+                    <div key={index} className="activity-item">
+                      <div className="activity-icon">
+                        {activity.type === "order" ? "📦" : "💬"}
+                      </div>
+                      <div className="activity-content">
+                        <div className="activity-title">{activity.title}</div>
+                        <div className="activity-description">
+                          {activity.description}
+                        </div>
+                        <div className="activity-date">
+                          {formatDate(activity.date)}
+                        </div>
+                      </div>
+                      <div className={`activity-status ${activity.status}`}>
+                        {activity.status}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-activities-message">
+                    <div className="no-activities-icon">📅</div>
+                    <p>لا توجد نشاطات في الفترة المحددة</p>
+                  </div>
+                )}
+              </div>
+
+              {/* See More Button */}
+              {getFilteredActivities(
+                stats.allActivities,
+                activityFilter,
+                customDate
+              ).length > 5 && (
+                <div className="see-more-container">
+                  <button
+                    className="stats-btn secondary see-more-btn"
+                    onClick={openActivityModal}
+                  >
+                    عرض المزيد من النشاطات
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -497,7 +793,6 @@ function Statistics() {
           <div className="stats-row">
             <div className="stats-card most-ordered-products-card">
               <h3>🛍️ المنتجات الأكثر طلباً - عرض تفصيلي</h3>
-              {/* Debug info - remove this later */}
 
               <div className="most-ordered-products-grid">
                 {stats.mostOrderedProducts &&
@@ -571,15 +866,11 @@ function Statistics() {
                           <div className="stat-item">
                             <span className="stat-label">المخزون:</span>
                             <span
-                              className={`stat-value stock ${
-                                product.stock > 10
-                                  ? "high"
-                                  : product.stock > 5
-                                  ? "medium"
-                                  : "low"
-                              }`}
+                              className={`stat-value stock ${getStockStatusClass(
+                                getTotalStock(product)
+                              )}`}
                             >
-                              {product.stock} قطعة
+                              {formatCurrency(getTotalStock(product))} قطعة
                             </span>
                           </div>
                         </div>
@@ -598,6 +889,160 @@ function Statistics() {
           </div>
         </section>
       </div>
+
+      {/* Activity Modal */}
+      {showActivityModal && (
+        <div className="activity-modal-overlay" onClick={closeActivityModal}>
+          <div className="activity-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>🕒 جميع النشاطات</h2>
+              <button className="modal-close-btn" onClick={closeActivityModal}>
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Filter Controls */}
+            <div className="modal-filter-controls">
+              <div className="filter-buttons">
+                <button
+                  className={`filter-btn ${
+                    activityFilter === "all" ? "active" : ""
+                  }`}
+                  onClick={() => handleFilterChange("all")}
+                >
+                  الكل
+                </button>
+                <button
+                  className={`filter-btn ${
+                    activityFilter === "today" ? "active" : ""
+                  }`}
+                  onClick={() => handleFilterChange("today")}
+                >
+                  اليوم
+                </button>
+                <button
+                  className={`filter-btn ${
+                    activityFilter === "month" ? "active" : ""
+                  }`}
+                  onClick={() => handleFilterChange("month")}
+                >
+                  هذا الشهر
+                </button>
+                <button
+                  className={`filter-btn ${
+                    activityFilter === "custom" ? "active" : ""
+                  }`}
+                  onClick={() => handleFilterChange("custom")}
+                >
+                  تاريخ محدد
+                </button>
+              </div>
+
+              {activityFilter === "custom" && (
+                <div className="custom-date-input">
+                  <input
+                    type="date"
+                    value={customDate}
+                    onChange={(e) => setCustomDate(e.target.value)}
+                    className="date-picker"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="modal-content">
+              <div className="modal-activity-list">
+                {getCurrentActivities().length > 0 ? (
+                  getCurrentActivities().map((activity, index) => (
+                    <div key={index} className="modal-activity-item">
+                      <div className="activity-icon">
+                        {activity.type === "order" ? "📦" : "💬"}
+                      </div>
+                      <div className="activity-content">
+                        <div className="activity-title">{activity.title}</div>
+                        <div className="activity-description">
+                          {activity.description}
+                        </div>
+                        <div className="activity-date">
+                          {formatDate(activity.date)}
+                        </div>
+                      </div>
+                      <div className={`activity-status ${activity.status}`}>
+                        {activity.status}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-activities-message">
+                    <div className="no-activities-icon">📅</div>
+                    <p>لا توجد نشاطات في الفترة المحددة</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Pagination */}
+              {getTotalPages() > 1 && (
+                <div className="pagination">
+                  <button
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    السابق
+                  </button>
+
+                  <div className="page-numbers">
+                    {Array.from(
+                      { length: getTotalPages() },
+                      (_, i) => i + 1
+                    ).map((page) => (
+                      <button
+                        key={page}
+                        className={`page-number ${
+                          page === currentPage ? "active" : ""
+                        }`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === getTotalPages()}
+                  >
+                    التالي
+                  </button>
+                </div>
+              )}
+
+              <div className="modal-footer">
+                <div className="activity-summary">
+                  <span>
+                    عرض {getCurrentActivities().length} من{" "}
+                    {
+                      getFilteredActivities(
+                        stats.allActivities,
+                        activityFilter,
+                        customDate
+                      ).length
+                    }{" "}
+                    نشاط
+                  </span>
+                </div>
+                <button
+                  className="stats-btn primary"
+                  onClick={closeActivityModal}
+                >
+                  إغلاق
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
