@@ -9,7 +9,13 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { db, storage } from "../firebase";
 import { CacheManager, CACHE_KEYS } from "../utils/cache";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -20,6 +26,8 @@ function ManageCategories() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [formName, setFormName] = useState("");
+  const [formImage, setFormImage] = useState(null);
+  const [formImagePreview, setFormImagePreview] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -52,23 +60,65 @@ function ManageCategories() {
         console.error("Error fetching categories:", error);
         // بيانات تجريبية
         setCategories([
-          { id: "cat1", name: "الوجه" },
-          { id: "cat2", name: "الشعر" },
-          { id: "cat3", name: "الجسم" },
+          { id: "cat1", name: "الوجه", imageUrl: "" },
+          { id: "cat2", name: "الشعر", imageUrl: "" },
+          { id: "cat3", name: "الجسم", imageUrl: "" },
         ]);
       }
     }
     fetchCategories();
   }, []);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormImage(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFormImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormImage(null);
+    setFormImagePreview("");
+  };
+
+  const uploadImageToStorage = async (file, categoryId) => {
+    if (!file) return null;
+
+    const storageRef = ref(storage, `categories/${categoryId}/${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  };
+
+  const deleteImageFromStorage = async (imageUrl) => {
+    if (!imageUrl) return;
+
+    try {
+      const imageRef = ref(storage, imageUrl);
+      await deleteObject(imageRef);
+    } catch (error) {
+      console.error("Error deleting image from storage:", error);
+    }
+  };
+
   const handleEdit = (cat) => {
     setFormName(cat.name);
+    setFormImage(null);
+    setFormImagePreview(cat.imageUrl || "");
     setEditingId(cat.id);
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setFormName("");
+    setFormImage(null);
+    setFormImagePreview("");
     setEditingId(null);
     setShowForm(false);
   };
@@ -77,19 +127,51 @@ function ManageCategories() {
     e.preventDefault();
     if (!formName) return;
     setLoading(true);
+
     try {
       let updatedCategories;
+
       if (editingId) {
+        // Editing existing category
         const docRef = doc(db, "categories", editingId);
-        await updateDoc(docRef, { name: formName });
+        const updateData = { name: formName };
+
+        // Handle image update
+        if (formImage) {
+          // Delete old image if exists
+          const oldCategory = categories.find((c) => c.id === editingId);
+          if (oldCategory?.imageUrl) {
+            await deleteImageFromStorage(oldCategory.imageUrl);
+          }
+
+          // Upload new image
+          const imageUrl = await uploadImageToStorage(formImage, editingId);
+          updateData.imageUrl = imageUrl;
+        }
+
+        await updateDoc(docRef, updateData);
+
         updatedCategories = categories.map((c) =>
-          c.id === editingId ? { ...c, name: formName } : c
+          c.id === editingId ? { ...c, ...updateData } : c
         );
       } else {
+        // Adding new category
         const docRef = await addDoc(collection(db, "categories"), {
           name: formName,
+          imageUrl: "",
         });
-        updatedCategories = [...categories, { id: docRef.id, name: formName }];
+
+        let imageUrl = "";
+        if (formImage) {
+          imageUrl = await uploadImageToStorage(formImage, docRef.id);
+          // Update the document with image URL
+          await updateDoc(docRef, { imageUrl });
+        }
+
+        updatedCategories = [
+          ...categories,
+          { id: docRef.id, name: formName, imageUrl },
+        ];
       }
 
       setCategories(updatedCategories);
@@ -102,6 +184,8 @@ function ManageCategories() {
       );
 
       setFormName("");
+      setFormImage(null);
+      setFormImagePreview("");
       setEditingId(null);
       setShowForm(false);
     } catch (error) {
@@ -114,6 +198,12 @@ function ManageCategories() {
   const handleDelete = async (id) => {
     if (!window.confirm("هل تريد حذف هذه الفئة؟")) return;
     try {
+      // Delete image from storage if exists
+      const category = categories.find((c) => c.id === id);
+      if (category?.imageUrl) {
+        await deleteImageFromStorage(category.imageUrl);
+      }
+
       await deleteDoc(doc(db, "categories", id));
       const updatedCategories = categories.filter((c) => c.id !== id);
       setCategories(updatedCategories);
@@ -217,6 +307,40 @@ function ManageCategories() {
                 onChange={(e) => setFormName(e.target.value)}
               />
             </div>
+
+            <div className="mc-form-group">
+              <label>صورة الفئة:</label>
+              <div className="mc-image-upload">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="mc-file-input"
+                  id="category-image"
+                />
+                <label htmlFor="category-image" className="mc-file-label">
+                  {formImage ? "تغيير الصورة" : "اختر صورة"}
+                </label>
+
+                {(formImagePreview || formImage) && (
+                  <div className="mc-image-preview">
+                    <img
+                      src={formImagePreview}
+                      alt="معاينة الصورة"
+                      className="mc-preview-img"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="mc-remove-image-btn"
+                    >
+                      حذف الصورة
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <button type="submit" className="mc-save-btn" disabled={loading}>
               {loading ? "جاري الحفظ..." : editingId ? "تحديث" : "إضافة"}
             </button>
@@ -233,6 +357,7 @@ function ManageCategories() {
         <table className="mc-table">
           <thead>
             <tr>
+              <th>الصورة</th>
               <th>اسم الفئة</th>
               <th>إجراءات</th>
             </tr>
@@ -240,6 +365,17 @@ function ManageCategories() {
           <tbody>
             {currentCategories.map((cat) => (
               <tr key={cat.id}>
+                <td data-label="الصورة" className="mc-image-cell">
+                  {cat.imageUrl ? (
+                    <img
+                      src={cat.imageUrl}
+                      alt={cat.name}
+                      className="mc-category-image"
+                    />
+                  ) : (
+                    <div className="mc-no-image">لا توجد صورة</div>
+                  )}
+                </td>
                 <td data-label="اسم الفئة">{cat.name}</td>
                 <td data-label="إجراءات">
                   <button

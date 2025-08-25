@@ -257,6 +257,14 @@ function Products() {
     }
   }, [searchParams]);
 
+  // Handle URL parameters for category filtering
+  useEffect(() => {
+    const categoryFromURL = searchParams.get("category");
+    if (categoryFromURL) {
+      setSelectedCategory(decodeURIComponent(categoryFromURL));
+    }
+  }, [searchParams]);
+
   // حساب الصفحات
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;

@@ -2,9 +2,11 @@
 
 /* Card Container */
 .pc-card {
-  display: block;
-  height: -webkit-fill-available;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+  align-items: stretch;
   text-align: center;
   background: #ffffff;
   border: 1px solid #e1e5e9;
@@ -656,4 +658,40 @@
     background: linear-gradient(135deg, #b9877b, #a87a6f);
     border-color: rgba(255, 255, 255, 0.1);
   }
+}
+
+/* Products page grid specific fixes */
+.pr-grid .pc-card {
+  align-self: start;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Mobile Safari Fixes */
+@supports (-webkit-touch-callout: none) {
+  .pc-card {
+    height: auto !important;
+    min-height: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .pr-grid .pc-card {
+    align-self: start;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+/* Ensure content doesn't stretch unnecessarily */
+.pc-image-container {
+  flex-shrink: 0;
+}
+
+.pc-name {
+  flex-shrink: 0;
+}
+
+.pc-price-container {
+  flex-shrink: 0;
+  margin-top: auto;
 }

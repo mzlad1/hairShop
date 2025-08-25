@@ -17,6 +17,8 @@ function Home() {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [brands, setBrands] = useState([]);
   const [loadingBrands, setLoadingBrands] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   // NEW: ref for the marquee track
   const trackRef = useRef(null);
@@ -88,6 +90,43 @@ function Home() {
       console.error("Error checking expired discounts:", error);
     }
   };
+
+  // Fetch categories
+  useEffect(() => {
+    async function fetchCategories() {
+      setLoadingCategories(true);
+      try {
+        // Check cache first
+        const cachedCategories = CacheManager.get(CACHE_KEYS.CATEGORIES);
+        if (cachedCategories) {
+          console.log("Loading categories from cache");
+          setCategories(cachedCategories);
+          return;
+        }
+
+        console.log("Fetching categories from Firebase");
+        const snapshot = await getDocs(collection(db, "categories"));
+        const data = [];
+        snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+
+        // Cache categories for 10 minutes
+        CacheManager.set(CACHE_KEYS.CATEGORIES, data, 10 * 60 * 1000);
+
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        // Fallback data
+        setCategories([
+          { id: "cat1", name: "الوجه", imageUrl: "" },
+          { id: "cat2", name: "الشعر", imageUrl: "" },
+          { id: "cat3", name: "الجسم", imageUrl: "" },
+        ]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   // Fetch most ordered products based on order data
   useEffect(() => {
@@ -344,9 +383,13 @@ function Home() {
     return () => clearInterval(cursorTimer);
   }, []);
 
+  // Handle category click
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/products?category=${encodeURIComponent(categoryName)}`);
+  };
+
   // Handle brand click
   const handleBrandClick = (brandName) => {
-    // Navigate to products page with brand filter
     navigate(`/products?brand=${encodeURIComponent(brandName)}`);
   };
 
@@ -422,6 +465,89 @@ function Home() {
             <div className="bg-circle circle-1"></div>
             <div className="bg-circle circle-2"></div>
             <div className="bg-circle circle-3"></div>
+          </div>
+        </section>
+
+        {/* Categories Section */}
+        <section className="categories-section">
+          <div className="section-container">
+            <div className="section-header">
+              <h2 className="section-title">
+                <span className="title-icon">🏷️</span>
+                تصفح حسب الفئة
+              </h2>
+              <p className="section-subtitle">
+                اختر الفئة التي تريدها واكتشف منتجاتنا المميزة
+              </p>
+            </div>
+
+            {loadingCategories ? (
+              <div className="categories-loading">
+                <div className="categories-loading-grid">
+                  {[...Array(6)].map((_, index) => (
+                    <div key={index} className="category-skeleton">
+                      <div className="skeleton-category-image"></div>
+                      <div className="skeleton-category-name"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="categories-grid">
+                {categories.map((category) => (
+                  <div key={category.id} className="category-item">
+                    <div
+                      className="category-card"
+                      onClick={() => handleCategoryClick(category.name)}
+                    >
+                      <div className="category-image-container">
+                        {category.imageUrl ? (
+                          <img
+                            src={category.imageUrl}
+                            alt={category.name}
+                            className="category-image"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="category-image-fallback"
+                          style={{
+                            display: category.imageUrl ? "none" : "flex",
+                          }}
+                        >
+                          <span className="category-icon">
+                            {category.name === "الوجه"
+                              ? "💄"
+                              : category.name === "الشعر"
+                              ? "💇‍♀️"
+                              : category.name === "الجسم"
+                              ? "🧴"
+                              : "🏷️"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="category-info">
+                        <h3 className="category-name">{category.name}</h3>
+                        <div className="category-click-hint">
+                          <span>انقر لعرض المنتجات</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {categories.length === 0 && !loadingCategories && (
+              <div className="no-categories-message">
+                <div className="no-categories-icon">🏷️</div>
+                <h3>لا توجد فئات</h3>
+                <p>لم يتم إضافة أي فئة بعد</p>
+              </div>
+            )}
           </div>
         </section>
 
