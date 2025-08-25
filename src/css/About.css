@@ -596,6 +596,8 @@
   font-size: 0.95rem;
   margin: 0;
   font-style: italic;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* Loading and No Feedbacks States */

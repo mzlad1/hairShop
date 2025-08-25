@@ -343,6 +343,8 @@
   line-height: 1.6;
   margin-bottom: 15px;
   font-family: "Tajawal", Arial, sans-serif;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* Feedback Images */

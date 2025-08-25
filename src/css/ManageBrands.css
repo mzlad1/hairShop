@@ -318,6 +318,8 @@
 }
 .mb-brand-description {
   color: var(--muted);
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 .mb-website-link {
   color: #fff;

@@ -1280,6 +1280,8 @@
   color: var(--gray-color);
   line-height: 1.6;
   font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* Categories Tags */

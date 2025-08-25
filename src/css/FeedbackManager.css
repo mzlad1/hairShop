@@ -298,6 +298,8 @@
   font-size: 1rem;
   box-shadow: 0 4px 12px rgba(185, 135, 123, 0.08);
   position: relative;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .fm-feedback-comment::before {
