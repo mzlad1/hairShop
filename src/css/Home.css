@@ -36,6 +36,7 @@
   align-items: center;
   text-align: center;
   width: 100%;
+  gap: 2rem;
 }
 
 /* Logo */
@@ -1071,10 +1072,6 @@
     padding: 3rem 1rem;
   }
 
-  .categories-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-  }
 
   .category-image-container {
     width: 70px;
@@ -1094,7 +1091,7 @@
   }
 
   .categories-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
     gap: 1.5rem;
   }
 
@@ -1159,7 +1156,6 @@
 @media (max-width: 480px) {
   .hero-section {
     padding: 1rem;
-    min-height: 55vh;
   }
 
   .shop-name {
