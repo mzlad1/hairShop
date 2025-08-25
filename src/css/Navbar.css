@@ -256,7 +256,6 @@ body {
 @media (max-width: 1024px) {
   .nav-container {
     padding: 0 16px;
-    flex-direction: row;
   }
 
   .nav-menu {

@@ -529,12 +529,7 @@ function Home() {
                           </span>
                         </div>
                       </div>
-                      <div className="category-info">
-                        <h3 className="category-name">{category.name}</h3>
-                        <div className="category-click-hint">
-                          <span>انقر لعرض المنتجات</span>
-                        </div>
-                      </div>
+                      <h3 className="category-name">{category.name}</h3>
                     </div>
                   </div>
                 ))}
