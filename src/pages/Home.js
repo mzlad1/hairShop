@@ -436,18 +436,7 @@ function Home() {
                 </h1>
               </div>
 
-              <div className="hero-description">
-                <p className="typed-sentences">
-                  {sentenceText}
-                  {!isTypingComplete && (
-                    <span
-                      className={`typing-cursor ${showCursor ? "visible" : ""}`}
-                    >
-                      |
-                    </span>
-                  )}
-                </p>
-              </div>
+
 
               <div className="hero-cta">
                 <button
@@ -611,9 +600,6 @@ function Home() {
                 <span className="title-icon">🏆</span>
                 العلامات التجارية المتوفرة
               </h2>
-              <p className="section-subtitle">
-                نتعامل مع أفضل العلامات التجارية العالمية
-              </p>
             </div>
 
             {loadingBrands ? (

@@ -302,9 +302,14 @@ function ProductDetail() {
 
   // Handle size selection
   const handleSizeSelect = (size) => {
-    setSelectedSize(size);
+    // Don't do anything if clicking the same size
+    if (size === selectedSize) {
+      return;
+    }
+
     setSelectedColor(null); // Reset color when size changes
     setSelectedVariant(null); // Reset variant selection
+    setSelectedSize(size);
     setQuantity(1); // Reset quantity
 
     // Check if this is a size-only product
@@ -322,6 +327,11 @@ function ProductDetail() {
 
   // Handle color selection
   const handleColorSelect = (color) => {
+    // Don't do anything if clicking the same color
+    if (color === selectedColor) {
+      return;
+    }
+
     setSelectedColor(color);
     setSelectedVariant(null); // Reset variant selection
     setQuantity(1); // Reset quantity
@@ -670,7 +680,6 @@ function ProductDetail() {
                         // Show price range with note
                         <span className="pd-price-value pd-price-variants">
                           <small>
-                            يبدأ من{" "}
                             {Math.min(
                               ...(product.variants?.map(
                                 (v) => parseFloat(v.price) || 0
@@ -678,17 +687,6 @@ function ProductDetail() {
                             )}{" "}
                             شيكل
                           </small>
-                          <div className="pd-variants-note">
-                            <small>
-                              💡 السعر يتغير حسب{" "}
-                              {product.sizes?.length > 0 &&
-                              product.colors?.length > 0
-                                ? "الحجم واللون المختار"
-                                : product.sizes?.length > 0
-                                ? "الحجم المختار"
-                                : "اللون المختار"}
-                            </small>
-                          </div>
                         </span>
                       )}
                       <div className="pd-variants-overview"></div>
@@ -719,55 +717,6 @@ function ProductDetail() {
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="pd-description">
-                <h3>وصف المنتج</h3>
-                <p>{product.description}</p>
-              </div>
-
-              {/* Categories */}
-              {product.categories && (
-                <div className="pd-categories">
-                  <h4>الفئات:</h4>
-                  <div className="pd-category-tags">
-                    {product.categories.map((category, index) => (
-                      <span key={index} className="pd-category-tag">
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Features */}
-              {product.features && (
-                <div className="pd-features">
-                  <h4>المميزات:</h4>
-                  <ul className="pd-features-list">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="pd-feature-item">
-                        <span className="pd-feature-icon">✨</span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Ingredients */}
-              {product.ingredients && (
-                <div className="pd-ingredients">
-                  <h4>المكونات الرئيسية:</h4>
-                  <div className="pd-ingredient-tags">
-                    {product.ingredients.map((ingredient, index) => (
-                      <span key={index} className="pd-ingredient-tag">
-                        {ingredient}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Variants Selection */}
               {product.hasVariants && (
                 <div className="pd-variants-selection">
@@ -779,23 +728,6 @@ function ProductDetail() {
                       : "اختر اللون"}
                   </h4>
 
-                  <div className="pd-variants-info">
-                    <small className="pd-variants-info-text">
-                      💡 <strong>ملاحظة:</strong> السعر يتغير حسب{" "}
-                      {product.sizes?.length > 0 && product.colors?.length > 0
-                        ? "الحجم واللون المختار"
-                        : product.sizes?.length > 0
-                        ? "الحجم المختار"
-                        : "اللون المختار"}
-                      . اختر{" "}
-                      {product.sizes?.length > 0 && product.colors?.length > 0
-                        ? "الحجم واللون"
-                        : product.sizes?.length > 0
-                        ? "الحجم"
-                        : "اللون"}{" "}
-                      لرؤية السعر النهائي.
-                    </small>
-                  </div>
 
                   <div className="pd-selection-options">
                     {/* Size Selection - Only show if product has sizes */}
@@ -902,6 +834,57 @@ function ProductDetail() {
                   </div>
                 </div>
               )}
+
+              {/* Description */}
+              <div className="pd-description">
+                <h3>وصف المنتج</h3>
+                <p>{product.description}</p>
+              </div>
+
+              {/* Categories */}
+              {product.categories && (
+                <div className="pd-categories">
+                  <h4>الفئات:</h4>
+                  <div className="pd-category-tags">
+                    {product.categories.map((category, index) => (
+                      <span key={index} className="pd-category-tag">
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Features */}
+              {product.features && (
+                <div className="pd-features">
+                  <h4>المميزات:</h4>
+                  <ul className="pd-features-list">
+                    {product.features.map((feature, index) => (
+                      <li key={index} className="pd-feature-item">
+                        <span className="pd-feature-icon">✨</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Ingredients */}
+              {product.ingredients && (
+                <div className="pd-ingredients">
+                  <h4>المكونات الرئيسية:</h4>
+                  <div className="pd-ingredient-tags">
+                    {product.ingredients.map((ingredient, index) => (
+                      <span key={index} className="pd-ingredient-tag">
+                        {ingredient}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+
 
               {/* Selected Variant Display */}
 
@@ -1024,7 +1007,7 @@ function ProductDetail() {
                     <div className="pd-notice-text">
                       <strong>ملاحظة للمدير:</strong>
                       <p>
-                        أنت مسجل دخول كمدير. لا يمكن للمديرين إضافة منتجات إلى
+                        أنت مسجل دخول كمدير. لا يمكن للمدراء إضافة منتجات إلى
                         السلة. يمكنك إدارة المنتجات من{" "}
                         <button
                           onClick={() => navigate("/admin/dashboard")}

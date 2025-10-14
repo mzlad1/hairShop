@@ -1690,7 +1690,7 @@ function ManageProducts() {
                     />
                     <span className="mp-checkbox-text">
                       <span className="mp-badge-preview mp-badge-preview--on-demand">
-                        ع الطلب
+                        على الطلب
                       </span>
                       متوفر عند الطلب
                     </span>

@@ -50,8 +50,8 @@ function Cart() {
   const deliveryOptions = [
     { id: "westbank", name: "الضفة الغربية", price: 20 },
     { id: "jerusalem", name: "القدس", price: 30 },
-    { id: "inside", name: "داخل الخط الأخضر", price: 60 },
-    { id: "abughosh", name: "أبو غوش", price: 45 },
+    { id: "inside", name: "الداخل المحتل", price: 70 },
+    { id: "abughosh", name: "أبو غوش/القسطل/عين ناقوبة/أبو رافة", price: 45 },
   ];
 
   // Validate email format

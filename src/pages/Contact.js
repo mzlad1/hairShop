@@ -7,16 +7,8 @@ import "../css/Contact.css";
 function Contact() {
   const contactInfo = [
     {
-      icon: "📱",
-      title: "واتساب",
-      content: "تواصل معنا عبر واتساب",
-      link: "https://wa.me/970590000000",
-      linkText: "+970 59 000 0000",
-      type: "whatsapp",
-    },
-    {
       icon: "📷",
-      title: "إنستغرام",
+      title: "انستجرام",
       content: "تابعنا للحصول على آخر العروض",
       link: "https://www.instagram.com/unlock.your.curls",
       linkText: "@unlock.your.curls",
@@ -31,18 +23,13 @@ function Contact() {
         <div className="bp-contact-container">
           {/* Header Section */}
           <div className="bp-contact-header">
-            <h1 className="bp-contact-title">💄 تواصل معنا</h1>
+            <h1 className="bp-contact-title">تواصل معنا على الانستجرام</h1>
           </div>
 
           {/* Contact Content */}
           <div className="bp-contact-content">
             {/* Contact Information */}
             <div className="bp-contact-info-section">
-              <div className="bp-contact-info-header">
-                <h2>📞 معلومات التواصل</h2>
-                <p>تواصل معنا بالطريقة الأنسب لك</p>
-              </div>
-
               <div className="bp-contact-cards">
                 {contactInfo.map((info, index) => (
                   <a

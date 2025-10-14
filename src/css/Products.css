@@ -432,6 +432,9 @@
   .products-page {
     padding: 22px 12px 40px;
   }
+  .pr-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
 }
 
 /* Checkbox Styles */

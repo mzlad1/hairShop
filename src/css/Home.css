@@ -110,21 +110,6 @@
   max-width: 600px;
 }
 
-.typed-sentences {
-  font-size: 1.3rem;
-  line-height: 2;
-  color: #374151;
-  font-family: "Cairo", sans-serif;
-  font-weight: 500;
-  text-align: center;
-  direction: rtl;
-  margin: 0;
-  min-height: 2.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .sentence-line {
   display: inline;
   padding: 0.5rem 1rem;
@@ -1010,12 +995,6 @@
     font-size: 2.5rem;
   }
 
-  .typed-sentences {
-    font-size: 1.1rem;
-    text-align: center;
-    min-height: 2.2rem;
-  }
-
   .hero-image {
     height: 200px;
     margin-bottom: 0.5rem;
@@ -1160,11 +1139,6 @@
 
   .shop-name {
     font-size: 2rem;
-  }
-
-  .typed-sentences {
-    font-size: 1rem;
-    min-height: 2rem;
   }
 
   .cta-button {

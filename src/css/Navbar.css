@@ -86,7 +86,7 @@ body {
 }
 
 .nav-logo-text {
-  color: var(--navbar-text);
+  color: #b9877b;
   font-weight: 600;
 }
 
@@ -105,8 +105,8 @@ body {
   padding: 8px 16px;
   text-decoration: none;
   color: var(--navbar-text);
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 1.1rem;
   border-radius: 6px;
   transition: var(--navbar-transition);
   white-space: nowrap;
@@ -277,10 +277,6 @@ body {
     height: 60px;
     padding: 0 12px;
     flex-direction: row;
-  }
-
-  .nav-logo-text {
-    display: none;
   }
 
   .nav-logo-img {

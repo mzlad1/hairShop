@@ -376,7 +376,7 @@ function AdminDashboard() {
                 <span className="tile-sub">مراجعة والموافقة على التقييمات</span>
               </Link>
               <Link to="/admin/discounts" className="ad-tile">
-                <span className="tile-title">إدارة الخصومات</span>
+                <span className="tile-title">الخصومات</span>
                 <span className="tile-sub">
                   تطبيق خصومات على المنتجات والفئات
                 </span>

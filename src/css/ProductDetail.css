@@ -285,14 +285,7 @@
 .pd-price-value {
   color: var(--primary-color);
   font-weight: 600;
-  font-size: 1.5rem;
-}
-
-/* Regular Price */
-.pd-price-value:not(.pd-price-variants):not(.pd-price-discounted) {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-color);
+  font-size: 1.6rem;
 }
 
 /* New brand styles (no original counterpart) */
@@ -311,8 +304,7 @@
   color: var(--dark-color);
 }
 
-.pd-brand-name,
-.pd-price-value {
+.pd-brand-name{
   color: var(--primary-color);
   font-weight: 600;
 }
@@ -414,24 +406,13 @@
 }
 
 .pd-price-variants small {
-  font-size: 1.2rem !important;
-  font-weight: 600;
+  font-size: 1.6rem !important;
+  font-weight: 700;
   color: var(--primary-color);
   display: block;
   line-height: 1.4;
 }
 
-.pd-price-variants small:first-child {
-  font-size: 1.4rem !important;
-  font-weight: 700;
-  color: var(--primary-color);
-}
-
-.pd-price-variants small:last-child {
-  font-size: 1.1rem !important;
-  font-weight: 500;
-  color: var(--secondary-color);
-}
 
 .pd-variants-overview {
   margin-top: 12px;
@@ -1044,10 +1025,6 @@
     font-size: 1.3rem !important;
   }
 
-  .pd-price-value:not(.pd-price-variants):not(.pd-price-discounted) {
-    font-size: 1.6rem !important;
-  }
-
   .pd-price-discounted {
     font-size: 1.6rem !important;
   }
@@ -1057,15 +1034,7 @@
   }
 
   .pd-price-variants small {
-    font-size: 1rem !important;
-  }
-
-  .pd-price-variants small:first-child {
     font-size: 1.2rem !important;
-  }
-
-  .pd-price-variants small:last-child {
-    font-size: 0.9rem !important;
   }
 }
 
@@ -1867,10 +1836,6 @@
     font-size: 1.1rem !important;
   }
 
-  .pd-price-value:not(.pd-price-variants):not(.pd-price-discounted) {
-    font-size: 1.4rem !important;
-  }
-
   .pd-price-discounted {
     font-size: 1.4rem !important;
   }
@@ -1880,15 +1845,7 @@
   }
 
   .pd-price-variants small {
-    font-size: 0.9rem !important;
-  }
-
-  .pd-price-variants small:first-child {
     font-size: 1.1rem !important;
-  }
-
-  .pd-price-variants small:last-child {
-    font-size: 0.8rem !important;
   }
 
   .add-cart-button,

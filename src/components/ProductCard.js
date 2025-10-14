@@ -80,7 +80,7 @@ function ProductCard({ product }) {
 
     if (product.onDemand) {
       badges.push({
-        text: "ع الطلب (توصيل خلال 2-3 أسابيع)",
+        text: "على الطلب (توصيل خلال 2-3 أسابيع)",
         type: "on-demand",
       });
     }
