@@ -141,6 +141,62 @@ function ProductDetail() {
           setMainImage(
             data.images && data.images.length > 0 ? data.images[0] : ""
           );
+          
+          // Auto-select first available size and color
+          if (data.hasVariants) {
+            if (data.sizes && data.sizes.length > 0) {
+              // Find first available size that has stock
+              for (const size of data.sizes) {
+                let hasStock = false;
+                
+                if (data.colors && data.colors.length > 0) {
+                  // Product has both sizes and colors
+                  for (const color of data.colors) {
+                    const variant = data.variants.find(v => 
+                      v.size === size && 
+                      v.color === color && 
+                      parseInt(v.stock) > 0
+                    );
+                    if (variant) {
+                      setSelectedSize(size);
+                      setSelectedColor(color);
+                      setSelectedVariant(variant);
+                      hasStock = true;
+                      break;
+                    }
+                  }
+                } else {
+                  // Product has only sizes
+                  const variant = data.variants.find(v => 
+                    v.size === size && 
+                    !v.color && 
+                    parseInt(v.stock) > 0
+                  );
+                  if (variant) {
+                    setSelectedSize(size);
+                    setSelectedVariant(variant);
+                    hasStock = true;
+                  }
+                }
+                
+                if (hasStock) break;
+              }
+            } else if (data.colors && data.colors.length > 0) {
+              // Product has only colors
+              for (const color of data.colors) {
+                const variant = data.variants.find(v => 
+                  v.color === color && 
+                  !v.size && 
+                  parseInt(v.stock) > 0
+                );
+                if (variant) {
+                  setSelectedColor(color);
+                  setSelectedVariant(variant);
+                  break;
+                }
+              }
+            }
+          }
         } else {
           setError("المنتج غير موجود");
         }
@@ -282,13 +338,26 @@ function ProductDetail() {
     // Handle different variant types
     if (size && color) {
       // Both size and color
-      return product.variants.find((v) => v.size === size && v.color === color);
+      const variant = product.variants.find(
+        (v) => v.size === size && 
+               v.color === color && 
+               (parseInt(v.stock) || 0) > 0
+      );
+      return variant || null;
     } else if (size && !color) {
       // Only size
-      return product.variants.find((v) => v.size === size && !v.color);
+      return product.variants.find(
+        (v) => v.size === size && 
+               !v.color && 
+               (parseInt(v.stock) || 0) > 0
+      );
     } else if (!size && color) {
       // Only color
-      return product.variants.find((v) => !v.size && v.color === color);
+      return product.variants.find(
+        (v) => !v.size && 
+               v.color === color && 
+               (parseInt(v.stock) || 0) > 0
+      );
     }
 
     return null;
@@ -307,21 +376,40 @@ function ProductDetail() {
       return;
     }
 
-    setSelectedColor(null); // Reset color when size changes
-    setSelectedVariant(null); // Reset variant selection
     setSelectedSize(size);
     setQuantity(1); // Reset quantity
 
     // Check if this is a size-only product
-    if (product.colors && product.colors.length === 0) {
-      // Product has only sizes, auto-select the variant
+    if (product.colors && product.colors.length > 0) {
+      // Product has colors, find first available color for this size
+      const firstAvailableColor = product.colors.find(color => {
+        const variant = product.variants?.find(
+          v => v.size === size && 
+               v.color === color && 
+               (parseInt(v.stock) || 0) > 0
+        );
+        return !!variant;
+      });
+
+      if (firstAvailableColor) {
+        setSelectedColor(firstAvailableColor);
+        const variant = getVariantInfo(size, firstAvailableColor);
+        if (variant) {
+          setSelectedVariant(variant);
+          showToastMessage(`تم اختيار ${size} - ${firstAvailableColor}`, "success");
+        }
+      } else {
+        setSelectedColor(null);
+        setSelectedVariant(null);
+        showToastMessage(`تم اختيار الحجم: ${size}`, "success");
+      }
+    } else {
+      // Product has only sizes
       const variant = getVariantInfo(size, null);
       if (variant) {
         setSelectedVariant(variant);
         showToastMessage(`تم اختيار الحجم: ${size}`, "success");
       }
-    } else {
-      showToastMessage(`تم اختيار الحجم: ${size}`, "success");
     }
   };
 
@@ -332,25 +420,35 @@ function ProductDetail() {
       return;
     }
 
+    // Check if this combination is valid (has stock)
+    const variant = selectedSize 
+      ? product.variants.find(
+          v => v.size === selectedSize && 
+               v.color === color && 
+               (parseInt(v.stock) || 0) > 0
+        )
+      : product.variants.find(
+          v => !v.size && 
+               v.color === color && 
+               (parseInt(v.stock) || 0) > 0
+        );
+
+    if (!variant) {
+      // This combination is not available or has no stock
+      return;
+    }
+
     setSelectedColor(color);
-    setSelectedVariant(null); // Reset variant selection
+    setSelectedVariant(variant);
     setQuantity(1); // Reset quantity
 
-    // Check if this is a color-only product
+    // Show appropriate toast message
     if (product.sizes && product.sizes.length === 0) {
-      // Product has only colors, auto-select the variant
-      const variant = getVariantInfo(null, color);
-      if (variant) {
-        setSelectedVariant(variant);
-        showToastMessage(`تم اختيار اللون: ${color}`, "success");
-      }
+      // Product has only colors
+      showToastMessage(`تم اختيار اللون: ${color}`, "success");
     } else if (selectedSize) {
       // Both size and color are selected
-      const variant = getVariantInfo(selectedSize, color);
-      if (variant) {
-        setSelectedVariant(variant);
-        showToastMessage(`تم اختيار ${selectedSize} - ${color}`, "success");
-      }
+      showToastMessage(`تم اختيار ${selectedSize} - ${color}`, "success");
     } else {
       showToastMessage(`تم اختيار اللون: ${color}`, "success");
     }
@@ -666,14 +764,14 @@ function ProductDetail() {
                         <span className="pd-price-value pd-price-variants">
                           {selectedVariant.price} شيكل
                           <small className="pd-variant-note">
-                            (المحدد:{" "}
+                            المنتج المحدد:{" "}
                             {selectedVariant.size && `${selectedVariant.size}`}
                             {selectedVariant.size &&
                               selectedVariant.color &&
                               " - "}
                             {selectedVariant.color &&
                               `${selectedVariant.color}`}
-                            )
+                            
                           </small>
                         </span>
                       ) : (
@@ -741,9 +839,14 @@ function ProductDetail() {
 
                             if (product.colors && product.colors.length > 0) {
                               // Product has both sizes and colors
-                              isAvailable = product.colors.some((color) =>
-                                isVariantAvailable(size, color)
+                              // Check if this size has any color with stock > 0
+                              const hasAnyColorWithStock = product.variants?.some(
+                                (v) =>
+                                  v.size === size &&
+                                  v.color &&
+                                  (parseInt(v.stock) || 0) > 0
                               );
+                              isAvailable = hasAnyColorWithStock;
                             } else {
                               // Product has only sizes
                               isAvailable = product.variants?.some(
@@ -782,43 +885,33 @@ function ProductDetail() {
                         <h5>اختر اللون:</h5>
                         <div className="pd-color-options">
                           {(() => {
-                            let availableColors = [];
-
-                            if (product.sizes && product.sizes.length > 0) {
-                              // Product has both sizes and colors
-                              if (selectedSize) {
-                                availableColors =
-                                  getAvailableColorsForSize(selectedSize);
-                              } else {
-                                availableColors = product.colors.filter(
-                                  (color) =>
-                                    product.sizes.some((size) =>
-                                      isVariantAvailable(size, color)
-                                    )
-                                );
-                              }
-                            } else {
-                              // Product has only colors
-                              availableColors = product.colors.filter((color) =>
-                                product.variants?.some(
-                                  (v) =>
-                                    !v.size &&
-                                    v.color === color &&
-                                    (parseInt(v.stock) || 0) > 0
-                                )
-                              );
-                            }
+                            // Show all colors for both size+color and color-only products
+                            const availableColors = product.colors;
 
                             return availableColors.map((color) => {
                               const isSelected = selectedColor === color;
+
+                              const isAvailable = product.variants?.some(
+                                (v) =>
+                                  (!v.size || (selectedSize && v.size === selectedSize)) &&
+                                  v.color === color &&
+                                  (parseInt(v.stock) || 0) > 0
+                              );
+
+                              // Get stock amount for this color
+                              const colorStock = product.variants?.find(
+                                (v) => v.color === color && (!v.size || v.size === selectedSize)
+                              )?.stock || 0;
 
                               return (
                                 <button
                                   key={color}
                                   className={`pd-color-option ${
                                     isSelected ? "selected" : ""
-                                  }`}
-                                  onClick={() => handleColorSelect(color)}
+                                  } ${!isAvailable ? "unavailable" : ""}`}
+                                  onClick={() => isAvailable && handleColorSelect(color)}
+                                  disabled={!isAvailable}
+                                  title={!isAvailable ? "غير متوفر في المخزون" : undefined}
                                 >
                                   <span className="pd-color-name">{color}</span>
                                   {isSelected && (

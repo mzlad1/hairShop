@@ -311,13 +311,6 @@ function Products() {
       <Navbar />
       <div className="products-page">
         <div className="pr-container">
-          <div className="pr-header">
-            <h1 className="pr-title">💄 منتجاتنا المميزة</h1>
-            <p className="pr-subtitle">
-              اكتشف مجموعتنا الرائعة من منتجات التجميل الطبيعية
-            </p>
-          </div>
-
           {error && (
             <div className="pr-error" role="alert">
               <span className="pr-error-icon">⚠️</span>
