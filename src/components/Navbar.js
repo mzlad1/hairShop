@@ -1,5 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+// Helper to get page name from path
+const getPageName = (pathname) => {
+  switch (pathname) {
+    case "/":
+      return "الرئيسية";
+    case "/products":
+      return "المنتجات";
+    case "/about":
+      return "من نحن";
+    case "/contact":
+      return "اتصل بنا";
+    case "/cart":
+      return "السلة";
+    case "/admin/dashboard":
+      return "لوحة التحكم";
+    case "/admin/products":
+      return "إدارة المنتجات";
+    case "/admin/brands":
+      return "إدارة العلامات التجارية";
+    case "/admin/categories":
+      return "إدارة الفئات";
+    case "/admin/orders":
+      return "الطلبات";
+    case "/admin/feedbacks":
+      return "إدارة التقييمات";
+    case "/admin/discounts":
+      return "إدارة الخصومات";
+    case "/admin/statistics":
+      return "الإحصائيات";
+    default:
+      // Handle dynamic product detail route
+      if (pathname.startsWith("/products/")) return "تفاصيل المنتج";
+      return "";
+  }
+};
 import { useCart } from "../contexts/CartContext";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -56,7 +91,14 @@ function Navbar() {
             className="nav-logo-img"
           />
           <span className="nav-logo-text">Unlock Your Curls</span>
+          
+          
         </Link>
+        
+        {/* Show page name beside logo on <= 768px */}
+        <h1 className="nav-current-page-name">
+            {getPageName(location.pathname)}
+        </h1>
 
         <nav className={`nav-menu ${isMenuOpen ? "nav-menu-active" : ""}`}>
           <Link

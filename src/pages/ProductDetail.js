@@ -819,11 +819,13 @@ function ProductDetail() {
               {product.hasVariants && (
                 <div className="pd-variants-selection">
                   <h4>
-                    {product.sizes?.length > 0 && product.colors?.length > 0
-                      ? "اختر الحجم واللون"
-                      : product.sizes?.length > 0
-                      ? "اختر الحجم"
-                      : "اختر اللون"}
+                    {product.sizes?.length > 1 && product.colors?.length > 1
+                    ? "اختر الحجم واللون"
+                    : product.sizes?.length > 1
+                    ? "اختر الحجم"
+                    : product.colors?.length > 1
+                    ? "اختر اللون"
+                    : null}
                   </h4>
 
 
