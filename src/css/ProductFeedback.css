@@ -1,6 +1,5 @@
 /* Product Feedback Styles */
 .pf-container {
-  margin-top: 40px;
   padding: 24px;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 16px;
@@ -373,7 +372,6 @@
 @media (max-width: 768px) {
   .pf-container {
     padding: 16px;
-    margin-top: 20px;
   }
 
   .pf-header {

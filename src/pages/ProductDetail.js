@@ -96,6 +96,7 @@ function ProductDetail() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("success");
+  const [activeTab, setActiveTab] = useState("description");
   const { addToCart, cartItems, getProductTotalQuantity } = useCart();
 
   // Toast message function
@@ -141,21 +142,22 @@ function ProductDetail() {
           setMainImage(
             data.images && data.images.length > 0 ? data.images[0] : ""
           );
-          
+
           // Auto-select first available size and color
           if (data.hasVariants) {
             if (data.sizes && data.sizes.length > 0) {
               // Find first available size that has stock
               for (const size of data.sizes) {
                 let hasStock = false;
-                
+
                 if (data.colors && data.colors.length > 0) {
                   // Product has both sizes and colors
                   for (const color of data.colors) {
-                    const variant = data.variants.find(v => 
-                      v.size === size && 
-                      v.color === color && 
-                      parseInt(v.stock) > 0
+                    const variant = data.variants.find(
+                      (v) =>
+                        v.size === size &&
+                        v.color === color &&
+                        parseInt(v.stock) > 0
                     );
                     if (variant) {
                       setSelectedSize(size);
@@ -167,10 +169,8 @@ function ProductDetail() {
                   }
                 } else {
                   // Product has only sizes
-                  const variant = data.variants.find(v => 
-                    v.size === size && 
-                    !v.color && 
-                    parseInt(v.stock) > 0
+                  const variant = data.variants.find(
+                    (v) => v.size === size && !v.color && parseInt(v.stock) > 0
                   );
                   if (variant) {
                     setSelectedSize(size);
@@ -178,16 +178,14 @@ function ProductDetail() {
                     hasStock = true;
                   }
                 }
-                
+
                 if (hasStock) break;
               }
             } else if (data.colors && data.colors.length > 0) {
               // Product has only colors
               for (const color of data.colors) {
-                const variant = data.variants.find(v => 
-                  v.color === color && 
-                  !v.size && 
-                  parseInt(v.stock) > 0
+                const variant = data.variants.find(
+                  (v) => v.color === color && !v.size && parseInt(v.stock) > 0
                 );
                 if (variant) {
                   setSelectedColor(color);
@@ -339,24 +337,19 @@ function ProductDetail() {
     if (size && color) {
       // Both size and color
       const variant = product.variants.find(
-        (v) => v.size === size && 
-               v.color === color && 
-               (parseInt(v.stock) || 0) > 0
+        (v) =>
+          v.size === size && v.color === color && (parseInt(v.stock) || 0) > 0
       );
       return variant || null;
     } else if (size && !color) {
       // Only size
       return product.variants.find(
-        (v) => v.size === size && 
-               !v.color && 
-               (parseInt(v.stock) || 0) > 0
+        (v) => v.size === size && !v.color && (parseInt(v.stock) || 0) > 0
       );
     } else if (!size && color) {
       // Only color
       return product.variants.find(
-        (v) => !v.size && 
-               v.color === color && 
-               (parseInt(v.stock) || 0) > 0
+        (v) => !v.size && v.color === color && (parseInt(v.stock) || 0) > 0
       );
     }
 
@@ -382,11 +375,10 @@ function ProductDetail() {
     // Check if this is a size-only product
     if (product.colors && product.colors.length > 0) {
       // Product has colors, find first available color for this size
-      const firstAvailableColor = product.colors.find(color => {
+      const firstAvailableColor = product.colors.find((color) => {
         const variant = product.variants?.find(
-          v => v.size === size && 
-               v.color === color && 
-               (parseInt(v.stock) || 0) > 0
+          (v) =>
+            v.size === size && v.color === color && (parseInt(v.stock) || 0) > 0
         );
         return !!variant;
       });
@@ -396,7 +388,10 @@ function ProductDetail() {
         const variant = getVariantInfo(size, firstAvailableColor);
         if (variant) {
           setSelectedVariant(variant);
-          showToastMessage(`تم اختيار ${size} - ${firstAvailableColor}`, "success");
+          showToastMessage(
+            `تم اختيار ${size} - ${firstAvailableColor}`,
+            "success"
+          );
         }
       } else {
         setSelectedColor(null);
@@ -421,16 +416,15 @@ function ProductDetail() {
     }
 
     // Check if this combination is valid (has stock)
-    const variant = selectedSize 
+    const variant = selectedSize
       ? product.variants.find(
-          v => v.size === selectedSize && 
-               v.color === color && 
-               (parseInt(v.stock) || 0) > 0
+          (v) =>
+            v.size === selectedSize &&
+            v.color === color &&
+            (parseInt(v.stock) || 0) > 0
         )
       : product.variants.find(
-          v => !v.size && 
-               v.color === color && 
-               (parseInt(v.stock) || 0) > 0
+          (v) => !v.size && v.color === color && (parseInt(v.stock) || 0) > 0
         );
 
     if (!variant) {
@@ -579,7 +573,7 @@ function ProductDetail() {
   };
 
   const handleBackClick = () => {
-    navigate(-1);
+    navigate("/products");
   };
 
   // Loading skeleton component
@@ -771,7 +765,6 @@ function ProductDetail() {
                               " - "}
                             {selectedVariant.color &&
                               `${selectedVariant.color}`}
-                            
                           </small>
                         </span>
                       ) : (
@@ -820,14 +813,13 @@ function ProductDetail() {
                 <div className="pd-variants-selection">
                   <h4>
                     {product.sizes?.length > 1 && product.colors?.length > 1
-                    ? "اختر الحجم واللون"
-                    : product.sizes?.length > 1
-                    ? "اختر الحجم"
-                    : product.colors?.length > 1
-                    ? "اختر اللون"
-                    : null}
+                      ? "اختر الحجم واللون"
+                      : product.sizes?.length > 1
+                      ? "اختر الحجم"
+                      : product.colors?.length > 1
+                      ? "اختر اللون"
+                      : null}
                   </h4>
-
 
                   <div className="pd-selection-options">
                     {/* Size Selection - Only show if product has sizes */}
@@ -842,12 +834,13 @@ function ProductDetail() {
                             if (product.colors && product.colors.length > 0) {
                               // Product has both sizes and colors
                               // Check if this size has any color with stock > 0
-                              const hasAnyColorWithStock = product.variants?.some(
-                                (v) =>
-                                  v.size === size &&
-                                  v.color &&
-                                  (parseInt(v.stock) || 0) > 0
-                              );
+                              const hasAnyColorWithStock =
+                                product.variants?.some(
+                                  (v) =>
+                                    v.size === size &&
+                                    v.color &&
+                                    (parseInt(v.stock) || 0) > 0
+                                );
                               isAvailable = hasAnyColorWithStock;
                             } else {
                               // Product has only sizes
@@ -895,15 +888,20 @@ function ProductDetail() {
 
                               const isAvailable = product.variants?.some(
                                 (v) =>
-                                  (!v.size || (selectedSize && v.size === selectedSize)) &&
+                                  (!v.size ||
+                                    (selectedSize &&
+                                      v.size === selectedSize)) &&
                                   v.color === color &&
                                   (parseInt(v.stock) || 0) > 0
                               );
 
                               // Get stock amount for this color
-                              const colorStock = product.variants?.find(
-                                (v) => v.color === color && (!v.size || v.size === selectedSize)
-                              )?.stock || 0;
+                              const colorStock =
+                                product.variants?.find(
+                                  (v) =>
+                                    v.color === color &&
+                                    (!v.size || v.size === selectedSize)
+                                )?.stock || 0;
 
                               return (
                                 <button
@@ -911,9 +909,15 @@ function ProductDetail() {
                                   className={`pd-color-option ${
                                     isSelected ? "selected" : ""
                                   } ${!isAvailable ? "unavailable" : ""}`}
-                                  onClick={() => isAvailable && handleColorSelect(color)}
+                                  onClick={() =>
+                                    isAvailable && handleColorSelect(color)
+                                  }
                                   disabled={!isAvailable}
-                                  title={!isAvailable ? "غير متوفر في المخزون" : undefined}
+                                  title={
+                                    !isAvailable
+                                      ? "غير متوفر في المخزون"
+                                      : undefined
+                                  }
                                 >
                                   <span className="pd-color-name">{color}</span>
                                   {isSelected && (
@@ -931,10 +935,10 @@ function ProductDetail() {
               )}
 
               {/* Description */}
-              <div className="pd-description">
+              {/* <div className="pd-description">
                 <h3>وصف المنتج</h3>
                 <p>{product.description}</p>
-              </div>
+              </div> */}
 
               {/* Categories */}
               {product.categories && (
@@ -978,8 +982,6 @@ function ProductDetail() {
                   </div>
                 </div>
               )}
-
-
 
               {/* Selected Variant Display */}
 
@@ -1118,8 +1120,64 @@ function ProductDetail() {
             </div>
           </div>
 
-          {/* Product Feedback Section */}
-          <ProductFeedback productId={product.id} />
+          {/* Tab Navigation Section */}
+          <div className="pd-tabs-section">
+            <div className="pd-tabs-header">
+              <button
+                className={`pd-tab-btn ${
+                  activeTab === "description" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("description")}
+              >
+                <span className="pd-tab-icon">📝</span>
+                <span className="pd-tab-label">الوصف</span>
+              </button>
+              {product.howToUse && (
+                <button
+                  className={`pd-tab-btn ${
+                    activeTab === "howToUse" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab("howToUse")}
+                >
+                  <span className="pd-tab-icon">💡</span>
+                  <span className="pd-tab-label">طريقة الاستخدام</span>
+                </button>
+              )}
+              <button
+                className={`pd-tab-btn ${
+                  activeTab === "ratings" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("ratings")}
+              >
+                <span className="pd-tab-icon">⭐</span>
+                <span className="pd-tab-label">التقييمات</span>
+              </button>
+            </div>
+
+            <div className="pd-tabs-content">
+              {activeTab === "description" && (
+                <div className="pd-tab-panel pd-tab-description">
+                  <h3>وصف المنتج</h3>
+                  <p>{product.description}</p>
+                </div>
+              )}
+
+              {activeTab === "howToUse" && product.howToUse && (
+                <div className="pd-tab-panel pd-tab-how-to-use">
+                  <h3>طريقة الاستخدام</h3>
+                  <div className="pd-how-to-use-content">
+                    <p>{product.howToUse}</p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "ratings" && (
+                <div className="pd-tab-panel pd-tab-ratings">
+                  <ProductFeedback productId={product.id} />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Image Modal */}

@@ -9,28 +9,19 @@ import { useNavigate } from "react-router-dom";
 import "../css/Home.css";
 
 function Home() {
-  const [shopNameText, setShopNameText] = useState("");
-  const [sentenceText, setSentenceText] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [mostOrderedProducts, setMostOrderedProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [brands, setBrands] = useState([]);
   const [loadingBrands, setLoadingBrands] = useState(true);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [heroSlides, setHeroSlides] = useState([]);
+  const [loadingSlides, setLoadingSlides] = useState(true);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
-  // NEW: ref for the marquee track
-  const trackRef = useRef(null);
   const navigate = useNavigate();
-
-  const shopName = "Unlock Your Curls";
-  const sentences = [
-    "محتوى متخصص بالعناية بالشعر الكيرلي",
-    "نصائح كيرلية مبنية على خبرة وتجربة",
-    "بساعدك تحبي شعرك وتفهمي احتياجاته",
-    "توصيل للضفة والقدس والداخل المحتل",
-  ];
 
   // Check and remove expired discounts
   const checkExpiredDiscounts = async () => {
@@ -91,6 +82,53 @@ function Home() {
     }
   };
 
+  // Fetch hero slides
+  useEffect(() => {
+    async function fetchHeroSlides() {
+      setLoadingSlides(true);
+      try {
+        const slidesSnapshot = await getDocs(collection(db, "heroSlides"));
+        const slidesData = [];
+        slidesSnapshot.forEach((doc) => {
+          slidesData.push({ id: doc.id, ...doc.data() });
+        });
+
+        const activeSlides = slidesData.filter((s) => s.isActive !== false);
+        activeSlides.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        setHeroSlides(activeSlides);
+      } catch (error) {
+        console.error("Error fetching hero slides:", error);
+        // Set default slides if error
+        setHeroSlides([
+          {
+            id: "default-1",
+            imageUrl: "/images/hero1.jpg",
+            title: "Unlock Your Curls",
+            subtitle: "محتوى متخصص بالعناية بالشعر الكيرلي",
+            buttonText: "اشتري الآن",
+            buttonLink: "/products",
+            order: 1,
+          },
+        ]);
+      } finally {
+        setLoadingSlides(false);
+      }
+    }
+    fetchHeroSlides();
+  }, []);
+
+  // Auto-slide carousel
+  useEffect(() => {
+    if (heroSlides.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
   // Fetch categories
   useEffect(() => {
     async function fetchCategories() {
@@ -101,26 +139,21 @@ function Home() {
         if (cachedCategories) {
           console.log("Loading categories from cache");
           setCategories(cachedCategories);
+          setLoadingCategories(false);
           return;
         }
 
-        console.log("Fetching categories from Firebase");
-        const snapshot = await getDocs(collection(db, "categories"));
-        const data = [];
-        snapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+        const categoriesSnapshot = await getDocs(collection(db, "categories"));
+        const categoriesData = [];
+        categoriesSnapshot.forEach((doc) => {
+          categoriesData.push({ id: doc.id, ...doc.data() });
+        });
 
-        // Cache categories for 10 minutes
-        CacheManager.set(CACHE_KEYS.CATEGORIES, data, 10 * 60 * 1000);
-
-        setCategories(data);
+        CacheManager.set(CACHE_KEYS.CATEGORIES, categoriesData, 10 * 60 * 1000);
+        setCategories(categoriesData);
       } catch (error) {
         console.error("Error fetching categories:", error);
-        // Fallback data
-        setCategories([
-          { id: "cat1", name: "الوجه", imageUrl: "" },
-          { id: "cat2", name: "الشعر", imageUrl: "" },
-          { id: "cat3", name: "الجسم", imageUrl: "" },
-        ]);
+        setCategories([]);
       } finally {
         setLoadingCategories(false);
       }
@@ -318,70 +351,52 @@ function Home() {
     fetchBrands();
   }, []);
 
-  // Typing effect for shop name
-  useEffect(() => {
-    let index = 0;
-    const timer = setInterval(() => {
-      if (index < shopName.length) {
-        setShopNameText(shopName.slice(0, index + 1));
-        index++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 100);
-    return () => clearInterval(timer);
-  }, []);
+  // Handle next slide
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+  };
 
-  // Typing effect for sentences
-  useEffect(() => {
-    if (shopNameText === shopName) {
-      let currentSentenceIndex = 0;
-      let currentCharIndex = 0;
-      let isDeleting = false;
+  // Handle previous slide
+  const prevSlide = () => {
+    setCurrentSlide(
+      (prev) => (prev - 1 + heroSlides.length) % heroSlides.length
+    );
+  };
 
-      const typeNextCharacter = () => {
-        const currentSentence = sentences[currentSentenceIndex];
+  // Handle dot click
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
 
-        if (!isDeleting) {
-          // Typing forward
-          if (currentCharIndex <= currentSentence.length) {
-            setSentenceText(currentSentence.slice(0, currentCharIndex));
-            currentCharIndex++;
-            setTimeout(typeNextCharacter, 80);
-          } else {
-            // Pause at end of sentence
-            setTimeout(() => {
-              isDeleting = true;
-              typeNextCharacter();
-            }, 2000);
-          }
-        } else {
-          // Deleting backward
-          if (currentCharIndex > 0) {
-            setSentenceText(currentSentence.slice(0, currentCharIndex - 1));
-            currentCharIndex--;
-            setTimeout(typeNextCharacter, 50);
-          } else {
-            // Move to next sentence
-            isDeleting = false;
-            currentSentenceIndex =
-              (currentSentenceIndex + 1) % sentences.length;
-            setTimeout(typeNextCharacter, 500);
-          }
-        }
-      };
+  // Handle touch start
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
 
-      setTimeout(typeNextCharacter, 500);
+  // Handle touch move
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  // Handle touch end
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextSlide();
     }
-  }, [shopNameText]);
+    if (isRightSwipe) {
+      prevSlide();
+    }
 
-  // Cursor blinking effect
-  useEffect(() => {
-    const cursorTimer = setInterval(() => {
-      setShowCursor((prev) => !prev);
-    }, 500);
-    return () => clearInterval(cursorTimer);
-  }, []);
+    // Reset
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   // Handle category click
   const handleCategoryClick = (categoryName) => {
@@ -397,64 +412,90 @@ function Home() {
     <>
       <Navbar />
       <div className="home-page">
-        {/* Hero Section */}
+        {/* Hero Section - Carousel */}
         <section className="hero-section">
-          <div className="hero-container">
-            <div className="hero-content">
-              <div className="hero-image">
-                <div className="hero-logo-animation">
-                  <div className="animated-logo-container">
-                    <img
-                      src="/images/logo.png"
-                      alt="Unlock Your Curls Logo"
-                      className="animated-logo"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
-                    />
-                    <div
-                      className="animated-logo-fallback"
-                      style={{ display: "none" }}
-                    >
-                      <span className="animated-logo-icon">🌿</span>
+          {loadingSlides ? (
+            <div className="hero-loading">
+              <div className="spinner"></div>
+              <p>جاري التحميل...</p>
+            </div>
+          ) : heroSlides.length > 0 ? (
+            <div className="hero-carousel">
+              {/* Slides */}
+              <div
+                className="hero-slides"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {heroSlides.map((slide, index) => (
+                  <div
+                    key={slide.id}
+                    className={`hero-slide ${
+                      index === currentSlide ? "active" : ""
+                    }`}
+                    style={{
+                      backgroundImage: `url(${slide.imageUrl})`,
+                    }}
+                  >
+                    <div className="hero-overlay"></div>
+                    <div className="hero-content">
+                      <h1 className="hero-title">{slide.title}</h1>
+                      {slide.subtitle && (
+                        <p className="hero-subtitle">{slide.subtitle}</p>
+                      )}
+                      {slide.buttonText && slide.buttonLink && (
+                        <button
+                          className="hero-button"
+                          onClick={() => navigate(slide.buttonLink)}
+                        >
+                          {slide.buttonText}
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
 
-              <div className="shop-name-container">
-                <h1 className="shop-name">
-                  {shopNameText}
-                  {shopNameText.length < shopName.length && (
-                    <span
-                      className={`typing-cursor ${showCursor ? "visible" : ""}`}
-                    >
-                      |
-                    </span>
-                  )}
-                </h1>
-              </div>
+              {/* Navigation Arrows */}
+              {heroSlides.length > 1 && (
+                <>
+                  <button
+                    className="hero-nav-btn prev"
+                    onClick={prevSlide}
+                    aria-label="Previous slide"
+                  >
+                    ❮
+                  </button>
+                  <button
+                    className="hero-nav-btn next"
+                    onClick={nextSlide}
+                    aria-label="Next slide"
+                  >
+                    ❯
+                  </button>
 
-
-
-              <div className="hero-cta">
-                <button
-                  className="cta-button"
-                  onClick={() => (window.location.href = "/products")}
-                >
-                  <span className="cta-icon">🛍️</span>
-                  اشتري الآن
-                </button>
-              </div>
+                  {/* Dots Navigation */}
+                  <div className="hero-dots">
+                    {heroSlides.map((_, index) => (
+                      <button
+                        key={index}
+                        className={`hero-dot ${
+                          index === currentSlide ? "active" : ""
+                        }`}
+                        onClick={() => goToSlide(index)}
+                        aria-label={`Go to slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-
-          <div className="hero-bg-decoration">
-            <div className="bg-circle circle-1"></div>
-            <div className="bg-circle circle-2"></div>
-            <div className="bg-circle circle-3"></div>
-          </div>
+          ) : (
+            <div className="hero-empty">
+              <p>لا توجد شرائح معروضة حالياً</p>
+            </div>
+          )}
         </section>
 
         {/* Categories Section */}

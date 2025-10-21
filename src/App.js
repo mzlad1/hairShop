@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ManageProducts from "./pages/ManageProducts";
 import ManageCategories from "./pages/ManageCategories";
 import ManageBrands from "./pages/ManageBrands"; // Add brands import
+import ManageHeroSlides from "./pages/ManageHeroSlides";
 import Orders from "./pages/Orders";
 import FeedbackManager from "./pages/FeedbackManager";
 import DiscountManager from "./pages/DiscountManager";
@@ -95,6 +96,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Statistics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/hero-slides"
+            element={
+              <ProtectedRoute>
+                <ManageHeroSlides />
               </ProtectedRoute>
             }
           />

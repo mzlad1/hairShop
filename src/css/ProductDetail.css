@@ -304,7 +304,7 @@
   color: var(--dark-color);
 }
 
-.pd-brand-name{
+.pd-brand-name {
   color: var(--primary-color);
   font-weight: 600;
 }
@@ -412,7 +412,6 @@
   display: block;
   line-height: 1.4;
 }
-
 
 .pd-variants-overview {
   margin-top: 12px;
@@ -2061,5 +2060,250 @@
 
   .pd-notice-text strong {
     font-size: 1rem;
+  }
+}
+
+/* ========================================
+   Tab Navigation Styles
+   ======================================== */
+
+.pd-tabs-section {
+  margin-top: 3rem;
+  background: var(--light-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.pd-tabs-header {
+  display: flex;
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+  border-bottom: 2px solid #e9ecef;
+  padding: 0;
+  gap: 0;
+}
+
+.pd-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.2rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--gray-color);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Tajawal", sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  border-bottom: 3px solid transparent;
+}
+
+.pd-tab-btn::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--primary-color);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.pd-tab-btn:hover {
+  background: rgba(222, 170, 155, 0.1);
+  color: var(--primary-color);
+}
+
+.pd-tab-btn.active {
+  color: var(--primary-color);
+  background: rgba(222, 170, 155, 0.05);
+}
+
+.pd-tab-btn.active::before {
+  transform: scaleX(1);
+}
+
+.pd-tab-icon {
+  font-size: 1.3rem;
+  transition: transform 0.3s ease;
+}
+
+.pd-tab-btn:hover .pd-tab-icon,
+.pd-tab-btn.active .pd-tab-icon {
+  transform: scale(1.1);
+}
+
+.pd-tab-label {
+  font-size: 1rem;
+}
+
+.pd-tabs-content {
+  padding: 2rem;
+  min-height: 300px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.pd-tab-panel {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.pd-tab-panel h3 {
+  color: var(--dark-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--primary-color);
+  position: relative;
+}
+
+.pd-tab-description p,
+.pd-tab-how-to-use p {
+  color: var(--gray-color);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.pd-how-to-use-content {
+  min-height: 300px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.pd-how-to-use-content p {
+  margin-bottom: 0;
+  padding-right: 0;
+  position: relative;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.8;
+}
+
+.pd-tab-ratings {
+  padding: 0;
+}
+
+/* Categories in description tab */
+.pd-tab-description .pd-categories {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.pd-tab-description .pd-categories h4 {
+  color: var(--dark-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Tab Navigation */
+@media (max-width: 768px) {
+  .pd-tabs-section {
+    margin-top: 2rem;
+  }
+
+  .pd-tabs-header {
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pd-tab-btn {
+    flex: 0 0 auto;
+    min-width: 120px;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .pd-tab-icon {
+    font-size: 1.1rem;
+  }
+
+  .pd-tab-label {
+    font-size: 0.9rem;
+  }
+
+  .pd-tabs-content {
+    padding: 1.5rem;
+  }
+
+  .pd-tab-panel h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .pd-how-to-use-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pd-tab-btn {
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    min-width: 100px;
+  }
+
+  .pd-tab-icon {
+    font-size: 1.3rem;
+  }
+
+  .pd-tab-label {
+    font-size: 0.8rem;
+  }
+
+  .pd-tabs-content {
+    padding: 1rem;
+  }
+
+  .pd-tab-panel h3 {
+    font-size: 1.2rem;
+  }
+
+  .pd-tab-description p,
+  .pd-tab-how-to-use p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Animation for tab content */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pd-tab-panel {
+  animation: tabFadeIn 0.4s ease-out;
+}
+
+/* Accessibility */
+.pd-tab-btn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .pd-tabs-section,
+  .pd-tab-panel,
+  .pd-tab-icon {
+    animation: none;
+    transition: none;
   }
 }

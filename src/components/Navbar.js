@@ -30,8 +30,6 @@ const getPageName = (pathname) => {
     case "/admin/statistics":
       return "الإحصائيات";
     default:
-      // Handle dynamic product detail route
-      if (pathname.startsWith("/products/")) return "تفاصيل المنتج";
       return "";
   }
 };
@@ -91,13 +89,11 @@ function Navbar() {
             className="nav-logo-img"
           />
           <span className="nav-logo-text">Unlock Your Curls</span>
-          
-          
         </Link>
-        
+
         {/* Show page name beside logo on <= 768px */}
         <h1 className="nav-current-page-name">
-            {getPageName(location.pathname)}
+          {getPageName(location.pathname)}
         </h1>
 
         <nav className={`nav-menu ${isMenuOpen ? "nav-menu-active" : ""}`}>

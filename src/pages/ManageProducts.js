@@ -32,6 +32,7 @@ function ManageProducts() {
     name: "",
     price: "",
     description: "",
+    howToUse: "",
     images: [],
     categories: [],
     brand: "",
@@ -566,6 +567,7 @@ function ManageProducts() {
       const data = {
         name: formData.name,
         description: formData.description,
+        howToUse: formData.howToUse || "",
         images: finalImageUrls,
         categories: formData.categories,
         brand: formData.brand,
@@ -656,6 +658,7 @@ function ManageProducts() {
         name: "",
         price: "",
         description: "",
+        howToUse: "",
         images: [],
         categories: [],
         brand: "",
@@ -688,6 +691,7 @@ function ManageProducts() {
         ? product.originalPrice // Show original price for products with discounts
         : product.price, // Show current price for products without discounts
       description: product.description,
+      howToUse: product.howToUse || "",
       images: [], // Empty array since we manage existing images separately
       categories: product.categories || [],
       brand: product.brand || "",
@@ -750,6 +754,7 @@ function ManageProducts() {
       name: "",
       price: "",
       description: "",
+      howToUse: "",
       images: [],
       categories: [],
       brand: "",
@@ -1714,6 +1719,21 @@ function ManageProducts() {
                 onChange={handleChange}
                 placeholder="وصف تفصيلي للمنتج وفوائده"
               />
+            </div>
+
+            <div className="mp-form-group">
+              <label>طريقة الاستخدام:</label>
+              <textarea
+                name="howToUse"
+                value={formData.howToUse}
+                onChange={handleChange}
+                placeholder="اشرح كيفية استخدام المنتج بالتفصيل (اختياري)"
+                rows="4"
+              />
+              <small>
+                💡 ملاحظة: هذا الحقل اختياري ولكن يساعد العملاء على استخدام
+                المنتج بشكل صحيح
+              </small>
             </div>
 
             <div className="mp-form-group">

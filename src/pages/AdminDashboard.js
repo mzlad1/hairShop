@@ -387,6 +387,12 @@ function AdminDashboard() {
                   عرض إحصائيات شاملة عن الموقع والزوار
                 </span>
               </Link>
+              <Link to="/admin/hero-slides" className="ad-tile">
+                <span className="tile-title">شرائح الصفحة الرئيسية</span>
+                <span className="tile-sub">
+                  إدارة الشرائح المتحركة في الصفحة الرئيسية
+                </span>
+              </Link>
             </div>
           </div>
         </section>
