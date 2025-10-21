@@ -254,7 +254,6 @@
 .product-header,
 .pd-header {
   margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
   border-bottom: 2px solid rgba(255, 107, 157, 0.2);
 }
 
@@ -269,7 +268,7 @@
 
 /* Main Price Section */
 .pd-price {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.7rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -435,8 +434,8 @@
   display: block;
   margin-top: 4px;
   color: var(--secondary-color);
-  font-size: 0.8rem;
-  font-weight: 400;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .pd-variants-badge {
@@ -2290,12 +2289,6 @@
 
 .pd-tab-panel {
   animation: tabFadeIn 0.4s ease-out;
-}
-
-/* Accessibility */
-.pd-tab-btn:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: -2px;
 }
 
 /* Reduced motion support */

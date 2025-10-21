@@ -753,33 +753,20 @@ function ProductDetail() {
                   <span className="pd-price-label">السعر:</span>
                   {product.hasVariants ? (
                     <div className="pd-variants-pricing">
-                      {selectedVariant ? (
-                        // Show selected variant price
+                      {(
                         <span className="pd-price-value pd-price-variants">
                           {selectedVariant.price} شيكل
-                          <small className="pd-variant-note">
-                            المنتج المحدد:{" "}
-                            {selectedVariant.size && `${selectedVariant.size}`}
-                            {selectedVariant.size &&
-                              selectedVariant.color &&
-                              " - "}
-                            {selectedVariant.color &&
-                              `${selectedVariant.color}`}
-                          </small>
-                        </span>
-                      ) : (
-                        // Show price range with note
-                        <span className="pd-price-value pd-price-variants">
-                          <small>
-                            {Math.min(
-                              ...(product.variants?.map(
-                                (v) => parseFloat(v.price) || 0
-                              ) || [0])
-                            )}{" "}
-                            شيكل
-                          </small>
                         </span>
                       )}
+                      {/* Show selected size and color below price */}
+                      <div>
+                        {selectedSize && (
+                          <small className="pd-variant-note">الحجم : {selectedSize}</small>
+                        )}
+                        {selectedColor && (
+                          <small className="pd-variant-note">اللون : {selectedColor}</small>
+                        )}
+                      </div>
                       <div className="pd-variants-overview"></div>
                     </div>
                   ) : product.hasDiscount && product.originalPrice ? (
@@ -825,7 +812,8 @@ function ProductDetail() {
                     {/* Size Selection - Only show if product has sizes */}
                     {product.sizes && product.sizes.length > 0 && (
                       <div className="pd-size-selection">
-                        <h5>اختر الحجم:</h5>
+                        {/* <h5>اختر الحجم:</h5> */}
+                        <h5>الحجم :</h5>
                         <div className="pd-size-options">
                           {product.sizes.map((size) => {
                             let isAvailable = false;

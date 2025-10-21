@@ -530,7 +530,7 @@ function Products() {
                     disabled={currentPage === 1}
                     aria-label="الصفحة السابقة"
                   >
-                    <span>←</span>
+                    <span>→</span>
                     السابق
                   </button>
 
@@ -581,7 +581,7 @@ function Products() {
                     aria-label="الصفحة التالية"
                   >
                     التالي
-                    <span>→</span>
+                    <span>←</span>
                   </button>
                 </div>
               )}
