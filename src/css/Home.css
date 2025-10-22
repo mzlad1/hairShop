@@ -1440,7 +1440,7 @@
   }
 
   .popular-products-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .brands-grid,
@@ -1580,6 +1580,6 @@
 
 @media screen and (max-width: 480px) {
   .popular-products-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
