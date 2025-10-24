@@ -253,7 +253,7 @@
 
 .product-header,
 .pd-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   border-bottom: 2px solid rgba(255, 107, 157, 0.2);
 }
 
@@ -482,8 +482,7 @@
 
 /* Variants Selection */
 .pd-variants-selection {
-  margin: 24px 0;
-  padding: 20px;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   border: 1px solid rgba(222, 170, 155, 0.2);
@@ -718,13 +717,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 20px;
 }
 
 .pd-size-selection,
 .pd-color-selection {
   background: rgba(255, 255, 255, 0.6);
-  padding: 16px;
+  padding: 8px;
   border-radius: 8px;
   border: 1px solid rgba(222, 170, 155, 0.2);
 }
@@ -1212,6 +1210,10 @@
   color: var(--primary-color);
   font-weight: 600;
   text-align: center;
+}
+
+.pd-categories {
+  margin-top: 1rem;
 }
 
 /* Product Sections */
@@ -1918,7 +1920,7 @@
   }
 
   .pd-variants-selection {
-    padding: 16px;
+    padding: 12px;
   }
 
   /* Mobile toast adjustments */
@@ -2193,7 +2195,7 @@
 /* Categories in description tab */
 .pd-tab-description .pd-categories {
   margin-top: 2rem;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 1px solid #e9ecef;
 }
 
@@ -2217,7 +2219,6 @@
   }
 
   .pd-tab-btn {
-    flex: 0 0 auto;
     min-width: 120px;
     padding: 1rem;
     font-size: 0.9rem;

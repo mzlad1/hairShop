@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { collection, getDocs, writeBatch, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import PromotionalBanner from "../components/PromotionalBanner";
 import ProductCard from "../components/ProductCard";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -503,12 +504,8 @@ function Home() {
           <div className="section-container">
             <div className="section-header">
               <h2 className="section-title">
-                <span className="title-icon">🏷️</span>
                 تصفح حسب الفئة
               </h2>
-              <p className="section-subtitle">
-                اختر الفئة التي تريدها واكتشف منتجاتنا المميزة
-              </p>
             </div>
 
             {loadingCategories ? (
@@ -633,12 +630,26 @@ function Home() {
           </div>
         </section>
 
+        {/* Promotional Banner */}
+        <section className="promotional-banner-section">
+          <div className="promo-container">
+            <PromotionalBanner
+              backgroundImage="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              headline="عروض حصرية على منتجات العناية الفاخرة"
+              subheading="وفري حتى 30% على مجموعات العناية المتكاملة للشعر والبشرة"
+              primaryButtonText="تسوقي الآن"
+              secondaryButtonText="اعرفي المزيد"
+              primaryButtonAction="/products"
+              secondaryButtonAction="/contact"
+            />
+          </div>
+        </section>
+
         {/* Brands Section */}
         <section className="brands-section">
           <div className="section-container">
             <div className="section-header">
               <h2 className="section-title">
-                <span className="title-icon">🏆</span>
                 العلامات التجارية المتوفرة
               </h2>
             </div>

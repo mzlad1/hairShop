@@ -7,7 +7,13 @@ import "../css/Contact.css";
 function Contact() {
   const contactInfo = [
     {
-      icon: "📷",
+      icon: (
+        <img
+          src="/images/instagram.png"
+          alt="Instagram"
+          className="bp-contact-icon-img"
+        />
+      ),
       title: "انستجرام",
       content: "تابعنا للحصول على آخر العروض",
       link: "https://www.instagram.com/unlock.your.curls",

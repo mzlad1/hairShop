@@ -98,7 +98,6 @@
   padding: 1.5rem;
   box-shadow: var(--shadow-light);
   transition: var(--transition);
-  border: 2px solid transparent;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -156,15 +155,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(222, 170, 155, 0.1);
   border-radius: 50%;
   position: relative;
   z-index: 1;
   transition: var(--transition);
 }
 
+/* Instagram / contact icon image inside the icon container */
+.bp-contact-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .bp-contact-card:hover .bp-contact-card-icon {
-  background: rgba(222, 170, 155, 0.2);
   transform: scale(1.1);
 }
 
@@ -514,13 +519,6 @@
 
   .bp-contact-service-notice li {
     font-size: 0.85rem;
-  }
-}
-
-/* High Contrast Mode */
-@media (prefers-contrast: high) {
-  .bp-contact-card {
-    border: 2px solid var(--dark-color);
   }
 }
 

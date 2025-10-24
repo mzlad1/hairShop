@@ -753,9 +753,20 @@ function ProductDetail() {
                   <span className="pd-price-label">السعر:</span>
                   {product.hasVariants ? (
                     <div className="pd-variants-pricing">
-                      {(
+                      {selectedVariant ? (
                         <span className="pd-price-value pd-price-variants">
                           {selectedVariant.price} شيكل
+                        </span>
+                      ) : (
+                        <span className="pd-price-value pd-price-variants">
+                          <small>
+                            {Math.min(
+                              ...(product.variants?.map(
+                                (v) => parseFloat(v.price) || 0
+                              ) || [0])
+                            )}{" "}
+                            شيكل
+                          </small>
                         </span>
                       )}
                       {/* Show selected size and color below price */}
@@ -865,7 +876,7 @@ function ProductDetail() {
                     {/* Color Selection - Only show if product has colors */}
                     {product.colors && product.colors.length > 0 && (
                       <div className="pd-color-selection">
-                        <h5>اختر اللون:</h5>
+                        <h5>اللون:</h5>
                         <div className="pd-color-options">
                           {(() => {
                             // Show all colors for both size+color and color-only products

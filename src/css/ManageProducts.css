@@ -1504,14 +1504,47 @@
   }
 }
 
+/* Pagination */
+/* Pagination */
+.mp-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 8px auto 0;
+}
+.mp-pagination-btn {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: #ffffff;
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(227, 62, 139, 0.12);
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+.mp-pagination-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(185, 135, 123, 0.18);
+}
+.mp-pagination-btn.active {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(185, 135, 123, 0.26);
+}
+.mp-pagination-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Focus improvements for touch devices */
 @media (hover: none) and (pointer: coarse) {
   .mp-add-button,
   .mp-save-btn,
   .mp-cancel-btn,
   .mp-edit-btn,
-  .mp-delete-btn,
-  .mp-pagination-btn {
+  .mp-delete-btn{
     min-height: 44px;
     min-width: 44px;
   }
@@ -1544,8 +1577,7 @@
   .mp-save-btn,
   .mp-cancel-btn,
   .mp-edit-btn,
-  .mp-delete-btn,
-  .mp-pagination-btn {
+  .mp-delete-btn{
     transition: none !important;
   }
 }

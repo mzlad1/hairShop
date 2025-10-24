@@ -123,16 +123,6 @@ function About() {
       <Navbar />
       <div className="bp-about-page">
         <div className="bp-about-container">
-          {/* Hero Section */}
-          <div className="bp-about-hero">
-            <div className="bp-about-hero-content">
-              <h1 className="bp-about-hero-title">من نحن</h1>
-              <p className="bp-about-hero-subtitle">
-                رحلتنا في عالم الجمال والعناية بدأت بحلم بسيط: جعل كل امرأة تشعر
-                بجمالها الطبيعي
-              </p>
-            </div>
-          </div>
 
           {/* Our Story Section */}
           <div className="bp-about-story-section">
