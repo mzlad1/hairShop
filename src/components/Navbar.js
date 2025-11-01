@@ -91,11 +91,6 @@ function Navbar() {
           <span className="nav-logo-text">Unlock Your Curls</span>
         </Link>
 
-        {/* Show page name beside logo on <= 768px */}
-        <h1 className="nav-current-page-name">
-          {getPageName(location.pathname)}
-        </h1>
-
         <nav className={`nav-menu ${isMenuOpen ? "nav-menu-active" : ""}`}>
           <Link
             to="/"
@@ -164,6 +159,11 @@ function Navbar() {
         </nav>
 
         <div className="nav-right">
+          {/* Show page name beside logo on <= 768px */}
+          <h1 className="nav-current-page-name">
+            {getPageName(location.pathname)}
+          </h1>
+
           {/* Mobile Cart Button - Only show for non-admin users */}
           {!isAdmin && (
             <Link

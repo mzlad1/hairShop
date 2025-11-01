@@ -49,20 +49,21 @@ body {
   height: 70px;
   position: relative;
 }
-/* Center the current page name absolutely in nav-container */
+/* Current page name - shown on mobile */
 .nav-current-page-name {
   display: none;
   color: black;
   font-weight: 700;
   font-size: 1.1em;
-  position: absolute;
-  left: 45%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   margin: 0;
   white-space: nowrap;
-  z-index: 2;
-  font-family: "Tajawal", "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: "Tajawal", "Poppins", system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  flex-grow: 0;
+  min-width: 0;
 }
 
 /* Logo Section - Positioned on the right */
@@ -77,6 +78,7 @@ body {
   transition: var(--navbar-transition);
   margin-left: auto;
   order: 2;
+  flex-shrink: 0;
 }
 
 .nav-logo:hover {
@@ -105,13 +107,12 @@ body {
   }
 
   .nav-current-page-name {
-    display: inline-block;
-    vertical-align: middle;
+    display: block;
   }
 
-.nav-logo {
-  order: 1;
-}
+  .nav-logo {
+    order: 1;
+  }
 }
 
 /* Navigation Menu - Positioned on the left */
@@ -201,6 +202,9 @@ body {
   align-items: center;
   gap: 12px;
   order: 3;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Mobile Cart Button */
@@ -368,6 +372,10 @@ body {
     padding: 0 8px;
     height: 55px;
     flex-direction: row;
+  }
+
+  .nav-current-page-name {
+    font-size: 0.95em;
   }
 
   .nav-logo-img {
