@@ -146,7 +146,7 @@
 }
 
 .hero-button {
-  background: linear-gradient(135deg, #deaa9b, #b9877b);
+  /* background: linear-gradient(135deg, #deaa9b, #b9877b); */
   color: white;
   border: none;
   padding: 1rem 3rem;

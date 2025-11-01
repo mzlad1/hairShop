@@ -440,7 +440,10 @@ function Home() {
                     }}
                   >
                     <div className="hero-overlay"></div>
-                    <div className="hero-content">
+                    <div 
+                      className="hero-content"
+                      style={{ color: slide.textColor || "white" }}
+                    >
                       <h1 className="hero-title">{slide.title}</h1>
                       {slide.subtitle && (
                         <p className="hero-subtitle">{slide.subtitle}</p>
@@ -449,6 +452,7 @@ function Home() {
                         <button
                           className="hero-button"
                           onClick={() => navigate(slide.buttonLink)}
+                          style={{ backgroundColor: slide.buttonColor || "#DEAA9B" }}
                         >
                           {slide.buttonText}
                         </button>

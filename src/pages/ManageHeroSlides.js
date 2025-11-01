@@ -27,8 +27,15 @@ function ManageHeroSlides() {
     subtitle: "",
     buttonText: "",
     buttonLink: "/",
-    order: 1,
+    order: 1, 
     isActive: true,
+    textColor: "#FFFFFF", // Default white color
+    buttonColor: "#DEAA9B", // Default button color
+  });
+  
+  const [colorErrors, setColorErrors] = useState({
+    textColor: "",
+    buttonColor: ""
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -66,12 +73,47 @@ function ManageHeroSlides() {
     }
   };
 
+  const isValidHexColor = (color) => {
+    return /^#[0-9A-Fa-f]{6}$/.test(color);
+  };
+
+  const handleColorChange = (name, value) => {
+    // Allow empty input while typing
+    if (value === '' || value === '#') {
+      setFormData(prev => ({ ...prev, [name]: value }));
+      setColorErrors(prev => ({ ...prev, [name]: 'أدخل لون صالح بصيغة #RRGGBB' }));
+      return;
+    }
+
+    // Add # if missing
+    if (!value.startsWith('#')) {
+      value = '#' + value;
+    }
+
+    // Update the form data
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Validate complete color
+    if (value.length === 7) {
+      if (isValidHexColor(value)) {
+        setColorErrors(prev => ({ ...prev, [name]: '' }));
+      } else {
+        setColorErrors(prev => ({ ...prev, [name]: 'لون غير صالح. استخدم الصيغة #RRGGBB' }));
+      }
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    
+    if (name === 'textColor' || name === 'buttonColor') {
+      handleColorChange(name, value);
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -97,6 +139,18 @@ function ManageHeroSlides() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate colors before submission
+    if (!isValidHexColor(formData.textColor)) {
+      alert('لون النص غير صالح. يجب أن يكون بصيغة #RRGGBB');
+      return;
+    }
+
+    if (!isValidHexColor(formData.buttonColor)) {
+      alert('لون الزر غير صالح. يجب أن يكون بصيغة #RRGGBB');
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -159,6 +213,8 @@ function ManageHeroSlides() {
       buttonLink: slide.buttonLink || "",
       order: slide.order || 1,
       isActive: slide.isActive !== false,
+      textColor: slide.textColor || "#FFFFFF",
+      buttonColor: slide.buttonColor || "#DEAA9B",
     });
     setImagePreview(slide.imageUrl || null);
     setShowModal(true);
@@ -189,6 +245,8 @@ function ManageHeroSlides() {
       buttonLink: "/",
       order: 1,
       isActive: true,
+      textColor: "#FFFFFF",
+      buttonColor: "#DEAA9B",
     });
     setImageFile(null);
     setImagePreview(null);
@@ -349,6 +407,54 @@ function ManageHeroSlides() {
                       />
                       <span>نشط</span>
                     </label>
+                  </div>
+
+                    <div className="mhs-form-group">
+                    <label>لون النص</label>
+                    <div className="color-picker-container">
+                      <input
+                        type="color"
+                        name="textColor"
+                        value={isValidHexColor(formData.textColor) ? formData.textColor : "#FFFFFF"}
+                        onChange={handleInputChange}
+                        className="mhs-color-picker"
+                      />
+                      <input
+                        type="text"
+                        name="textColor"
+                        value={formData.textColor}
+                        onChange={handleInputChange}
+                        placeholder="#FFFFFF"
+                        className={`mhs-color-input ${colorErrors.textColor ? 'error' : ''}`}
+                      />
+                    </div>
+                    {colorErrors.textColor && (
+                      <div className="mhs-color-error">{colorErrors.textColor}</div>
+                    )}
+                  </div>
+
+                  <div className="mhs-form-group">
+                    <label>لون الزر</label>
+                    <div className="color-picker-container">
+                      <input
+                        type="color"
+                        name="buttonColor"
+                        value={isValidHexColor(formData.buttonColor) ? formData.buttonColor : "#DEAA9B"}
+                        onChange={handleInputChange}
+                        className="mhs-color-picker"
+                      />
+                      <input
+                        type="text"
+                        name="buttonColor"
+                        value={formData.buttonColor}
+                        onChange={handleInputChange}
+                        placeholder="#DEAA9B"
+                        className={`mhs-color-input ${colorErrors.buttonColor ? 'error' : ''}`}
+                      />
+                    </div>
+                    {colorErrors.buttonColor && (
+                      <div className="mhs-color-error">{colorErrors.buttonColor}</div>
+                    )}
                   </div>
                 </div>
 

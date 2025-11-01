@@ -273,6 +273,45 @@
   padding: 1.5rem;
 }
 
+/* Color Picker */
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mhs-color-picker {
+  width: 60px !important;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  border-width: 0;
+  background-color: transparent;
+}
+
+.mhs-color-input {
+  width: 120px !important;
+  font-family: monospace;
+  text-transform: uppercase;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.mhs-color-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.mhs-color-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
 .mhs-form-group {
   margin-bottom: 1.5rem;
 }
