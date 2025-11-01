@@ -97,30 +97,7 @@ function Home() {
         const activeSlides = slidesData.filter((s) => s.isActive !== false);
         activeSlides.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-        // Fetch global colors from settings and apply to slides
-        try {
-          const settingsSnapshot = await getDocs(collection(db, "settings"));
-          let colors = { textColor: "#FFFFFF", buttonColor: "#DEAA9B" };
-          settingsSnapshot.forEach((sdoc) => {
-            if (sdoc.id === "heroColors") {
-              const data = sdoc.data();
-              colors.textColor = data.textColor || colors.textColor;
-              colors.buttonColor = data.buttonColor || colors.buttonColor;
-            }
-          });
-
-          const slidesWithColors = activeSlides.map((slide) => ({
-            ...slide,
-            textColor: colors.textColor,
-            buttonColor: colors.buttonColor,
-          }));
-
-          setHeroSlides(slidesWithColors);
-        } catch (e) {
-          // If fetching settings fails, fall back to slides without global colors
-          console.error("Error fetching global colors:", e);
-          setHeroSlides(activeSlides);
-        }
+        setHeroSlides(activeSlides);
       } catch (error) {
         console.error("Error fetching hero slides:", error);
         // Set default slides if error
@@ -133,8 +110,6 @@ function Home() {
             buttonText: "اشتري الآن",
             buttonLink: "/products",
             order: 1,
-            textColor: "#FFFFFF",
-            buttonColor: "#DEAA9B",
           },
         ]);
       } finally {
