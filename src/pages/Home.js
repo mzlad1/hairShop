@@ -504,7 +504,7 @@ function Home() {
           <div className="section-container">
             <div className="section-header">
               <h2 className="section-title">
-                تصفح حسب الفئة
+                تصفحي حسب الفئة
               </h2>
             </div>
 

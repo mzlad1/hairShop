@@ -5,22 +5,11 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  cursor: pointer;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   margin: 2rem 0;
-}
-
-.promotional-banner:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-}
-
-.promotional-banner:active {
-  transform: translateY(-2px);
 }
 
 .promotional-banner-overlay {
@@ -97,15 +86,15 @@
 
 .promotional-banner-btn-primary {
   font-family: var(--font-serif);
-  background-color: var(--gold);
+  background-color: var(--navbar-primary);
   color: var(--white);
-  border-color: var(--gold);
+  border-color: var(--navbar-primary);
   box-shadow: 0 4px 12px rgba(184, 146, 31, 0.3);
 }
 
 .promotional-banner-btn-primary:hover {
-  background-color: #d4a843;
-  border-color: #d4a843;
+  background-color: var(--navbar-primary);
+  border-color: var(--navbar-primary)3;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(184, 146, 31, 0.4);
 }

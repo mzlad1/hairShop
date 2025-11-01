@@ -55,8 +55,6 @@ const PromotionalBanner = ({
   const handleBannerClick = () => {
     if (onBannerClick) {
       onBannerClick();
-    } else {
-      navigate(primaryButtonAction);
     }
   };
 

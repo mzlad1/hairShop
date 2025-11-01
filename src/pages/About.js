@@ -263,11 +263,11 @@ function About() {
               <div className="bp-about-cta-buttons">
                 <a href="/products" className="bp-about-cta-btn primary">
                   <span>💄</span>
-                  تصفح المنتجات
+                  تصفحي المنتجات
                 </a>
                 <a href="/contact" className="bp-about-cta-btn secondary">
                   <span>📞</span>
-                  تواصل معنا
+                  تواصلي معنا
                 </a>
               </div>
             </div>

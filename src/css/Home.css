@@ -102,9 +102,14 @@
 }
 
 .hero-content {
-  position: relative;
   z-index: 2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  width: 100%;
+  gap: 2rem;
   color: white;
   padding: 2rem;
   max-width: 800px;
@@ -256,17 +261,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-}
-
-.hero-content {
-  z-index: 2;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  width: 100%;
   gap: 2rem;
 }
 
