@@ -576,36 +576,15 @@ function ProductDetail() {
     navigate("/products");
   };
 
-  // Loading skeleton component
-  const LoadingSkeleton = () => (
-    <div className="pd-container">
-      <div className="pd-images">
-        <div className="pd-skel-main"></div>
-        <div className="pd-skel-thumbs">
-          {[...Array(3)].map((_, index) => (
-            <div key={index} className="pd-skel-thumb"></div>
-          ))}
-        </div>
-      </div>
-      <div className="pd-info">
-        <div className="pd-skel-breadcrumb"></div>
-        <div className="pd-skel-title"></div>
-        <div className="pd-skel-price"></div>
-        <div className="pd-skel-stock"></div>
-        <div className="pd-skel-desc"></div>
-        <div className="pd-skel-list"></div>
-        <div className="pd-skel-qty"></div>
-        <div className="pd-skel-btn"></div>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
       <>
         <Navbar />
         <div className="product-detail-page">
-          <LoadingSkeleton />
+          <div className="pd-loading-container">
+            <div className="pd-loading-spinner"></div>
+            <p>جاري تحميل المنتج...</p>
+          </div>
         </div>
       </>
     );
@@ -772,10 +751,14 @@ function ProductDetail() {
                       {/* Show selected size and color below price */}
                       <div>
                         {selectedSize && (
-                          <small className="pd-variant-note">الحجم : {selectedSize}</small>
+                          <small className="pd-variant-note">
+                            الحجم : {selectedSize}
+                          </small>
                         )}
                         {selectedColor && (
-                          <small className="pd-variant-note">اللون : {selectedColor}</small>
+                          <small className="pd-variant-note">
+                            اللون : {selectedColor}
+                          </small>
                         )}
                       </div>
                       <div className="pd-variants-overview"></div>

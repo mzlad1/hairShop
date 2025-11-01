@@ -40,7 +40,7 @@ import "../css/Navbar.css";
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(null); // null = loading, false = not admin, true = admin
   const { cartItems } = useCart();
   const location = useLocation();
 
@@ -71,6 +71,11 @@ function Navbar() {
 
   // Don't show navbar on admin pages for non-admin users
   if (location.pathname.startsWith("/admin") && !isAdmin) {
+    return null;
+  }
+
+  // Don't render navbar until we know admin status to prevent cart button flash
+  if (isAdmin === null) {
     return null;
   }
 
@@ -128,7 +133,7 @@ function Navbar() {
           </Link>
 
           {/* Only show cart for non-admin users */}
-          {!isAdmin && (
+          {isAdmin === false && (
             <Link
               to="/cart"
               className={`nav-link cart-link nav-cart-desktop ${
@@ -145,7 +150,7 @@ function Navbar() {
           )}
 
           {/* Show admin dashboard link for admin users */}
-          {isAdmin && (
+          {isAdmin === true && (
             <Link
               to="/admin/dashboard"
               className={`nav-link admin-link ${
@@ -165,7 +170,7 @@ function Navbar() {
           </h1>
 
           {/* Mobile Cart Button - Only show for non-admin users */}
-          {!isAdmin && (
+          {isAdmin === false && (
             <Link
               to="/cart"
               className="nav-cart-mobile"
