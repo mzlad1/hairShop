@@ -1418,7 +1418,7 @@
 .pd-add-btn {
   width: 100%;
   padding: 1.25rem 2rem;
-  background: linear-gradient(135deg, var(--success-color), #00a085);
+  background: var(--navbar-primary);
   color: var(--light-color);
   border: none;
   border-radius: var(--border-radius);
@@ -1438,7 +1438,6 @@
 .pd-add-btn:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: var(--shadow-heavy);
-  background: linear-gradient(135deg, #b9877b, var(--success-color));
 }
 
 .add-cart-button.disabled,

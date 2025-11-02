@@ -107,6 +107,7 @@ body {
   }
 
   .nav-current-page-name {
+    margin-left: 15px;
     display: block;
   }
 
@@ -194,6 +195,7 @@ body {
 
 .admin-link:hover {
   background: var(--navbar-admin-hover);
+  color: white;
 }
 
 /* Right Section */

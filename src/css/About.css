@@ -96,7 +96,7 @@
 
 /* Story Section */
 .bp-about-story-section {
-  padding: 4rem 0;
+  padding: 4rem 0 2rem 0;
   background: var(--light-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-medium);
@@ -109,7 +109,7 @@
 }
 
 .bp-about-story-text {
-  max-width: 900px;
+  max-width: 950px;
   margin: 0 auto;
 }
 
@@ -133,6 +133,7 @@
   font-weight: 600;
   color: var(--dark-color);
   margin-bottom: 1rem;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -197,7 +198,7 @@
 
 /* Features Section */
 .bp-about-features-section {
-  padding: 4rem 0;
+  padding: 1.5rem 0 0 0;
   animation: fadeInUp 0.8s ease-out 0.5s both;
 }
 

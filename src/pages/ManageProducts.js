@@ -1040,7 +1040,7 @@ function ManageProducts() {
       <Navbar />
       <div className="manage-products-page">
         <div className="mp-header">
-          <h1>إدارة منتجات العناية بالشعر</h1>
+          <h1>إدارة المنتجات</h1>
         </div>
 
         {/* Add Product Button */}

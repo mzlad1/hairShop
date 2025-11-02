@@ -175,7 +175,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #0073aa;
+  color: var(--navbar-primary);
 }
 
 /* Discount Pricing */
