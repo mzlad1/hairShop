@@ -96,7 +96,7 @@ function Cart() {
       // Prepare email template variables
       const templateParams = {
         order_id: orderData.id || "N/A", // Changed to match template
-        orderDate: new Date().toLocaleDateString("ar-EG", {
+        orderDate: new Date().toLocaleDateString("en-US", {
           year: "numeric",
           month: "long",
           day: "numeric",

@@ -246,8 +246,10 @@
     background 160ms ease;
 }
 .mp-form-group textarea {
-  min-height: 110px;
-  resize: vertical;
+  min-height: 80px;
+  resize: none;
+  overflow: hidden;
+  transition: height 0.1s ease;
 }
 .mp-form-group input:focus,
 .mp-form-group textarea:focus,
@@ -1544,7 +1546,7 @@
   .mp-save-btn,
   .mp-cancel-btn,
   .mp-edit-btn,
-  .mp-delete-btn{
+  .mp-delete-btn {
     min-height: 44px;
     min-width: 44px;
   }
@@ -1577,7 +1579,7 @@
   .mp-save-btn,
   .mp-cancel-btn,
   .mp-edit-btn,
-  .mp-delete-btn{
+  .mp-delete-btn {
     transition: none !important;
   }
 }

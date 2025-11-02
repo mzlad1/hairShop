@@ -122,7 +122,7 @@ function Statistics() {
           const orderDate = order.createdAt.toDate
             ? order.createdAt.toDate()
             : new Date(order.createdAt);
-          const monthKey = orderDate.toLocaleDateString("ar-EG", {
+          const monthKey = orderDate.toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
           });
@@ -139,7 +139,7 @@ function Statistics() {
 
       // Set default selected month to current month if none selected
       if (!selectedMonth && availableMonths.length > 0) {
-        const currentMonth = new Date().toLocaleDateString("ar-EG", {
+        const currentMonth = new Date().toLocaleDateString("en-US", {
           year: "numeric",
           month: "long",
         });
@@ -359,7 +359,7 @@ function Statistics() {
   const formatDate = (date) => {
     if (!date) return "-";
     const d = date.toDate ? date.toDate() : new Date(date);
-    return d.toLocaleDateString("ar-EG", {
+    return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -491,7 +491,7 @@ function Statistics() {
             </button>
             {lastUpdate && (
               <span className="stats-last-update">
-                آخر تحديث: {lastUpdate.toLocaleTimeString("ar-EG")}
+                آخر تحديث: {lastUpdate.toLocaleTimeString("en-US")}
               </span>
             )}
           </div>

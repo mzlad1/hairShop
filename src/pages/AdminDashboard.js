@@ -179,7 +179,7 @@ function AdminDashboard() {
   const formatDate = (timestamp) => {
     if (!timestamp?.seconds) return "-";
     const d = new Date(timestamp.seconds * 1000);
-    return d.toLocaleString("ar-EG", {
+    return d.toLocaleString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -257,7 +257,7 @@ function AdminDashboard() {
             </button>
             {lastUpdate && (
               <span className="ad-last-update">
-                آخر تحديث: {lastUpdate.toLocaleTimeString("ar-EG")}
+                آخر تحديث: {lastUpdate.toLocaleTimeString("en-US")}
               </span>
             )}
           </div>

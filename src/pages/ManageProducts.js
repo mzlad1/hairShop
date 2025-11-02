@@ -260,10 +260,25 @@ function ManageProducts() {
     }
   }, [formJustOpened]);
 
+  // Auto-resize textareas when form data changes
+  useEffect(() => {
+    const textareas = document.querySelectorAll(".mp-form textarea");
+    textareas.forEach((textarea) => {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    });
+  }, [formData.description, formData.howToUse, showForm]);
+
   // التعامل مع تغيير مدخلات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Auto-grow textarea as user types
+    if (e.target.tagName === "TEXTAREA") {
+      e.target.style.height = "auto";
+      e.target.style.height = e.target.scrollHeight + "px";
+    }
   };
 
   // Handle variant management
@@ -636,7 +651,7 @@ function ManageProducts() {
         const docRef = doc(db, "products", formData.id);
         await updateDoc(docRef, data);
         updatedProducts = products.map((p) =>
-          p.id === formData.id ? { id: p.id, ...data } : p
+          p.id === formData.id ? { ...p, ...data } : p
         );
       } else {
         // إضافة
@@ -710,13 +725,19 @@ function ManageProducts() {
     setFormJustOpened(true);
 
     // Scroll to the form with smooth animation
+    // Using a slight delay to ensure form is rendered
     setTimeout(() => {
       const formElement = document.querySelector(".mp-form");
       if (formElement) {
-        formElement.scrollIntoView({
+        // Calculate offset to account for fixed navbar (70px) + some padding
+        const navbarHeight = 80; // navbar height + extra padding
+        const elementPosition = formElement.getBoundingClientRect().top;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - navbarHeight;
+
+        window.scrollTo({
+          top: offsetPosition,
           behavior: "smooth",
-          block: "start",
-          inline: "nearest",
         });
       }
     }, 100);

@@ -1380,7 +1380,7 @@ function DiscountManager() {
                           <span className="dm-expiry-time">
                             {new Date(
                               product.discountExpiresAt.seconds * 1000
-                            ).toLocaleString("ar-EG")}
+                            ).toLocaleString("en-US")}
                           </span>
                         </p>
                       )}

@@ -244,15 +244,15 @@ function Orders() {
 
             if (shouldUpdateStock) {
               // Create a unique key for each item to handle multiple variants of the same product
-              const itemKey = item.selectedVariant 
+              const itemKey = item.selectedVariant
                 ? `${item.id}-${item.selectedVariant.size}-${item.selectedVariant.color}`
                 : item.id;
-              
+
               stockUpdates.push({
                 ref: productRef,
                 updateData: stockUpdateData,
                 itemKey: itemKey, // Add unique identifier
-                item: item // Store the item for reference
+                item: item, // Store the item for reference
               });
             }
           }
@@ -264,26 +264,26 @@ function Orders() {
         // Group updates by product ID
         stockUpdates.forEach(({ ref, updateData, itemKey, item }) => {
           const productId = ref.id;
-          
+
           if (!productUpdates.has(productId)) {
             productUpdates.set(productId, {
               ref: ref,
               updates: [],
-              productData: null
+              productData: null,
             });
           }
-          
+
           productUpdates.get(productId).updates.push({
             updateData,
             itemKey,
-            item
+            item,
           });
         });
 
         // Apply updates for each product, merging variant updates
         for (const [productId, productUpdate] of productUpdates) {
           const { ref, updates } = productUpdate;
-          
+
           if (updates.length === 1) {
             // Single update, apply directly
             transaction.update(ref, updates[0].updateData);
@@ -293,31 +293,35 @@ function Orders() {
             const productSnap = await transaction.get(ref);
             if (productSnap.exists()) {
               const currentProductData = productSnap.data();
-              
+
               if (currentProductData.hasVariants) {
                 // For variant products, merge all variant updates
                 const updatedVariants = [...currentProductData.variants];
-                
+
                 updates.forEach(({ updateData, item }) => {
                   if (item.selectedVariant) {
-                    const variantIndex = updatedVariants.findIndex(v => 
-                      v.size === item.selectedVariant.size && 
-                      v.color === item.selectedVariant.color
-                    );
-                    
-                    if (variantIndex !== -1) {
-                      updatedVariants[variantIndex] = updateData.variants.find(v => 
-                        v.size === item.selectedVariant.size && 
+                    const variantIndex = updatedVariants.findIndex(
+                      (v) =>
+                        v.size === item.selectedVariant.size &&
                         v.color === item.selectedVariant.color
+                    );
+
+                    if (variantIndex !== -1) {
+                      updatedVariants[variantIndex] = updateData.variants.find(
+                        (v) =>
+                          v.size === item.selectedVariant.size &&
+                          v.color === item.selectedVariant.color
                       );
                     }
                   }
                 });
-                
+
                 transaction.update(ref, { variants: updatedVariants });
               } else {
                 // For regular products, this shouldn't happen but handle it
-                console.warn(`Multiple updates for regular product ${productId} - using last update`);
+                console.warn(
+                  `Multiple updates for regular product ${productId} - using last update`
+                );
                 transaction.update(ref, updates[updates.length - 1].updateData);
               }
             }
@@ -532,7 +536,7 @@ function Orders() {
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
     const date = new Date(timestamp.seconds * 1000);
-    return date.toLocaleString("ar-EG", {
+    return date.toLocaleString("en-US", {
       year: "numeric",
       month: "numeric", // Changed from "long" to "numeric"
       day: "numeric",
@@ -558,7 +562,7 @@ function Orders() {
             </button>
             {lastFetch && (
               <span className="last-update">
-                آخر تحديث: {lastFetch.toLocaleTimeString("ar-EG")}
+                آخر تحديث: {lastFetch.toLocaleTimeString("en-US")}
               </span>
             )}
           </div>
