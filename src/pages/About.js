@@ -127,7 +127,7 @@ function About() {
           {/* Our Story Section */}
           <div className="bp-about-story-section">
             <div className="bp-about-section-header">
-              <h2>📖 قصتنا</h2>
+              <h2>قصتنا</h2>
             </div>
 
             <div className="bp-about-story-content">
@@ -151,7 +151,7 @@ function About() {
           {/* Key Features Section */}
           <div className="bp-about-features-section">
             <div className="bp-about-section-header">
-              <h2>🚀 مميزاتنا الأساسية</h2>
+              <h2>مميزاتنا الأساسية</h2>
               <p>ثلاثة أسباب تجعل عملائنا يختاروننا</p>
             </div>
 

@@ -669,7 +669,7 @@
 /* Products page grid specific fixes */
 .pr-grid .pc-card {
   align-self: start;
-  height: auto !important;
+  height: 100%;
   min-height: 0 !important;
 }
 
@@ -683,7 +683,6 @@
 
   .pr-grid .pc-card {
     align-self: start;
-    height: auto !important;
     min-height: 0 !important;
   }
 }
