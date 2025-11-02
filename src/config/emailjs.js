@@ -1,12 +1,23 @@
 // EmailJS Configuration
 export const EMAILJS_CONFIG = {
-  serviceId: "service_0dr7tui",
-  templateId: "template_u6aahcl",
-  publicKey: "flU0KA_7ORu4oroZ9", // Replace with your actual public key
+  serviceId: process.env.REACT_APP_EMAILJS_SERVICE_ID,
+  templateId: process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY,
 };
 
 // EmailJS initialization
 export const initializeEmailJS = () => {
-  // You can add any EmailJS initialization here if needed
-  console.log("EmailJS configuration loaded");
+  // Validate that all EmailJS environment variables are present
+  if (
+    !EMAILJS_CONFIG.serviceId ||
+    !EMAILJS_CONFIG.templateId ||
+    !EMAILJS_CONFIG.publicKey
+  ) {
+    console.error(
+      "EmailJS configuration is incomplete. Please check your .env file."
+    );
+    return false;
+  }
+  console.log("EmailJS configuration loaded successfully");
+  return true;
 };
