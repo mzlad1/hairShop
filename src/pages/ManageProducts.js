@@ -2142,7 +2142,7 @@ function ManageProducts() {
         </table>
 
         {/* Pagination */}
-        {totalPages > 1 && !showForm && (
+        {totalPages > 1 && (
           <div className="mp-pagination">
             <button
               className="mp-pagination-btn"
