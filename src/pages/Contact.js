@@ -15,7 +15,7 @@ function Contact() {
         />
       ),
       title: "انستجرام",
-      content: "تابعنا للحصول على آخر العروض",
+      content: "تابعينا للحصول على آخر العروض",
       link: "https://www.instagram.com/unlock.your.curls",
       linkText: "@unlock.your.curls",
       type: "instagram",
@@ -29,7 +29,7 @@ function Contact() {
         <div className="bp-contact-container">
           {/* Header Section */}
           <div className="bp-contact-header">
-            <h1 className="bp-contact-title">تواصل معنا على الانستجرام</h1>
+            <h1 className="bp-contact-title">تواصلي معنا على الانستجرام</h1>
           </div>
 
           {/* Contact Content */}

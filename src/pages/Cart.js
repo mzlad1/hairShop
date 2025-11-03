@@ -852,7 +852,7 @@ function Cart() {
                     </button>
 
                     <button className="ct-contact-btn" onClick={contactSupport}>
-                      تواصل معنا لاقتراح بدائل
+                      تواصلي معنا لاقتراح بدائل
                     </button>
                   </div>
                 </div>

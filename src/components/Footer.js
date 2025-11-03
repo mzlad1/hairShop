@@ -12,24 +12,6 @@ function Footer() {
               <span className="ft-logo-text">Unlock Your Curls</span>
             </div>
           </div>
-
-          {/* Contact Section */}
-          {/* <div className="ft-contact-section">
-            <h3 className="ft-contact-title">تواصل معنا</h3>
-            <a
-              href="https://instagram.com/unlock.your.curls"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ft-instagram-logo"
-              aria-label="تابعنا على إنستغرام"
-            >
-              <img
-                src="/images/instagram.png"
-                alt="Instagram"
-                className="ft-instagram-icon"
-              />
-            </a>
-          </div> */}
         </div>
 
         {/* Copyright */}
